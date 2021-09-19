@@ -1,0 +1,38 @@
+{% extends "onboarding/base.html" %}
+
+{% load static %}
+
+{% block body%}
+<section class="onboarding-background">
+    <div class="onboard-card">
+        <h3>What kind of account would you like to create?</h3>
+        <div class="why_flex">
+            <div class="how_card" id="blue" onClick="selectUser(this.id)">
+                <div>
+                    <img src="{% static 'img/seller.svg' %}" class="img-fluid mt-3 mb-3" />
+                    <h4>Sellers</h4>
+                </div>
+                <p>Upload and sell your confirmed invoices to buyers on Quidroo and get quick funds</p>
+            </div>
+            <div class="how_card" id="green" onClick="selectUser(this.id)">
+                <div>
+                    <img src="{% static 'img/investor.svg' %}" class="img-fluid mt-3 mb-3" />
+                    <h4>Investors</h4>
+                </div>
+                <p>Lend funds to sellers with confirmed invoices and earn a percentage of interest</p>
+            </div>
+            <div class="how_card" id="red" onClick="selectUser(this.id)">
+                <div>
+                    <img src="{% static 'img/vendor.svg' %}" class="img-fluid mt-3 mb-3" />
+                    <h4>Vendors</h4>
+                </div>
+                <p>Confirm invoices issued by your company to sellers on Quidroo</p>
+            </div>
+        </div>
+        <div id="btn-div">
+            <button class="btn-disabled" disabled id="btn-nxt">Continue</button>
+            <p>Already a member? <span id="span-blue">Sign In</span></p>
+        </div>
+    </div>
+</section>
+{% endblock %}
