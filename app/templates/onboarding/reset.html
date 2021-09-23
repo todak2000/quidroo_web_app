@@ -1,0 +1,29 @@
+{% extends "onboarding/base.html" %}
+
+{% load static %}
+
+{% block body%}
+<section class="onboarding-background"> 
+    <div class="reset-card">
+        <img src="{% static 'img/reset.svg' %}" class="img-fluid img-email" />
+        <h3 class="mt--6 tc">Reset Password</h3>
+        <label>New Password</label>
+        <div class="">
+            <div style="display: flex; justify-content: left;">
+                <input type="password" 
+            class="form-input" 
+            name="password" 
+            id="r_password"
+            placeholder="Enter new password"
+            oninput="r_checkFormOne()"
+            />
+            <img src="{% static 'img/eye_hidden.svg' %}" class="img-eye" id="r_show_eye" onclick="r_showPassword()"/>
+            <img src="{% static 'img/eye_show.svg' %}" class="img-eye" id="r_hide_eye" onclick="r_showPassword()" style="display: none;"/>
+            </div>
+        </div>
+        <div class="reset-btn-div mt-3">
+            <button class="btn-disabled" disabled id="r_btn-continue">Reset Password</button>
+        </div>
+    </div>
+</section>
+{% endblock %}

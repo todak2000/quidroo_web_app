@@ -3,8 +3,9 @@
 {% load static %}
 
 {% block body%}
-<section class="onboarding-background">
-    <div class="onboard-card">
+<section class="onboarding-background"> 
+    <!-- index -->
+    <div class="onboard-card" id="index" >
         <h3>What kind of account would you like to create?</h3>
         <div class="why_flex">
             <div class="how_card" id="blue" onClick="selectUser(this.id)">
@@ -31,8 +32,256 @@
         </div>
         <div id="btn-div">
             <button class="btn-disabled" disabled id="btn-nxt">Continue</button>
-            <p>Already a member? <span id="span-blue">Sign In</span></p>
+            <input type="text" id="continue" name="role" hidden/>
+            <p>Already a member? <a href="{% url 'login_page' %}" id="span-blue">Sign In</a></p>
         </div>
     </div>
+    <!-- index ends -->
+    <!-- seller -->
+    <div class="seller-card disappear" id="seller">
+        <div class="card-inner-top">
+            <div>
+                <img src="{% static 'img/seller.svg' %}" class="img-fluid" />
+                <h3>Seller Registration</h3>
+            </div>
+            <p>Not a Seller? <span class="p-bold" id="s_diff_account">Choose a different account type</span></p>
+        </div>
+        <form class="form" action="{% url 'seller_signup' %}" method="post">
+            {% csrf_token %}
+            <div id="s_form-inner-one">
+                <label>Type of Business</label>
+                <select class="form-input" id="s_business_type" name="s_business_type" onselect="s_checkFormOne()">
+                    <option disabled selected>Select Type of Business</option>
+                    <option value="Sole Proprietorship">Sole Proprietorship</option>
+                    <option value="Partnership">Partnership</option>
+                    <option value="LLC">LLC</option>
+                    <option value="PLC">PLC</option>
+                    <option value="Ltd">Ltd</option>
+                </select>
+                <label>Company Name</label>
+                <input type="text" class="form-input" placeholder="Enter Company name" id="s_company" name="s_company" oninput="s_checkFormOne()"/>
+
+                <label>Company Address</label>
+                <input type="text" class="form-input" placeholder="House number, Street, City, State" id="s_address" name="s_address" oninput="s_checkFormOne()"/>
+
+                <label>CAC Registration Number</label>
+                <input type="text" class="form-input" placeholder="Eg. RC1245664" id="s_cac" name="s_cac" oninput="s_checkFormOne()"/>
+
+                
+                <div class="form-btn-div mt-3">
+                    <button class="btn-back" id="s_btn-back-index">Back</button>
+                    <button class="btn-disabled" disabled id="s_btn-continue">Continue</button>
+                </div>
+            </div>  
+            <div id="s_form-inner-two" class="disappear">
+                <label>Email Address</label>
+                <input type="text" class="form-input" placeholder="Enter Company email address" id="s_email" name="s_email"/>
+                <label>Password</label>
+                <div class="">
+                    <div style="display: flex; justify-content: left;">
+                        <input type="password" 
+                    class="form-input" 
+                    name="s_password" 
+                    id="s_password"
+                    placeholder="Enter password"
+                    required
+                    />
+                    <img src="{% static 'img/eye_hidden.svg' %}" class="img-eye" id="s_show_eye" onclick="s_showPassword()"/>
+                    <img src="{% static 'img/eye_show.svg' %}" class="img-eye" id="s_hide_eye" onclick="s_showPassword()" style="display: none;"/>
+                    </div>
+                </div>
+                <div class="form-btn-div mt-3">
+                    <button class="btn-back" id="s_btn-back-one">Back</button>
+                    <button type="submit" class="btn-create-account" id="s_btn-nxt">Create my Account</button>
+                </div>
+            </div>
+
+            
+        </form>
+    </div>
+    <!-- seller ends -->
+    <!-- vendor -->
+    <div class="seller-card disappear" id="vendor">
+        <div class="card-inner-top" id="card-inner-red">
+            <div>
+                <img src="{% static 'img/vendor.svg' %}" class="img-fluid" />
+                <h3>Vendor Registration</h3>
+            </div>
+            <p>Not a Vendor? <span class="p-bold" id="v_diff_account">Choose a different account type</span></p>
+        </div>
+        <form class="form" action="{% url 'vendor_signup' %}" method="post">
+            {% csrf_token %}
+            <div id="v_form-inner-one">
+                <label>Type of Business</label>
+                <select class="form-input" id="v_business_type" name="v_business_type" onselect="v_checkFormOne()">
+                    <option disabled selected>Select Type of Business</option>
+                    <option value="Sole Proprietorship">Sole Proprietorship</option>
+                    <option value="Partnership">Partnership</option>
+                    <option value="LLC">LLC</option>
+                    <option value="PLC">PLC</option>
+                    <option value="Ltd">Ltd</option>
+                </select>
+                <label>Company Name</label>
+                <input type="text" class="form-input" placeholder="Enter Company name" id="v_company" name="v_company" oninput="v_checkFormOne()"/>
+
+                <label>Company Address</label>
+                <input type="text" class="form-input" placeholder="House number, Street, City, State" id="v_address" name="v_address" oninput="v_checkFormOne()"/>
+
+                <label>CAC Registration Number</label>
+                <input type="text" class="form-input" placeholder="Eg. RC1245664" id="v_cac" name="v_cac" oninput="v_checkFormOne()"/>
+
+                
+                <div class="form-btn-div mt-3">
+                    <button class="btn-back" id="v_btn-back-index">Back</button>
+                    <button class="btn-disabled" disabled id="v_btn-continue">Continue</button>
+                </div>
+            </div>  
+            <div id="v_form-inner-two" class="disappear">
+                <label>Email Address</label>
+                <input type="text" class="form-input" placeholder="Enter Company email address" id="v_email" name="v_email"/>
+                <label>Password</label>
+                <div class="">
+                    <div style="display: flex; justify-content: left;">
+                        <input type="password" 
+                    class="form-input" 
+                    name="v_password" 
+                    id="v_password"
+                    placeholder="Enter password"
+                    required
+                    />
+                    <img src="{% static 'img/eye_hidden.svg' %}" class="img-eye" id="v_show_eye" onclick="v_showPassword()"/>
+                    <img src="{% static 'img/eye_show.svg' %}" class="img-eye" id="v_hide_eye" onclick="v_showPassword()" style="display: none;"/>
+                    </div>
+                </div>
+                <div class="form-btn-div mt-3">
+                    <button class="btn-back" id="v_btn-back-one">Back</button>
+                    <button class="btn-create-account" type="submit" id="v_btn-nxt">Create my Account</button>
+                </div>
+            </div>
+
+            
+        </form>
+    </div>
+    <!-- vendor ends -->
+     <!-- investor -->
+     <div class="seller-card disappear" id="investor">
+        <div class="card-inner-top" id="card-inner-green">
+            <div>
+                <img src="{% static 'img/investor.svg' %}" class="img-fluid" />
+                <h3>Investor Registration</h3>
+            </div>
+            <p>Not an Investor? <span class="p-bold" id="i_diff_account">Choose a different account type</span></p>
+        </div>
+        <!-- tabs -->
+        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+            <li class="nav-item tab-li" role="presentation">
+              <a class="nav-link active nav-a" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Company &nbsp;&nbsp;</a>
+            </li>
+            <li class="nav-item tab-li" role="presentation">
+              <a class="nav-link nav-a" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Individual&nbsp;&nbsp;</a>
+            </li>
+        </ul>
+        <!-- tab ends -->
+        <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" style="background-color: #fff;">
+            <form class="form" action="{% url 'investor_company_signup' %}" method="post">
+                {% csrf_token %}
+                <div id="ic_form-inner-one">
+                    <label>Type of Business</label>
+                    <select class="form-input" id="ic_business_type" name="ic_business_type" onselect="ic_checkFormOne()">
+                        <option disabled selected>Select Type of Business</option>
+                        <option value="Sole Proprietorship">Sole Proprietorship</option>
+                        <option value="Partnership">Partnership</option>
+                        <option value="LLC">LLC</option>
+                        <option value="PLC">PLC</option>
+                        <option value="Ltd">Ltd</option>
+                    </select>
+                    <label>Company Name</label>
+                    <input type="text" class="form-input" placeholder="Enter Company name" id="ic_company_name" name="ic_company" oninput="ic_checkFormOne()"/>
+    
+                    <label>Company Address</label>
+                    <input type="text" class="form-input" placeholder="House number, Street, City, State" id="ic_address" name="ic_address" oninput="ic_checkFormOne()"/>
+    
+                    <label>CAC Registration Number</label>
+                    <input type="text" class="form-input" placeholder="Eg. RC1245664" id="ic_cac" name="ic_cac" oninput="ic_checkFormOne()"/>
+    
+                    
+                    <div class="form-btn-div mt-3">
+                        <button class="btn-back" id="v_btn-back-index">Back</button>
+                        <button class="btn-disabled" disabled id="ic_btn-continue">Continue</button>
+                    </div>
+                </div>  
+                <div id="ic_form-inner-two" class="disappear">
+                    <label>Email Address</label>
+                    <input type="text" class="form-input" placeholder="Enter Company email address" id="ic_email" name="ic_email"/>
+                    <label>Password</label>
+                    <div class="">
+                        <div style="display: flex; justify-content: left;">
+                            <input type="password" 
+                        class="form-input" 
+                        name="ic_password" 
+                        id="ic_password"
+                        placeholder="Enter password"
+                        required
+                        />
+                        <img src="{% static 'img/eye_hidden.svg' %}" class="img-eye" id="ic_show_eye" onclick="ic_showPassword()"/>
+                        <img src="{% static 'img/eye_show.svg' %}" class="img-eye" id="ic_hide_eye" onclick="ic_showPassword()" style="display: none;"/>
+                        </div>
+                    </div>
+                    <div class="form-btn-div mt-3">
+                        <button class="btn-back" id="ic_btn-back-one">Back</button>
+                        <button class="btn-create-account" id="ic_btn-nxt">Create my Account</button>
+                    </div>
+                </div>
+    
+                
+            </form>
+        </div>
+        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+            <form class="form" action="{% url 'investor_individual_signup' %}" method="post">
+                {% csrf_token %}
+                <div id="ii_form-inner-one">
+                    <label>Name</label>
+                    <input type="text" class="form-input" placeholder="Enter first and last name" id="ii_name" name="ii_name" oninput="ii_checkFormOne()"/>
+    
+                    <label>Address</label>
+                    <input type="text" class="form-input" placeholder="House number, Street, City, State" id="ii_address" name="ii_address" oninput="ii_checkFormOne()"/>
+                    <label>Email Address</label>
+                    <input type="text" class="form-input" placeholder="Enter Email address" id="ii_email" name="ii_email" oninput="ii_checkFormOne()"/>
+                    
+                    <div class="form-btn-div mt-3">
+                        <button class="btn-back" id="ii_btn-back-index">Back</button>
+                        <button class="btn-disabled" disabled id="ii_btn-continue">Continue</button>
+                    </div>
+                </div>  
+                <div id="ii_form-inner-two" class="disappear">
+                    <label>Phone Number</label>
+                    <input type="text" class="form-input" placeholder="Enter Phone number" id="ii_phone" name="ii_phone"/>
+                    <label>Password</label>
+                    <div class="">
+                        <div style="display: flex; justify-content: left;">
+                            <input type="password" 
+                        class="form-input" 
+                        name="ii_password" 
+                        id="ii_password"
+                        placeholder="Enter password" 
+                        required
+                        />
+                        <img src="{% static 'img/eye_hidden.svg' %}" class="img-eye" id="ii_show_eye" onclick="ii_showPassword()"/>
+                        <img src="{% static 'img/eye_show.svg' %}" class="img-eye" id="ii_hide_eye" onclick="ii_showPassword()" style="display: none;"/>
+                        </div>
+                    </div>
+                    <div class="form-btn-div mt-3">
+                        <button class="btn-back" id="ii_btn-back-one">Back</button>
+                        <button class="btn-create-account" id="ii_btn-nxt">Create my Account</button>
+                    </div>
+                </div>
+    
+                
+            </form>
+        </div>
+        </div>
+    </div>
+    <!-- investor ends -->
 </section>
 {% endblock %}

@@ -1,0 +1,48 @@
+{% extends "onboarding/base.html" %}
+
+{% load static %}
+
+{% block body%}
+<section class="onboarding-background"> 
+    <div class="email-login-card">
+        <div>
+            <img src="{% static 'img/email_login.svg' %}" class="img-fluid img-email" />
+            <h3 class="mt--6 rc">Email Confirmed</h3>
+            <p class="email-p rc">{{message}}</p>
+        </div>
+        <div id="email_login_form">
+            <h3 class="mb-5 el-title rc">Log In</h3>
+            {% if success == false %}
+                <p class="error-message">{{message}}</p>
+            {% else %}
+                <p class="success-message">{{message}}</p>
+            {% endif %}
+            
+            <form  action="{% url 'signin' %}" method="post">
+                {% csrf_token %}
+                <label>Email Address</label>
+                <input type="text" class="form-input" placeholder="Enter email address" id="el_email" name="el_email" oninput="el_checkFormOne()"/>
+                <label>Password</label>
+                <div class="">
+                    <div style="display: flex; justify-content: left;">
+                        <input type="password" 
+                    class="form-input" 
+                    name="el_password" 
+                    id="el_password"
+                    placeholder="Enter password" 
+                    oninput="el_checkFormOne()"
+                    />
+                    <img src="{% static 'img/eye_hidden.svg' %}" class="img-eye" id="el_show_eye" onclick="el_showPassword()"/>
+                    <img src="{% static 'img/eye_show.svg' %}" class="img-eye" id="el_hide_eye" onclick="el_showPassword()" style="display: none;"/>
+                    </div>
+                </div>
+                <div class="form-btn-div mt-3">
+                    <button class="btn-disabled" type="submit" disabled id="el_btn-login">Log In</button>
+                    <a href="{% url 'forgot_page' %}"  id="forg">Forgot password?</a>
+                </div>
+            </form>
+            <p class="signup-p">New on Quidroo? <a href="{% url 'index' %}" id="span-blue">Get Started</a></p>
+        </div> 
+    </div>
+</section>
+{% endblock %}

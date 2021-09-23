@@ -6,20 +6,22 @@ class User(models.Model):
     class Meta:
         db_table = "Quidroo_user_table"
     user_id = models.CharField(max_length=500,unique=True)
-    firstname = models.CharField(max_length=30,verbose_name="Firstname",blank=True)
-    lastname = models.CharField(max_length=30,verbose_name="Lastname",blank=True)
+    name = models.CharField(max_length=30,verbose_name="User Names",blank=True)
     email = models.EmailField(max_length=90, unique=True,verbose_name="Email")
     phone = models.CharField(max_length=15, unique=True, null=True, verbose_name="Telephone number")
     password = models.TextField(max_length=200,verbose_name="Password")
     company_name = models.TextField(max_length=200,verbose_name="Company Name", null=True)
+    company_address = models.TextField(max_length=200,verbose_name="Company Address", null=True)
+    business_type = models.TextField(max_length=200,verbose_name="Business Type", null=True)
     credit_score = models.TextField(max_length=200,verbose_name="Quidroo Credit Score", null=True)
-    role = models.TextField(max_length=50,verbose_name="User role",default="client")
+    role = models.TextField(max_length=50,verbose_name="User role",default="quidroo")
     verified = models.BooleanField(default=False)
+    email_verified = models.BooleanField(default=False)
     avatar_url = models.CharField(max_length=30, verbose_name="Profile Pics", null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
 
     def __str__(self):
-        return f"{self.user_id} - {self.firstname} - {self.lastname} - {self.phone} {self.email} - {self.company_name}- {self.credit_score} - {self.role}- {self.avatar_url}"
+        return f"{self.user_id} - {self.name} - {self.phone} {self.email} - {self.company_name}- {self.credit_score} - {self.role}- {self.avatar_url}"
 
 class Invoice(models.Model):
     class Meta:

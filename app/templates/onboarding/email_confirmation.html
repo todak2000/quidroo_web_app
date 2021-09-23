@@ -1,0 +1,14 @@
+{% extends "onboarding/base.html" %}
+
+{% load static %}
+
+{% block body%}
+<section class="onboarding-background"> 
+    <div class="email-card">
+        <img src="{% static 'img/confirm_email.svg' %}" class="img-fluid img-email" />
+        <h3 class="mt--6">{{header}}</h3>
+        <p class="email-p">{{message}}</p>
+    </div>
+</section>
+{% endblock %}
+

@@ -1,0 +1,13 @@
+{% extends "onboarding/base.html" %}
+
+{% load static %}
+
+{% block body%}
+<section class="onboarding-background"> 
+    <div class="email-card">
+        <img src="{% static 'img/confirm_email.svg' %}" class="img-fluid img-email" />
+        <h3 class="mt--6">Mail sent</h3>
+        <p class="email-p">Hello! We’ve sent a password reset link to hello@yourcompany.com. Please check your email to reset your password. </p>
+    </div>
+</section>
+{% endblock %}
