@@ -19,6 +19,10 @@ class User(models.Model):
     email_verified = models.BooleanField(default=False)
     avatar_url = models.CharField(max_length=30, verbose_name="Profile Pics", null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
+    #Blockchain details
+    # memo = models.CharField(max_length=40, unique=True, verbose_name="memo")
+    # muxed_acct = models.CharField(max_length=100, unique=True, verbose_name="muxed_acct")
+    # balance = models.CharField(max_length=50, verbose_name="Balance")
 
     def __str__(self):
         return f"{self.user_id} - {self.name} - {self.phone} {self.email} - {self.company_name}- {self.credit_score} - {self.role}- {self.avatar_url}"
@@ -63,6 +67,10 @@ class Wallet(models.Model):
     fiat_equivalent = models.FloatField(max_length=30,verbose_name="Fiat Equivalent",blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
     updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
+    
+    #Blockchain Account
+    memo = models.CharField(max_length=40, unique=True, verbose_name="memo", blank=True)
+    muxed_acct = models.CharField(max_length=100, unique=True, verbose_name="muxed_acct", blank=True)
     def __str__(self):
         return f"{self.user} - {self.token_balance} - {self.fiat_equivalent} - {self.created_at} - {self.updated_at}"
 

@@ -19,9 +19,10 @@ import cloudinary
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-cloudinary.config(cloud_name=config("cloud_name"),
-        api_key=config("api_key"),
-        api_secret=config("api_secret"))
+
+# cloudinary.config(cloud_name=config("cloud_name"),
+#         api_key=config("api_key"),
+#         api_secret=config("api_secret"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -31,8 +32,8 @@ SECRET_KEY =config("secret_key")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-# DEBUG = True
+# DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 

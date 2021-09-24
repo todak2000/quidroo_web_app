@@ -15,6 +15,9 @@ from django.http import JsonResponse
 from pysendpulse.pysendpulse import PySendPulse
 from decouple import config
 
+
+from blockchain.utils import generate_UID, create_muxed_keypair
+
 REST_API_ID = config("REST_API_ID")
 REST_API_SECRET = config("REST_API_SECRET")
 TOKEN_STORAGE = config("TOKEN_STORAGE")
@@ -65,9 +68,19 @@ def seller_signup(request):
             #encrypt password
             encryped_password = password_functions.generate_password_hash(password)
             #Save user_data
+            
             newUserData = User(user_id=userRandomId,business_type=business_type,company_name=company_name,
                                 email=email, password=encryped_password,company_address=company_address, role=role)
             newUserData.save()
+            
+            #wallet details updated with muxed and memo saved to db
+            user_memo=generate_UID()
+            user_muxed_acct =create_muxed_keypair(user_memo)
+            balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0, memo=user_memo, muxed_acct=user_muxed_acct['muxed_acct'])
+            balance.save()
+
+
+            
             # save user verification datat
             InitialVerificationData = Verification(user=newUserData,cac_no=cac_no)
             InitialVerificationData.save()
@@ -152,6 +165,12 @@ def investor_company_signup(request):
             InitialVerificationData = Verification(user=newUserData,cac_no=cac_no)
             InitialVerificationData.save()
 
+            #wallet details updated with muxed and memo saved to db
+            user_memo=generate_UID()
+            user_muxed_acct =create_muxed_keypair(user_memo)
+            balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0, memo=user_memo, muxed_acct=user_muxed_acct['muxed_acct'])
+            balance.save()
+
             # Get User Account Verification item
             validated = User.objects.get(user_id=userRandomId).email_verified
 
@@ -229,6 +248,12 @@ def investor_individual_signup(request):
 
             # Get User Account Verification item
             validated = User.objects.get(user_id=userRandomId).email_verified
+            #wallet details updated with muxed and memo saved to db
+            user_memo=generate_UID()
+            user_muxed_acct =create_muxed_keypair(user_memo)
+            balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0, memo=user_memo, muxed_acct=user_muxed_acct['muxed_acct'])
+            balance.save()
+
 
             #Generate token
             timeLimit= datetime.datetime.utcnow() + datetime.timedelta(minutes=1440) #set duration for token
@@ -306,6 +331,13 @@ def vendor_signup(request):
             # save user verification datat
             InitialVerificationData = Verification(user=newUserData,cac_no=cac_no)
             InitialVerificationData.save()
+
+            #wallet details updated with muxed and memo saved to db
+            user_memo=generate_UID()
+            user_muxed_acct =create_muxed_keypair(user_memo)
+            balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0, memo=user_memo, muxed_acct=user_muxed_acct['muxed_acct'])
+            balance.save()
+
 
             # Get User Account Verification item
             validated = User.objects.get(user_id=userRandomId).email_verified
