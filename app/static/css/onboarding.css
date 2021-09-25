@@ -15,7 +15,7 @@ a:hover{
 }
 .onboarding-background{
     background-color: #EEF1F8;
-    height:90vh;
+    min-height:90vh;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -236,6 +236,7 @@ nav {
 .how_card >div>h4{
   padding-top: 1.9rem;
   margin-left: 1rem;
+  font-size: 1.2rem;
 }
 .blue-selected{
   background: #F6F6FD!important;
@@ -272,7 +273,7 @@ nav {
   background: #FFFFFF;
   border-radius: 10px;
   width:40%;
-  max-height:80vh;
+  min-height:80vh;
 }
 .img-eye{
   margin-left:-13%;
@@ -344,6 +345,7 @@ nav {
   color:#5151E0!important;
   border-bottom: 3px solid #5151e0;
 }
+
 .nav-pills .nav-link {
   border-radius: 0!important;
 }
