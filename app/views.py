@@ -1,4 +1,4 @@
-import datetime
+import datetime, json
 from django.shortcuts import render, redirect
 from django.contrib.sites.shortcuts import get_current_site
 import jwt
@@ -16,7 +16,7 @@ from pysendpulse.pysendpulse import PySendPulse
 from decouple import config
 
 
-from blockchain.utils import generate_UID, create_muxed_keypair
+from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct
 
 REST_API_ID = config("REST_API_ID")
 REST_API_SECRET = config("REST_API_SECRET")
@@ -24,6 +24,36 @@ TOKEN_STORAGE = config("TOKEN_STORAGE")
 MEMCACHED_HOST = config("MEMCACHED_HOST")
 SPApiProxy = PySendPulse(REST_API_ID, REST_API_SECRET, TOKEN_STORAGE, memcached_host=MEMCACHED_HOST)
 sender_email = "donotreply@wastecoin.co"
+
+#Transaction View for Muxed Account individual users
+
+@api_view(['GET']) #please handle the security
+def transaction_history(request):
+    '''
+    endpoint to return transaction history of a user account
+    :params user_muxed_acct:  The muxed account to fetch transaction history
+    '''
+    user_muxed_acct = request.data
+    try:
+        acct = user_muxed_acct['user_muxed_acct']
+    except:
+        return Response({"message":"user_muxed_acct is a required argument"
+                        }, status=400)
+    else:
+        try:
+            # Send muxed acct to horizon, this only returns the list of transaction performed by a muxed acct,
+            # In case there is no transaction for the muxed acct, it returns an empty list
+            tx = get_transaction_history_for_muxed_acct(acct)
+        except:
+            return Response({
+                "message":"Transaction Error"
+            }, status=400)
+        else:
+            return Response({"message":tx}, status=200)
+
+
+
+
 # Create your views here.
 @api_view(["GET"])
 def index(request): 
@@ -68,7 +98,7 @@ def seller_signup(request):
             #encrypt password
             encryped_password = password_functions.generate_password_hash(password)
             #Save user_data
-            
+        
             newUserData = User(user_id=userRandomId,business_type=business_type,company_name=company_name,
                                 email=email, password=encryped_password,company_address=company_address, role=role)
             newUserData.save()

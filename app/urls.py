@@ -12,4 +12,5 @@ urlpatterns = [
     path('investor_company_signup',views.investor_company_signup, name='investor_company_signup'),
     path('investor_individual_signup',views.investor_individual_signup, name='investor_individual_signup'),
     path('verify/<token>',views.verify_email),
+    path('transaction_history', views.transaction_history, name='transaction_history'),
 ]
