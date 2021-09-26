@@ -1,0 +1,121 @@
+{% extends "seller/base.html" %}
+
+{% load static %}
+
+{% block body%}
+<section class="dashboard-main"> 
+    <!-- top-bar -->
+    <nav class="main-top">
+        <img src= "{% static 'img/logo-mobile.svg' %}" alt="logo" class="img-fluid mobile">
+        <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile">
+        <div class="avatar-div disappear"> 
+            <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
+            <div class="avatar-div2 ">
+                <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm">
+                <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
+            </div>
+        </div>
+    </nav>
+    <!-- top-bar ends -->
+    <!-- main section -->
+    <div class="main-section">
+        <div class="main-title disappear">
+            <h4>{{company_name}}'s Wallet</h4>
+        </div>
+        <div class="main-wallet">
+            <div class="main-left disappear">
+                <div class="main-card">
+                    <div class="flex-between">
+                        <div class="flexy">
+                            <img src= "{% static 'img/wallet-seller.svg' %}" alt="upload" class="mr-2">
+                            <p>Wallet</p>
+                            <span id="wall-active">ACTIVE</span>
+                        </div>
+                    </div>
+                    <!-- wallet card -->
+                    <div class="wallet-card" >
+                        <div class="flex-between">
+                            <h5>Quidroo Balance</h5>
+                            <img src= "{% static 'img/eye_show.svg' %}" alt="upload" class="mr-2">
+                        </div>
+                        <h3 class="mb-3">&#8358;1,700,221.98</h3>
+                        <a class="view mt-3">  Withdraw</a>
+                    </div>
+                </div>
+                <div class="main-card mt-2 bottom-fix">
+                    <div class="flexy-options-wallet">
+                        <!-- transactions -->
+                        <div class="flex-between mt-3 line">
+                            <h6 class="recent-trans">Recent Transactions</h6>
+                            <a class="trans-view ">See More</a>
+                        </div>
+                        <div class="flex-between mt-1">
+                            <div>
+                                <h6 class="trans">Invoice Purchase</h6>
+                                <a class="trans-date">23/09/2021     10:35 AM</a>
+                            </div>
+                            <p class="wallet-green">+ &#8358;4,333,565.78</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- wallet balance -->
+            <div class="main-right mobile">
+                <div class="main-card-two">
+                    <div class="flex-between">
+                        <div class="flexy">
+                            <img src= "{% static 'img/wallet-seller.svg' %}" alt="upload" class="mr-2">
+                            <p>Wallet</p>
+                            <span id="wall-active">ACTIVE</span>
+                        </div>
+                        <a class="view disappear">  View Details</a>
+                    </div>
+                    <!-- wallet card -->
+                    <div class="wallet-card" >
+                        <div class="flex-between">
+                            <h5>Quidroo Balance</h5>
+                            <img src= "{% static 'img/eye_show.svg' %}" alt="upload" class="mr-2">
+                        </div>
+                        <h3 class="mb-3">&#8358;1,700,221.98</h3>
+                        <a class="view mt-3">  Withdraw</a>
+                    </div>
+                    <!-- transactions -->
+                    <div class="flex-between mt-3 line">
+                        <h6 class="recent-trans">Recent Transactions</h6>
+                        <a class="trans-view ">See More</a>
+                    </div>
+                    <div class="flex-between mt-1">
+                        <div>
+                            <h6 class="trans">Invoice Purchase</h6>
+                            <a class="trans-date">23/09/2021     10:35 AM</a>
+                        </div>
+                        <p class="wallet-green">+ &#8358;4,333,565.78</p>
+                    </div>
+                </div>
+                <!-- recent activities -->
+                <div class="main-card-two mt-2 bottom-fix">
+                    <div class="flex-between">
+                        <div class="flexy">
+                            <img src= "{% static 'img/recent.svg' %}" alt="upload" class="mr-2">
+                            <p>Recent Activity</p>
+                        </div>
+                        <a class="view disappear">  See All</a>
+                    </div>
+                    <div class=" mt-1">
+                        <div class="mb-3">
+                            <h6 class="trans">Uploaded an Invoice QINV343409</h6>
+                            <a class="trans-date">Today     10:35 AM</a>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="trans">Changed account password</h6>
+                            <a class="trans-date">Yesterday     10:35 AM</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- main-section ends -->
+</section>
+{% endblock %}
+

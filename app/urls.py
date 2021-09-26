@@ -12,5 +12,11 @@ urlpatterns = [
     path('investor_company_signup',views.investor_company_signup, name='investor_company_signup'),
     path('investor_individual_signup',views.investor_individual_signup, name='investor_individual_signup'),
     path('verify/<token>',views.verify_email),
+
+    path('dashboard',views.dashboard_page, name='dashboard'),
+    path('wallet',views.wallet_page, name='wallet'),
+    path('invoices',views.invoices_page, name='invoices'),
+    path('stats',views.stats_page, name='stats'),
+    path('logout',views.logout_page, name='logout'),
     path('transaction_history', views.transaction_history, name='transaction_history'),
 ]

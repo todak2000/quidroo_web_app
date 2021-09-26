@@ -57,15 +57,170 @@ def transaction_history(request):
 # Create your views here.
 @api_view(["GET"])
 def index(request): 
+    # return render(request,"seller/dashboard.html")
     return render(request,"onboarding/index.html")
 
 @api_view(["GET"])
 def login_page(request):
     return render(request,"onboarding/login.html")
 
+# signout api     
+def logout_page(request):
+    if 'token' in request.session:
+        del request.session['token']
+    return render(request,"onboarding/login.html") 
+
 @api_view(["GET"])
 def forgot_page(request):
     return render(request,"onboarding/forgot_password.html")
+
+@api_view(["GET"])
+def dashboard_page(request):
+    if 'token' in request.session:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "message": "Successfull",
+            "token": request.session['token'],
+            "user_id": user_data.user_id,
+            "company_name": user_data.company_name,
+            "role": user_data.role,
+        }
+        if user_data.role == "seller":
+            return render(request,"seller/dashboard.html", return_data)
+        elif user_data.role == "investor":
+            return render(request,"seller/dashboard.html", return_data)
+        elif user_data.role == "vendor":
+            return render(request,"seller/dashboard.html", return_data)
+        else:
+            return_data = {
+                "success": False,
+                "message": "You are not authorized to access this page!",
+                "status" : 205,
+            }
+            return render(request,"onboarding/login.html", return_data) 
+    else:
+        return_data = {
+            "success": False,
+            "message": "Sorry! your session expired. Kindly login again",
+            "status" : 205,
+        }
+        return render(request,"onboarding/login.html", return_data)
+
+@api_view(["GET"])
+def wallet_page(request):
+    if 'token' in request.session:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "message": "Successfull",
+            "token": request.session['token'],
+            "user_id": user_data.user_id,
+            "company_name": user_data.company_name,
+            "role": user_data.role,
+        }
+        if user_data.role == "seller":
+            return render(request,"seller/wallet.html", return_data)
+        elif user_data.role == "investor":
+            return render(request,"seller/wallet.html", return_data)
+        elif user_data.role == "vendor":
+            return render(request,"seller/wallet.html", return_data)
+        else:
+            return_data = {
+                "success": False,
+                "message": "You are not authorized to access this page!",
+                "status" : 205,
+            }
+            return render(request,"onboarding/login.html", return_data) 
+    else:
+        return_data = {
+            "success": False,
+            "message": "Sorry! your session expired. Kindly login again",
+            "status" : 205,
+        }
+        return render(request,"onboarding/login.html", return_data)
+
+@api_view(["GET"])
+def invoices_page(request):
+    if 'token' in request.session:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "message": "Successfull",
+            "token": request.session['token'],
+            "user_id": user_data.user_id,
+            "company_name": user_data.company_name,
+            "role": user_data.role,
+        }
+        if user_data.role == "seller":
+            return render(request,"seller/invoices.html", return_data)
+        elif user_data.role == "investor":
+            return render(request,"seller/invoices.html", return_data)
+        elif user_data.role == "vendor":
+            return render(request,"seller/invoices.html", return_data)
+        else:
+            return_data = {
+                "success": False,
+                "message": "You are not authorized to access this page!",
+                "status" : 205,
+            }
+            return render(request,"onboarding/login.html", return_data) 
+    else:
+        return_data = {
+            "success": False,
+            "message": "Sorry! your session expired. Kindly login again",
+            "status" : 205,
+        }
+        return render(request,"onboarding/login.html", return_data)
+
+@api_view(["GET"])
+def stats_page(request):
+    if 'token' in request.session:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "message": "Successfull",
+            "token": request.session['token'],
+            "user_id": user_data.user_id,
+            "company_name": user_data.company_name,
+            "role": user_data.role,
+        }
+        if user_data.role == "seller":
+            return render(request,"seller/stats.html", return_data)
+        elif user_data.role == "investor":
+            return render(request,"seller/stats.html", return_data)
+        elif user_data.role == "vendor":
+            return render(request,"seller/stats.html", return_data)
+        else:
+            return_data = {
+                "success": False,
+                "message": "You are not authorized to access this page!",
+                "status" : 205,
+            }
+            return render(request,"onboarding/login.html", return_data) 
+    else:
+        return_data = {
+            "success": False,
+            "message": "Sorry! your session expired. Kindly login again",
+            "status" : 205,
+        }
+        return render(request,"onboarding/login.html", return_data)
 
 # SELLER SIGN UP API
 @api_view(["POST"])
@@ -481,12 +636,26 @@ def signin(request):
                         "activated": is_activated,
                         "message": "Successfull",
                         "token": token,
+                        "company_name": user_data.company_name,
                         "token-expiration": f"{timeLimit}",
                         "sessionToken":request.session['token'],
                         "user_id": user_data.user_id,
                         "role": f"{user_data.role}",
                     }
-                    return render(request,"onboarding/email_confirmation.html", return_data)
+                    if user_data.role == "seller":
+                        return redirect('/dashboard', return_data)
+                        # return render(request,"seller/dashboard.html", return_data)
+                    elif user_data.role == "investor":
+                        return render(request,"seller/dashboard.html", return_data)
+                    elif user_data.role == "vendor":
+                        return render(request,"seller/dashboard.html", return_data)
+                    else:
+                        return_data = {
+                            "success": False,
+                            "message": "You are not authorized to access this page!",
+                            "status" : 205,
+                        }
+                        return render(request,"onboarding/login.html", return_data)
                 elif is_verified == False:
                     return_data = {
                         "success": False,
