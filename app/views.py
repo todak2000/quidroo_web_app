@@ -16,7 +16,9 @@ from pysendpulse.pysendpulse import PySendPulse
 from decouple import config
 
 
-from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct
+from blockchain.utils import (generate_UID, create_muxed_keypair, 
+                                get_transaction_history_for_muxed_acct, send_external_payments, 
+                                send_internal_payments)
 
 REST_API_ID = config("REST_API_ID")
 REST_API_SECRET = config("REST_API_SECRET")
@@ -25,10 +27,11 @@ MEMCACHED_HOST = config("MEMCACHED_HOST")
 SPApiProxy = PySendPulse(REST_API_ID, REST_API_SECRET, TOKEN_STORAGE, memcached_host=MEMCACHED_HOST)
 sender_email = "donotreply@wastecoin.co"
 
-#Transaction View for Muxed Account individual users
 
+#Transaction View for Muxed Account individual users
 @api_view(['GET']) #please handle the security
-def transaction_history(request):
+def transaction_history(request): 
+    # this endpoint can be used for the "recent transaction" & "recent activity" on the dashboard
     '''
     endpoint to return transaction history of a user account
     :params user_muxed_acct:  The muxed account to fetch transaction history
@@ -51,6 +54,53 @@ def transaction_history(request):
         else:
             return Response({"message":tx}, status=200)
 
+
+@api_view(['POST'])
+def internal_tranfer(request):
+    #This is to be use btw TWO QUIDROO USER
+    #Dont use this endpoint for external transfer
+    req_data = request.data
+    try:
+        receiver = req_data['receiver_muxed_acct']
+        sender = req_data['sender_muxed_acct']
+        amount = req_data['amount']
+    except:
+        return Response({
+            "message":"receiver_muxed_acct, sender_muxed_acct and amount are required field"
+        }, 400)
+    else:
+        try:
+            tx = send_internal_payments(sender, receiver, amount)
+        except:
+            return Response({
+                "message":"Transaction Error"
+            }, status=400)
+        else:
+            return Response({"message":tx}, status=200)
+
+@api_view(['POST'])
+def external_transfer(request):
+    #This should be used for transfers outside of quidroo
+    req_data = request.data
+    try:
+        sender_muxed = req_data['sender_muxed_acct']
+        receiver_pub_key = req_data['receiver_pub_key']
+        amount = req_data['amount']
+
+    except:
+        return Response({
+            "message":"sender_muxed_acct, receiver_pub_key and amount are required field"
+        }, 400)
+    else:
+        try:
+            tx = send_external_payments(sender_muxed, receiver_pub_key, amount)
+        except Exception as e:
+            print(e)
+            return Response({
+                "message":"Transaction Error"
+            }, status=400)
+        else:
+            return Response({"message":tx}, status=200)
 
 
 
@@ -630,6 +680,7 @@ def signin(request):
                 request.session['token'] = token
 
                 if is_valid_password and is_verified:
+                    #Need to get user token balance from db which should be display on their dashboard
                     return_data = {
                         "success": True,
                         "status" : 200,

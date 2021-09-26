@@ -138,8 +138,8 @@ def send_internal_payments(sender_mux_acct :str, receiever_mux_acct :str, amt :s
     This function send  payment bwt two qudiroo users to the blockchain
     """
     sender_load = MuxedAccount.from_account(sender_mux_acct)
-    print(sender_load)
     base_fees = horizon_server.fetch_base_fee()
+    rounded_amt = round(float(amt), 6)
     
     source_acct = horizon_server.load_account(sender_load)
     print(source_acct)
@@ -147,7 +147,7 @@ def send_internal_payments(sender_mux_acct :str, receiever_mux_acct :str, amt :s
         source_account=source_acct,
         network_passphrase=network_passphrase,
         base_fee=base_fees,
-    ).append_payment_op(destination=receiever_mux_acct, amount=str(amt), asset_code=asset_code, asset_issuer=ASSET_ISSUER
+    ).append_payment_op(destination=receiever_mux_acct, amount=str(rounded_amt), asset_code=asset_code, asset_issuer=ASSET_ISSUER
     ).append_payment_op(destination=credit_transaction_fee_acct, amount=str(transaction_fee), asset_issuer=ASSET_ISSUER, asset_code=asset_code
     ).build()
     transaction_BUILD.sign(distributor)
@@ -164,8 +164,8 @@ def send_external_payments(sender_mux_acct :str, receiver_public_key :str, amt :
     """
     sender_load = MuxedAccount.from_account(sender_mux_acct)
 
-    # key_pairs = Keypair.from_secret(sender_secret_key)
     source_acct = horizon_server.load_account(sender_load)
+    rounded_amt = round(float(amt), 6)
     base_fee = horizon_server.fetch_base_fee()
     payments = TransactionBuilder(
         source_account=source_acct,
@@ -173,7 +173,7 @@ def send_external_payments(sender_mux_acct :str, receiver_public_key :str, amt :
         base_fee=base_fee
         ).append_payment_op(
             destination=receiver_public_key,
-            amount=amt,
+            amount=str(rounded_amt),
             asset_code=asset_code,
             asset_issuer=ASSET_ISSUER,
         ).append_payment_op(
