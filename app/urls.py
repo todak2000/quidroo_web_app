@@ -18,4 +18,5 @@ urlpatterns = [
     path('invoices',views.invoices_page, name='invoices'),
     path('stats',views.stats_page, name='stats'),
     path('logout',views.logout_page, name='logout'),
+    path('transaction_history', views.transaction_history, name='transaction_history'),
 ]
