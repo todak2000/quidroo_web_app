@@ -95,7 +95,7 @@ class Transaction(models.Model):
     receiver_id = models.CharField(max_length=500,unique=True, verbose_name="Reciever")
     token_balance = models.FloatField(max_length=30,verbose_name="Token Amount Transacted",blank=True)
     fiat_equivalent = models.FloatField(max_length=30,verbose_name="Fiat Equivalent",blank=True)
-    transaction_type = models.CharField(max_length=500,unique=True, verbose_name="Type of Transaction")
+    transaction_type = models.CharField(max_length=500,unique=True, verbose_name="Type of Transaction", default="none")
     transaction_note = models.CharField(max_length=30, verbose_name="Transaction note", null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
     updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
