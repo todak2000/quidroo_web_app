@@ -68,7 +68,7 @@ class Wallet(models.Model):
     memo = models.CharField(max_length=40, unique=True, verbose_name="memo", blank=True)
     muxed_acct = models.CharField(max_length=100, unique=True, verbose_name="muxed_acct", blank=True)
     def __str__(self):
-        return f"{self.user} - {self.token_balance} - {self.fiat_equivalent} - {self.created_at} - {self.updated_at}"
+        return f"{self.user} - {self.token_balance} - {self.fiat_equivalent} - {self.created_at} - {self.muxed_acct}"
 
 class Verification(models.Model):
     class Meta:
@@ -95,6 +95,7 @@ class Transaction(models.Model):
     receiver_id = models.CharField(max_length=500,unique=True, verbose_name="Reciever")
     token_balance = models.FloatField(max_length=30,verbose_name="Token Amount Transacted",blank=True)
     fiat_equivalent = models.FloatField(max_length=30,verbose_name="Fiat Equivalent",blank=True)
+    transaction_type = models.CharField(max_length=500,unique=True, verbose_name="Type of Transaction", default="none")
     transaction_note = models.CharField(max_length=30, verbose_name="Transaction note", null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
     updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")

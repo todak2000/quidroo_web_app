@@ -49,7 +49,60 @@
             <li class="seller-list" id="stats1" onclick="makeActive(this.id)"><a href="{% url 'stats' %}" class="underline"> <img src= "{% static 'img/stats.svg' %}" alt="logo" > <p>Stats</p></a></li>
             <li class="seller-list" id="settings1" onclick="makeActive(this.id)"><a href="{% url 'logout' %}" class="underline"> <img src= "{% static 'img/profile.svg' %}" alt="logo" > <p>Profile</p></a></li>
         </ul>
-    </nav>     
+    </nav>    
+    <!-- Withdraw Modal -->
+    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Withdraw</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <form action="#"  method="POST">
+                    {% csrf_token %}
+                    <label>Amount to withdraw</label>
+                <input type="text" class="form-input" placeholder="Enter Amount in Fiat Currency" id="amount" name="amount" />
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="withdraw-btn">Withdraw</button>
+                </div>
+                </form>
+                
+            </div>
+            
+        </div>
+        </div>
+    </div> 
+
+    <!-- Topup Modal -->
+    <div class="modal fade" id="topupModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Fund Wallet</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <form action="#"  method="POST">
+                    {% csrf_token %}
+                    <label>Amount to Fund</label>
+                <input type="text" class="form-input" placeholder="Enter Amount in Fiat Currency" id="f_amount" name="f_amount" />
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="topup-btn">Fund Wallet</button>
+                </div>
+                </form>
+                
+            </div>
+            
+        </div>
+        </div>
+    </div>
     {% block body%}
     
     {% endblock %}
