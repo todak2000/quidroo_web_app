@@ -116,23 +116,36 @@
                     <div class="wallet-card" >
                         <div class="flex-between">
                             <h5>Quidroo Balance</h5>
-                            <img src= "{% static 'img/eye_show.svg' %}" alt="upload" class="mr-2">
+                            <img src= "{% static 'img/eye_show.svg' %}" alt="upload" id="d_show" class="mr-2" onclick="d_showBalance()">
+                            <img src= "{% static 'img/eye_hidden.svg' %}" alt="upload" id="d_hide" class="mr-2" style="display: none;" onclick="d_showBalance()">
                         </div>
-                        <h3 class="mb-3">&#8358;1,700,221.98</h3>
-                        <a class="view mt-3">  Withdraw</a>
+
+                        <div id="balance_div">
+                            <h3 class="mb-3 clickable" id="d_qut" onclick="d_toggleBalance(this.id);">{{token_balance}} QUT</h3>
+                            <h3 class="mb-3 hide clickable" id="d_fiat" onclick="d_toggleBalance(this.id);" >&#8358;{{fiat_equivalent}}</h3>
+                            <!-- <a class="view mt-3" data-toggle="modal" data-target="#withdrawModal">  Withdraw</a> -->
+                            <a class="view mt-3" data-toggle="modal" data-target="#topupModal">  Fund Wallet</a>
+                        </div>
+                        <h3 class="mb-3" id="d_not" style="display: none;">*********</h3>
+                        <!-- <h5>Account ID: {{muxed_acct}}</h5> -->
                     </div>
                     <!-- transactions -->
                     <div class="flex-between mt-3 line">
                         <h6 class="recent-trans">Recent Transactions</h6>
                         <a class="trans-view">See More</a>
                     </div>
-                    <div class="flex-between mt-1">
-                        <div>
-                            <h6 class="trans">Invoice Purchase</h6>
-                            <a class="trans-date">23/09/2021     10:35 AM</a>
+                    {% if transactions %}
+                        <div class="flex-between mt-1">
+                            <div>
+                                <h6 class="trans">Invoice Purchase</h6>
+                                <a class="trans-date">23/09/2021     10:35 AM</a>
+                            </div>
+                            <p class="wallet-green">+ &#8358;4,333,565.78</p>
                         </div>
-                        <p class="wallet-green">+ &#8358;4,333,565.78</p>
-                    </div>
+                    {% else %}
+                        <p class="no-tx">No Transactions</p>
+                    {% endif %}
+                    
                 </div>
                 <!-- recent activities -->
                 <div class="main-card-two mt-2">

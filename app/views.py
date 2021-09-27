@@ -16,7 +16,7 @@ from pysendpulse.pysendpulse import PySendPulse
 from decouple import config
 
 
-from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct
+from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct, quidroo_to_user_payments 
 
 REST_API_ID = config("REST_API_ID")
 REST_API_SECRET = config("REST_API_SECRET")
@@ -80,6 +80,8 @@ def dashboard_page(request):
         decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
+        wallet_data = Wallet.objects.get(user=user_data)
+        tx = get_transaction_history_for_muxed_acct(wallet_data.muxed_acct)
         return_data = {
             "success": True,
             "status" : 200,
@@ -89,6 +91,11 @@ def dashboard_page(request):
             "user_id": user_data.user_id,
             "company_name": user_data.company_name,
             "role": user_data.role,
+            "fiat_equivalent":wallet_data.fiat_equivalent,
+            "token_balance":wallet_data.token_balance,
+            "muxed_acct": wallet_data.muxed_acct,
+            "memo": wallet_data.memo,
+            "transactions":tx
         }
         if user_data.role == "seller":
             return render(request,"seller/dashboard.html", return_data)
@@ -117,6 +124,8 @@ def wallet_page(request):
         decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
+        wallet_data = Wallet.objects.get(user=user_data)
+        tx = get_transaction_history_for_muxed_acct(wallet_data.muxed_acct)
         return_data = {
             "success": True,
             "status" : 200,
@@ -126,6 +135,11 @@ def wallet_page(request):
             "user_id": user_data.user_id,
             "company_name": user_data.company_name,
             "role": user_data.role,
+            "fiat_equivalent":wallet_data.fiat_equivalent,
+            "token_balance":wallet_data.token_balance,
+            "muxed_acct": wallet_data.muxed_acct,
+            "memo": wallet_data.memo,
+            "transactions":tx
         }
         if user_data.role == "seller":
             return render(request,"seller/wallet.html", return_data)
@@ -630,25 +644,12 @@ def signin(request):
                 request.session['token'] = token
 
                 if is_valid_password and is_verified:
-                    return_data = {
-                        "success": True,
-                        "status" : 200,
-                        "activated": is_activated,
-                        "message": "Successfull",
-                        "token": token,
-                        "company_name": user_data.company_name,
-                        "token-expiration": f"{timeLimit}",
-                        "sessionToken":request.session['token'],
-                        "user_id": user_data.user_id,
-                        "role": f"{user_data.role}",
-                    }
                     if user_data.role == "seller":
-                        return redirect('/dashboard', return_data)
-                        # return render(request,"seller/dashboard.html", return_data)
+                        return redirect('/dashboard')
                     elif user_data.role == "investor":
-                        return render(request,"seller/dashboard.html", return_data)
+                        return redirect('/dashboard')
                     elif user_data.role == "vendor":
-                        return render(request,"seller/dashboard.html", return_data)
+                        return redirect('/dashboard')
                     else:
                         return_data = {
                             "success": False,
@@ -685,3 +686,81 @@ def signin(request):
         }
     return render(request,"onboarding/login.html", return_data)
 
+@api_view(["POST"])
+def withdraw(request):
+    amount = request.data.get("amount",None) 
+    if 'token' in request.session:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        wallet_data = Wallet.objects.get(user=user_data)
+        if wallet_data.fiat_equivalent >= float(amount):
+            newBalance = wallet_data.fiat_equivalent - float(amount)
+            newBalance.save()
+            newTransaction = Transaction(sender_id=user_id, receiver_id="quidroo", fiat_equivalent=float(amount), token_balance=float(amount),transaction_type = "Debit", transaction_note="Withdrawal from Quidroo Account")
+            newTransaction.save()
+            return_data = {
+                "success": True,
+                "status" : 200,
+                "activated": user_data.verified,
+                "message": "Withdrawal Successfull. Within 24 hours. You will be credited into your bank account.",
+                "company_name": user_data.company_name,
+                "role": user_data.role,
+                "new_fiat_equivalent":wallet_data.fiat_equivalent,
+                "new_token_balance":wallet_data.token_balance,
+            }
+            
+        else:
+            return_data = {
+                "success": False,
+                "message": "Sorry, you have insufficient funds!",
+                "status" : 205,
+            }
+    else:
+        return_data = {
+            "success": False,
+            "message": "Sorry! your session expired. Kindly login again",
+            "status" : 205,
+        }
+    return Response(return_data)
+
+# FUND USER ACCOUNT
+@api_view(["POST"])
+def topup(request):
+    amount = request.data.get("amount",None) 
+    if 'token' in request.session:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        wallet_data = Wallet.objects.get(user=user_data)
+        bc = quidroo_to_user_payments(wallet_data.muxed_acct, amount)
+        if bc:
+            newBalance = wallet_data.fiat_equivalent + float(amount)
+            newBalance.save()
+            newTransaction = Transaction(receiver_id=user_id, sender_id="quidroo", fiat_equivalent=float(amount), token_balance=float(amount),transaction_type = "Credit", transaction_note="Topup into Quidroo Account")
+            newTransaction.save()
+            return_data = {
+                "success": True,
+                "status" : 200,
+                "activated": user_data.verified,
+                "message": "Fund added Successfull",
+                "company_name": user_data.company_name,
+                "role": user_data.role,
+                "new_fiat_equivalent":wallet_data.fiat_equivalent,
+                "new_token_balance":wallet_data.token_balance,
+                "blockchain_tx": bc
+            }
+            
+        else:
+            return_data = {
+                "success": False,
+                "message": "Sorry, we could not process the transaction. Kindly try again!",
+                "status" : 205,
+            }
+    else:
+        return_data = {
+            "success": False,
+            "message": "Sorry! your session expired. Kindly login again",
+            "status" : 205,
+        }
+    return Response(return_data)

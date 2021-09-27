@@ -10,7 +10,6 @@ horizon_server = Server("https://horizon-testnet.stellar.org/")
 network_passphrase = Network.TESTNET_NETWORK_PASSPHRASE
 
 
-
 main_key_secrets = env_var("main_key")
 main_key_publickey = Keypair.from_secret(main_key_secrets).public_key
 
@@ -165,6 +164,36 @@ def send_external_payments(sender_mux_acct :str, receiver_public_key :str, amt :
     sender_load = MuxedAccount.from_account(sender_mux_acct)
 
     # key_pairs = Keypair.from_secret(sender_secret_key)
+    source_acct = horizon_server.load_account(sender_load)
+    base_fee = horizon_server.fetch_base_fee()
+    payments = TransactionBuilder(
+        source_account=source_acct,
+        network_passphrase=network_passphrase,
+        base_fee=base_fee
+        ).append_payment_op(
+            destination=receiver_public_key,
+            amount=amt,
+            asset_code=asset_code,
+            asset_issuer=ASSET_ISSUER,
+        ).append_payment_op(
+            destination=credit_transaction_fee_acct,
+            amount=str(transaction_fee),
+            asset_code=asset_code,
+            asset_issuer=ASSET_ISSUER,
+        ).build()
+    payments.sign(distributor)
+    resp = horizon_server.submit_transaction(payments)
+    return resp
+
+def quidroo_to_user_payments(receiver_public_key :str, amt :str) -> "XDR":
+    """
+    This Function Transfer token from one account to another on stellar Blockchain, fee for this transaction is paid by the feebump acct
+    :params: sender_mux_acct - the sender muxed_acct
+    :params: receiver_public_key - the recipient to receive the payment
+    :params: amt - amount to transfer
+    """
+    sender_load = DISTRIBUTOR_ACCT
+
     source_acct = horizon_server.load_account(sender_load)
     base_fee = horizon_server.fetch_base_fee()
     payments = TransactionBuilder(

@@ -4,6 +4,17 @@ body{
     display: flex;
     flex-direction: row;
 }
+.form-input{
+    height: 55px;
+    border: 0px solid rgba(8, 27, 51, 0.1);
+    box-sizing: border-box;
+    border-radius: 7px;
+    background: #F6F7FC;
+    width:100%;
+    margin: 0.5rem 0;
+    padding: 1rem;
+    font-family: 'DM Sans', sans-serif;
+  }
 a {
     text-decoration: none; 
   }
@@ -13,6 +24,19 @@ a {
 .sidebar{
     width:250px;
     height: 100vh;
+}
+.no-tx{
+    color:#767E9F;
+    font-size: 0.8rem;
+}
+.clickable:hover {
+    cursor:pointer;
+   }
+.shows{
+    display: block;
+}
+.hide{
+    display: none;
 }
 .bottombar{
     display: none;
