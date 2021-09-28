@@ -16,7 +16,7 @@ from pysendpulse.pysendpulse import PySendPulse
 from decouple import config
 
 
-from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct, quidroo_to_user_payments 
+from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct, quidroo_to_user_payments, create_trustline2
 
 REST_API_ID = config("REST_API_ID")
 REST_API_SECRET = config("REST_API_SECRET")
@@ -733,7 +733,9 @@ def topup(request):
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
         wallet_data = Wallet.objects.get(user=user_data)
+
         bc = quidroo_to_user_payments(wallet_data.muxed_acct, amount)
+
         if bc:
             newBalance = wallet_data.fiat_equivalent + float(amount)
             newBalance.save()

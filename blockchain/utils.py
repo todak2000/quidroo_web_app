@@ -215,3 +215,32 @@ def quidroo_to_user_payments(receiver_public_key :str, amt :str) -> "XDR":
     resp = horizon_server.submit_transaction(payments)
     return resp
 
+def create_trustline2() -> str:
+    """
+    This is used to create TrustLine to an asset
+    :params: secret_key - The secret key of the account that wants to add trustline
+    :params: asset_code - the Asset Code of the asset you want to trust
+    :params: asset_issuer - The asset issuer of the asset you want to trust
+    """
+    key_pair = Keypair.from_secret(main_key_secrets)
+    distributor_account = horizon_server.load_account(key_pair.public_key)
+
+    # get latest transaction fee for ledger
+    base_fee = horizon_server.fetch_base_fee()
+
+#Build transaction
+    trust_transaction = (
+        TransactionBuilder(
+            source_account=distributor_account,
+            network_passphrase=network_passphrase,
+            base_fee=base_fee,
+        )
+        .append_change_trust_op(
+            asset_code=asset_code, asset_issuer= asset_issuer
+        )
+        .build()
+    )
+
+    trust_transaction.sign(main_key_secrets)
+    resp = horizon_server.submit_transaction(trust_transaction)
+    return resp
