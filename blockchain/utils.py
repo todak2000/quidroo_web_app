@@ -1,5 +1,5 @@
 from typing import Any
-from stellar_sdk import MuxedAccount, Server, Network, Keypair, TransactionBuilder
+from stellar_sdk import MuxedAccount, Server, Network, Keypair, TransactionBuilder, xdr
 import requests
 from decouple import config as env_var
 from stellar_sdk.asset import Asset
@@ -154,7 +154,7 @@ def send_internal_payments(sender_mux_acct :str, receiever_mux_acct :str, amt :s
     return resp
 
 
-def send_external_payments(sender_mux_acct :str, receiver_public_key :str, amt :str) -> "XDR":
+def send_external_payments(sender_mux_acct :str, receiver_public_key :str, amt :str) -> xdr:
     """
     This Function Transfer token from one account to another on stellar Blockchain, fee for this transaction is paid by the feebump acct
     :params: sender_mux_acct - the sender muxed_acct
@@ -185,14 +185,15 @@ def send_external_payments(sender_mux_acct :str, receiver_public_key :str, amt :
     resp = horizon_server.submit_transaction(payments)
     return resp
 
-def quidroo_to_user_payments(receiver_public_key :str, amt :str) -> "XDR":
+
+def quidroo_to_user_payment(receiver_acct :str, amt :str) -> xdr:
     """
-    This Function Transfer token from one account to another on stellar Blockchain, fee for this transaction is paid by the feebump acct
-    :params: sender_mux_acct - the sender muxed_acct
-    :params: receiver_public_key - the recipient to receive the payment
-    :params: amt - amount to transfer
+    Using the recommended stellar way, an asset issuer needs a an issuer acct and a distributor acct
+    this will transfer asset(QUT) from the asset issuer acct to the distributor acct(The muxed account will different who owns what on blockchain).
+    this will send QUT token by default
     """
-    sender_load = DISTRIBUTOR_ACCT
+    key_pairs = Keypair.from_secret(asset_issuer)
+    sender_load = key_pairs.public_key
 
     source_acct = horizon_server.load_account(sender_load)
     base_fee = horizon_server.fetch_base_fee()
@@ -201,10 +202,42 @@ def quidroo_to_user_payments(receiver_public_key :str, amt :str) -> "XDR":
         network_passphrase=network_passphrase,
         base_fee=base_fee
         ).append_payment_op(
-            destination=receiver_public_key,
+            destination=receiver_acct,
             amount=amt,
             asset_code=asset_code,
             asset_issuer=ASSET_ISSUER,
+        #The below payment_op is for transaction fee, remove if you dont need it
+        ).append_payment_op(
+            destination=credit_transaction_fee_acct,
+            amount=str(transaction_fee),
+            asset_code=asset_code,
+            asset_issuer=ASSET_ISSUER,
+        ).build()
+    payments.sign(asset_issuer)
+    resp = horizon_server.submit_transaction(payments)
+    return resp
+
+
+
+def token_burn(user_muxed_acct :str, amount :str) -> xdr:
+    """
+    user withdraw token to their bank bank, this will take token out of the total supply
+    """
+    sender_load = MuxedAccount.from_account(user_muxed_acct)
+
+    source_acct = horizon_server.load_account(sender_load)
+
+    base_fee = horizon_server.fetch_base_fee()
+    payments = TransactionBuilder(
+        source_account=source_acct,
+        network_passphrase=network_passphrase,
+        base_fee=base_fee
+        ).append_payment_op(
+            destination=ASSET_ISSUER,
+            amount=str(round(amount, 7)),
+            asset_code=asset_code,
+            asset_issuer=ASSET_ISSUER,
+        #The below payment_op is for transaction fee, remove if you dont need it
         ).append_payment_op(
             destination=credit_transaction_fee_acct,
             amount=str(transaction_fee),
@@ -215,3 +248,5 @@ def quidroo_to_user_payments(receiver_public_key :str, amt :str) -> "XDR":
     resp = horizon_server.submit_transaction(payments)
     return resp
 
+
+# print(token_burn("MA6PJDHDFCR6JCOW77F27UYYRIGAKUFZYZNHDBKF4NSI6C4YVP6VQAAAAADCFTQ2KAYJI", 100))

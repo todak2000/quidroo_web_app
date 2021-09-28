@@ -758,7 +758,7 @@ def withdraw(request):
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
         wallet_data = Wallet.objects.get(user=user_data)
-        if wallet_data.fiat_equivalent >= float(amount):
+        if wallet_data.fiat_equivalent >= float(amount): #This transaction need to reflect on chain
             newBalance = wallet_data.fiat_equivalent - float(amount)
             newBalance.save()
             newTransaction = Transaction(sender_id=user_id, receiver_id="quidroo", fiat_equivalent=float(amount), token_balance=float(amount),transaction_type = "Debit", transaction_note="Withdrawal from Quidroo Account")
@@ -790,15 +790,15 @@ def withdraw(request):
 
 # FUND USER ACCOUNT
 @api_view(["POST"])
-def topup(request):
+def topup(request): #this will fund a user muxed acct onchain
     amount = request.data.get("amount",None) 
     if 'token' in request.session:
         decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
         wallet_data = Wallet.objects.get(user=user_data)
-        bc = quidroo_to_user_payments(wallet_data.muxed_acct, amount)
-        if bc:
+        bc = quidroo_to_user_payments(wallet_data.muxed_acct, amount) #You should parse this to return just the transaction hash
+        if bc: 
             newBalance = wallet_data.fiat_equivalent + float(amount)
             newBalance.save()
             newTransaction = Transaction(receiver_id=user_id, sender_id="quidroo", fiat_equivalent=float(amount), token_balance=float(amount),transaction_type = "Credit", transaction_note="Topup into Quidroo Account")
