@@ -19,7 +19,7 @@ from decouple import config
 from blockchain.utils import (generate_UID, create_muxed_keypair, 
                                 get_transaction_history_for_muxed_acct, send_external_payments, 
                                 send_internal_payments)
-from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct, quidroo_to_user_payments 
+from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct, quidroo_to_user_payment 
 
 REST_API_ID = config("REST_API_ID")
 REST_API_SECRET = config("REST_API_SECRET")
@@ -48,7 +48,7 @@ def transaction_history(request):
             # Send muxed acct to horizon, this only returns the list of transaction performed by a muxed acct,
             # In case there is no transaction for the muxed acct, it returns an empty list
             tx = get_transaction_history_for_muxed_acct(acct)
-        except:
+        except Exception as E:
             return Response({
                 "message":"Transaction Error"
             }, status=400)
@@ -96,7 +96,7 @@ def external_transfer(request):
         try:
             tx = send_external_payments(sender_muxed, receiver_pub_key, amount)
         except Exception as e:
-            print(e)
+    
             return Response({
                 "message":"Transaction Error"
             }, status=400)
@@ -797,11 +797,13 @@ def topup(request): #this will fund a user muxed acct onchain
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
         wallet_data = Wallet.objects.get(user=user_data)
-        bc = quidroo_to_user_payments(wallet_data.muxed_acct, amount) #You should parse this to return just the transaction hash
+        print(wallet_data.muxed_acct)
+        bc = quidroo_to_user_payment(wallet_data.muxed_acct, amount) #You should parse this to return just the transaction hash
+        print(bc)
         if bc: 
             newBalance = wallet_data.fiat_equivalent + float(amount)
-            newBalance.save()
-            newTransaction = Transaction(receiver_id=user_id, sender_id="quidroo", fiat_equivalent=float(amount), token_balance=float(amount),transaction_type = "Credit", transaction_note="Topup into Quidroo Account")
+            # newBalance.save()
+            newTransaction = Transaction(receiver_id=user_id, sender_id="quidroo", fiat_equivalent=float(newBalance), token_balance=float(amount),transaction_type = "Credit", transaction_note="Topup into Quidroo Account")
             newTransaction.save()
             return_data = {
                 "success": True,
