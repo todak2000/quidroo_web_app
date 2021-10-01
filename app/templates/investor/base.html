@@ -68,7 +68,7 @@
                     <form action="#"  method="POST" style="padding:2rem;">
                         {% csrf_token %}
                         <label class="mt-3">Amount</label>
-                        <input type="text" class="form-input" placeholder="&#8358; 0.00" id="amount" name="amount" />
+                        <input type="text" class="form-input" placeholder="$ 0.00" id="amount" name="amount" />
                         <div class="acc-det">
                             <h6>Account Details</h6>
                             <p>Name: {{name}}</p>
@@ -134,7 +134,7 @@
                     <form action="#"  method="POST" style="padding:2rem;">
                         {% csrf_token %}
                         <label>Amount to Fund</label>
-                        <input type="text" class="form-input" placeholder="&#8358; 0.00" id="f_amount" name="f_amount" />
+                        <input type="text" class="form-input" placeholder="$ 0.00" id="f_amount" name="f_amount" />
                         <div class="modal-footer">
                             <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
                             <button type="button" class="btn btn-primary  btn-withdraw" id="topup-btn">Fund Wallet</button>

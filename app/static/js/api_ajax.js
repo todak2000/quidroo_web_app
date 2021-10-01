@@ -168,6 +168,13 @@ $(function(){
         e.preventDefault();
         let amount = document.getElementById("amount").value;
         let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+        let success = document.getElementById("success");
+        let fail = document.getElementById("fail");
+        let main =  document.getElementById("main-form");
+        let hash = document.getElementById('hash');
+        let btn = document.getElementById('withdraw-btn');
+        let msg = document.getElementById("modal-message") || document.getElementById("modal-message-success");
+        btn.innerHTML = "Initiating Transaction..."
         // let code = document.getElementById("code_verify").value;
         // document.getElementById("spinner").style.display = "block";
         $.ajax({
@@ -179,23 +186,19 @@ $(function(){
             },
             success:function(response){
                 console.log(response)
-                // if(response.success == false){
-                //     document.getElementById('server_message_error').classList.add("alert-danger");
-                //     document.getElementById('server_message_error').innerHTML = response.message;
-                //     document.getElementById("server_message_error").style.display = "block";
-                //     setTimeout(function(){ 
-                //         document.getElementById("server_message_error").style.display = "none"; 
-                        
-                //     }, 3000);  
-                // }
-                // else{
-                //     if (response.role == 1){
-                //         window.location.href = '/client_dashboard/'+user_id;
-                //     document.getElementById('p_id').innerHTML = user_id;
-                //     }else{
-                //         window.location.href = '/sp_dashboard/'+user_id;
-                //     }
-                // }
+                if(response.success == true && response.status == 200){
+                    success.classList.remove("modal-hide");
+                    success.classList.remove("modal-show");
+                    main.classList.add("modal-hide");
+                    hash.value = response.tx_hash;
+                    msg.innerHTML = response.message; 
+                }
+                else{
+                    fail.classList.remove("modal-hide");
+                    fail.classList.remove("modal-show");
+                    main.classList.add("modal-hide");
+                    msg.innerHTML = response.message;
+                }
             },
             error:function(e){
                 console.log(e);
@@ -207,14 +210,26 @@ $(function(){
     });
 });
 
-// WITHDRAW API
+$(function(){
+    $('.close').on('click', function (e) {
+        e.preventDefault();
+        location.reload();  
+    })
+})
+// FUND API
 $(function(){
     $('#topup-btn').on('click', function (e) {
         e.preventDefault();
         let amount = document.getElementById("f_amount").value;
         let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
-        // let code = document.getElementById("code_verify").value;
+        let success = document.getElementById("t_success");
+        let fail = document.getElementById("t_fail");
+        let main =  document.getElementById("t_main-form");
+        let hash = document.getElementById('t_hash');
+        let btn = document.getElementById('topup-btn');
+        let msg = document.getElementById("t_modal-message") || document.getElementById("t_modal-message-success");
         // document.getElementById("spinner").style.display = "block";
+        btn.innerHTML = "Initiating Transaction..."
         $.ajax({
             url:'/topup',
             type:'POST',
@@ -224,30 +239,46 @@ $(function(){
             },
             success:function(response){
                 console.log(response)
-                // if(response.success == false){
-                //     document.getElementById('server_message_error').classList.add("alert-danger");
-                //     document.getElementById('server_message_error').innerHTML = response.message;
-                //     document.getElementById("server_message_error").style.display = "block";
-                //     setTimeout(function(){ 
-                //         document.getElementById("server_message_error").style.display = "none"; 
-                        
-                //     }, 3000);  
-                // }
-                // else{
-                //     if (response.role == 1){
-                //         window.location.href = '/client_dashboard/'+user_id;
-                //     document.getElementById('p_id').innerHTML = user_id;
-                //     }else{
-                //         window.location.href = '/sp_dashboard/'+user_id;
-                //     }
-                // }
+                if(response.success == true && response.status == 200){
+                    success.classList.remove("modal-hide");
+                    success.classList.remove("modal-show");
+                    main.classList.add("modal-hide");
+                    hash.value = response.tx_hash;
+                    msg.innerHTML = response.message; 
+                }
+                else{
+                    fail.classList.remove("modal-hide");
+                    fail.classList.remove("modal-show");
+                    main.classList.add("modal-hide");
+                    msg.innerHTML = response.message;
+                }
             },
             error:function(e){
                 console.log(e);
-                $("#spinner").hide();
             },
         });
         
         
     });
 });
+
+//DROP DOWN
+$(function(){
+    $('#drop-down').on('click', function () {
+        console.log("hi")
+        let ul = document.getElementById("drop-list")
+        if (ul.style.display === "none") {
+            ul.style.display = "block";
+          } else {
+            ul.style.display = "none";
+          }
+        // if(ul.classList = "hide"){
+        //     ul.classList.remove("hide");
+        //     ul.classList.add("show");
+        // }
+        // else if (ul.classList = "show"){
+        //     ul.classList.remove("show");
+        //     ul.classList.add("hide");
+        // }
+        // else{}
+    })})
