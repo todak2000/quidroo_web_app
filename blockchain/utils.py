@@ -1,5 +1,6 @@
 from logging import raiseExceptions
 from typing import Any
+from rest_framework.response import Response
 from stellar_sdk import MuxedAccount, Server, Network, Keypair, TransactionBuilder, xdr
 import requests
 from decouple import config as env_var
@@ -44,7 +45,13 @@ def generate_UID() -> str:
     memo_uid = secrets.randbits(30) 
     return "255" + str(memo_uid)
 
-
+def individual_transaction(transaction_hash :str) -> Response:
+    url = f"{main_horizon_url}/transactions/{transaction_hash}/operations"
+    tx = requests.get(url)
+    if tx.status_code == 200:
+        resp = tx.json()
+        return resp
+# print(individual_transaction('8a2dd65897f1b8fa9c3b147dfbe75b42ac5e880ef1126a5aa9ff94d6f2ebdb94'))
 
 
 

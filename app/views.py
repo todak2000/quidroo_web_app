@@ -1,8 +1,10 @@
 import datetime, json
+import re
 from django.shortcuts import render, redirect
 from django.contrib.sites.shortcuts import get_current_site
 import jwt
 from django.db.models import Sum, Q
+import requests
 from app.models import (User,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification)
 from CustomCode import (password_functions, string_generator, validator)
 
@@ -19,7 +21,7 @@ from decouple import config
 from blockchain.utils import (generate_UID, create_muxed_keypair, 
                                 get_transaction_history_for_muxed_acct, send_external_payments, 
                                 send_internal_payments)
-from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct, quidroo_to_user_payment 
+from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct, quidroo_to_user_payment, individual_transaction
 
 REST_API_ID = config("REST_API_ID")
 REST_API_SECRET = config("REST_API_SECRET")
@@ -29,6 +31,23 @@ SPApiProxy = PySendPulse(REST_API_ID, REST_API_SECRET, TOKEN_STORAGE, memcached_
 sender_email = "donotreply@wastecoin.co"
 
 
+
+
+@api_view(["GET"])
+def check_transaction_with_hash(request):
+    '''
+    endpoint take a transaction hash and return list 
+    of transaction within that hash
+    '''
+    tx_hash = request.data
+    try:
+        tx_list =individual_transaction(tx_hash['tx_hash'])
+    except:
+        return Response({"message":"Transaction Error"}, status=400)
+    else:
+        return Response({
+            "message":tx_list
+        }, status=200)
 #Transaction View for Muxed Account individual users
 @api_view(['GET']) #please handle the security
 def transaction_history(request): 

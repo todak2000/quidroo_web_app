@@ -22,6 +22,7 @@ urlpatterns = [
     path('internal_tranfer', views.internal_tranfer, name='internal_tranfer'),
     path('transaction_history', views.transaction_history, name='transaction_history'),
     path('external_transfer', views.external_transfer, name='external_transfer'),
+    path('check_transaction_with_hash', views.check_transaction_with_hash, name='check_transaction_with_hash'),
 
 
     path('withdraw',views.withdraw, name='withdraw'),
