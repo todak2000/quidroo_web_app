@@ -91,16 +91,17 @@ class Verification(models.Model):
 class Transaction(models.Model):
     class Meta:
         db_table = "Transactions_table"
-    sender_id = models.CharField(max_length=500,verbose_name="Sender")
+    sender_id = models.CharField(max_length=500, verbose_name="Sender")
     receiver_id = models.CharField(max_length=500, verbose_name="Reciever")
     token_balance = models.FloatField(max_length=30,verbose_name="Token Amount Transacted",blank=True)
     fiat_equivalent = models.FloatField(max_length=30,verbose_name="Fiat Equivalent",blank=True)
-    transaction_type = models.CharField(max_length=500, verbose_name="Type of Transaction", default="none")
+    transaction_type = models.CharField(max_length=500,unique=False, verbose_name="Type of Transaction", default="none")
     transaction_note = models.CharField(max_length=30, verbose_name="Transaction note", null=True)
+    tx_hash = models.CharField(max_length=1000, verbose_name="Blockhain Transaction Hash", default="395f2c4c0948911df0461865e9a5fc06ad8c537cfc894224fc748fa4a1b5211f")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
     updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
     def __str__(self):
-        return f"{self.user} - {self.token_balance} - {self.fiat_equivalent} - {self.created_at} - {self.updated_at}"
+        return f"{self.sender_id} - {self.receiver_id} - {self.token_balance} - {self.fiat_equivalent} - {self.created_at} - {self.transaction_note} - {self.transaction_type} - {self.tx_hash}"
 
 class OnboardingVerification(models.Model):
     class Meta:

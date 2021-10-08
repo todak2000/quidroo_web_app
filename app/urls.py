@@ -18,6 +18,12 @@ urlpatterns = [
     path('invoices',views.invoices_page, name='invoices'),
     path('stats',views.stats_page, name='stats'),
     path('logout',views.logout_page, name='logout'),
+
+    path('internal_tranfer', views.internal_tranfer, name='internal_tranfer'),
+    path('transaction_history', views.transaction_history, name='transaction_history'),
+    path('external_transfer', views.external_transfer, name='external_transfer'),
+
+
     path('withdraw',views.withdraw, name='withdraw'),
     path('topup',views.topup, name='topup'),
     # path('transaction_history', views.transaction_history, name='transaction_history'),

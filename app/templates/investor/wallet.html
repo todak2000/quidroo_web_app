@@ -20,7 +20,11 @@
     <!-- main section -->
     <div class="main-section">
         <div class="main-title disappear">
-            <h4>{{company_name}}'s Wallet</h4>
+            {% if company_name %}
+                <h4>{{company_name}}'s Dashboard</h4>
+            {% else %}
+                <h4>{{name}}'s Dashboard</h4>
+            {% endif %}
         </div>
         <div class="main-wallet">
             <div class="main-left disappear">
@@ -30,7 +34,9 @@
                             <img src= "{% static 'img/wallet-seller.svg' %}" alt="upload" class="mr-2">
                             <p>Wallet</p>
                             <span id="wall-active">ACTIVE</span>
+                            
                         </div>
+                        <p class="mt-3" style="color:#5151E0; font-size:0.85rem;">{{first_muxed_acc}}*****{{last_muxed_acc}} </p>
                     </div>
                     <!-- wallet card -->
                     <div class="wallet-card" style="background-color: #b3ebd854;">
@@ -57,7 +63,7 @@
                         <!-- transactions -->
                         <div class="flex-between mt-3 line">
                             <h6 class="recent-trans">Recent Transactions</h6>
-                            <a class="trans-view ">See More</a>
+                            <!-- <a class="trans-view ">See More</a> -->
                         </div>
                         {% if local_transaction %}
                             {% for t in local_transaction %}
@@ -119,26 +125,26 @@
                     <!-- transactions -->
                     <div class="flex-between mt-3 line">
                         <h6 class="recent-trans">Recent Transactions</h6>
-                        <a class="trans-view ">See More</a>
+                        <!-- <a class="trans-view ">See More</a> -->
                     </div>
                     {% if local_transaction %}
                         {% for t in local_transaction %}
                             {% if t.transaction_type == "Credit" %}
-                            <div class="flex-between mt-1">
+                            <a href="https://horizon-testnet.stellar.org/transactions/{{t.tx_hash}}/operations" target="_blank"><div class="flex-between mt-1">
                                 <div>
                                     <h6 class="trans">{{t.transaction_note}}</h6>
                                     <a class="trans-date">{{t.created_at}}</a>
                                 </div>
                                 <p class="wallet-green">+ $ {{t.fiat_equivalent|floatformat:2|intcomma}}</p>
-                            </div>
+                            </div></a>
                             {% else %}
-                            <div class="flex-between mt-1">
+                            <a href="https://horizon-testnet.stellar.org/transactions/{{t.tx_hash}}/operations" target="_blank"><div class="flex-between mt-1">
                                 <div>
                                     <h6 class="trans">{{t.transaction_note}}</h6>
                                     <a class="trans-date">{{t.created_at}}</a>
                                 </div>
                                 <p class="wallet-red">- $ {{t.fiat_equivalent|floatformat:2|intcomma}}</p>
-                            </div>
+                            </div></a>
                             {% endif %}
                         
                         {% endfor %}

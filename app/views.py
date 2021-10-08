@@ -16,7 +16,10 @@ from pysendpulse.pysendpulse import PySendPulse
 from decouple import config
 
 
-from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct, quidroo_to_user_payment, token_burn
+from blockchain.utils import (generate_UID, create_muxed_keypair, 
+                                get_transaction_history_for_muxed_acct, send_external_payments, 
+                                send_internal_payments, token_burn)
+from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct, quidroo_to_user_payment 
 
 REST_API_ID = config("REST_API_ID")
 REST_API_SECRET = config("REST_API_SECRET")
@@ -25,10 +28,11 @@ MEMCACHED_HOST = config("MEMCACHED_HOST")
 SPApiProxy = PySendPulse(REST_API_ID, REST_API_SECRET, TOKEN_STORAGE, memcached_host=MEMCACHED_HOST)
 sender_email = "donotreply@wastecoin.co"
 
-#Transaction View for Muxed Account individual users
 
+#Transaction View for Muxed Account individual users
 @api_view(['GET']) #please handle the security
-def transaction_history(request):
+def transaction_history(request): 
+    # this endpoint can be used for the "recent transaction" & "recent activity" on the dashboard
     '''
     endpoint to return transaction history of a user account
     :params user_muxed_acct:  The muxed account to fetch transaction history
@@ -44,6 +48,30 @@ def transaction_history(request):
             # Send muxed acct to horizon, this only returns the list of transaction performed by a muxed acct,
             # In case there is no transaction for the muxed acct, it returns an empty list
             tx = get_transaction_history_for_muxed_acct(acct)
+        except Exception as E:
+            return Response({
+                "message":"Transaction Error"
+            }, status=400)
+        else:
+            return Response({"message":tx}, status=200)
+
+
+@api_view(['POST'])
+def internal_tranfer(request):
+    #This is to be use btw TWO QUIDROO USER
+    #Dont use this endpoint for external transfer
+    req_data = request.data
+    try:
+        receiver = req_data['receiver_muxed_acct']
+        sender = req_data['sender_muxed_acct']
+        amount = req_data['amount']
+    except:
+        return Response({
+            "message":"receiver_muxed_acct, sender_muxed_acct and amount are required field"
+        }, 400)
+    else:
+        try:
+            tx = send_internal_payments(sender, receiver, amount)
         except:
             return Response({
                 "message":"Transaction Error"
@@ -51,6 +79,29 @@ def transaction_history(request):
         else:
             return Response({"message":tx}, status=200)
 
+@api_view(['POST'])
+def external_transfer(request):
+    #This should be used for transfers outside of quidroo
+    req_data = request.data
+    try:
+        sender_muxed = req_data['sender_muxed_acct']
+        receiver_pub_key = req_data['receiver_pub_key']
+        amount = req_data['amount']
+
+    except:
+        return Response({
+            "message":"sender_muxed_acct, receiver_pub_key and amount are required field"
+        }, 400)
+    else:
+        try:
+            tx = send_external_payments(sender_muxed, receiver_pub_key, amount)
+        except Exception as e:
+    
+            return Response({
+                "message":"Transaction Error"
+            }, status=400)
+        else:
+            return Response({"message":tx}, status=200)
 
 
 
@@ -82,9 +133,10 @@ def dashboard_page(request):
         user_data = User.objects.get(user_id=user_id)
         wallet_data = Wallet.objects.get(user=user_data)
         local_tx = Transaction.objects.filter(Q(sender_id=user_id) | Q(receiver_id=user_id)).order_by('-created_at')[:3]
-       
+        first_muxed = wallet_data.muxed_acct[:4]
+        last_muxed = wallet_data.muxed_acct[-4:]
         tx = get_transaction_history_for_muxed_acct(wallet_data.muxed_acct)
-        print(tx)
+        # print(tx)
         return_data = {
             "success": True,
             "status" : 200,
@@ -97,6 +149,8 @@ def dashboard_page(request):
             "role": user_data.role,
             "fiat_equivalent":wallet_data.fiat_equivalent,
             "token_balance":wallet_data.token_balance,
+            "first_muxed_acc": first_muxed,
+            "last_muxed_acc": last_muxed,
             "muxed_acct": wallet_data.muxed_acct,
             "memo": wallet_data.memo,
             "transactions":tx,
@@ -132,6 +186,8 @@ def wallet_page(request):
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
         wallet_data = Wallet.objects.get(user=user_data)
+        first_muxed = wallet_data.muxed_acct[:4]
+        last_muxed = wallet_data.muxed_acct[-4:]
         tx = get_transaction_history_for_muxed_acct(wallet_data.muxed_acct)
         local_tx = Transaction.objects.filter(Q(sender_id=user_id) | Q(receiver_id=user_id)).order_by('-created_at')[:3]
         return_data = {
@@ -147,6 +203,8 @@ def wallet_page(request):
             "fiat_equivalent":wallet_data.fiat_equivalent,
             "token_balance":wallet_data.token_balance,
             "muxed_acct": wallet_data.muxed_acct,
+            "first_muxed_acc": first_muxed,
+            "last_muxed_acc": last_muxed,
             "memo": wallet_data.memo,
             "transactions":tx,
             "local_transaction": local_tx
@@ -656,6 +714,19 @@ def signin(request):
                 request.session['token'] = token
 
                 if is_valid_password and is_verified:
+                    #Need to get user token balance from db which should be display on their dashboard
+                    return_data = {
+                        "success": True,
+                        "status" : 200,
+                        "activated": is_activated,
+                        "message": "Successfull",
+                        "token": token,
+                        "company_name": user_data.company_name,
+                        "token-expiration": f"{timeLimit}",
+                        "sessionToken":request.session['token'],
+                        "user_id": user_data.user_id,
+                        "role": f"{user_data.role}",
+                    }
                     if user_data.role == "seller":
                         return redirect('/dashboard')
                     elif user_data.role == "investor":
@@ -714,7 +785,7 @@ def withdraw(request):
                 wallet_data.fiat_equivalent = newBalance
                 wallet_data.token_balance = newBalance
                 wallet_data.save()
-                newTransaction = Transaction(sender_id=user_id, receiver_id="quidroo", fiat_equivalent=float(amount), token_balance=float(amount),transaction_type = "Debit", transaction_note="Withdrawal from Quidroo Account")
+                newTransaction = Transaction(sender_id=user_id, receiver_id="quidroo", fiat_equivalent=float(amount), token_balance=float(amount),transaction_type = "Debit", transaction_note="Withdrawal from Quidroo Account", tx_hash=bc["hash"])
                 newTransaction.save()
                 return_data = {
                     "success": True,
@@ -767,7 +838,7 @@ def topup(request):
                 wallet_data.fiat_equivalent = newBalance
                 wallet_data.token_balance = newBalance
                 wallet_data.save()
-                newTransaction = Transaction(receiver_id=user_id, sender_id="quidroo", fiat_equivalent=amount, token_balance=amount,transaction_type = "Credit", transaction_note="Topup into Quidroo Account")
+                newTransaction = Transaction(receiver_id=user_id, sender_id="quidroo", fiat_equivalent=amount, token_balance=amount,transaction_type = "Credit", transaction_note="Topup into Quidroo Account", tx_hash=bc["hash"])
                 newTransaction.save()
                 return_data = {
                     "success": True,

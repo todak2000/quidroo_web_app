@@ -1,11 +1,13 @@
+from logging import raiseExceptions
 from typing import Any
 from stellar_sdk import MuxedAccount, Server, Network, Keypair, TransactionBuilder, xdr
 import requests
 from decouple import config as env_var
 from stellar_sdk.asset import Asset
-import secrets
+import secrets, json
 
 #Testnet Properties
+main_horizon_url = "https://horizon-testnet.stellar.org"
 horizon_server = Server("https://horizon-testnet.stellar.org/")
 network_passphrase = Network.TESTNET_NETWORK_PASSPHRASE
 
@@ -51,12 +53,18 @@ def get_transaction_history_for_muxed_acct(user_muxed_acct :str) -> "Response":
     accts = MuxedAccount.from_account(user_muxed_acct)
     base_acct = accts.account_id
     memo = accts.account_muxed_id
-    print(memo, base_acct)
-    tx = horizon_server.operations().for_account(base_acct).call()
-    all_tx = tx['_embedded']['records']
-    mux_tx = [i for i in all_tx if i['type'] == 'payment' and "source_account_muxed" in i and i['source_account_muxed'] == user_muxed_acct]
-    return mux_tx
-def create_muxed_keypair(account_muxed_id :str, public_key=DISTRIBUTOR_ACCT) -> Any:
+    url = f"{main_horizon_url}/accounts/{base_acct}/operations?limit=200&order=desc"
+    tx = requests.get(url)
+    if tx.status_code == 200:
+        content = tx.json()
+        all_content = content['_embedded']['records']
+        mux_history = [i for i in all_content if  'to_muxed_id' in i and i['to_muxed'] == user_muxed_acct ]
+        return mux_history
+            # if "to_muxed_id" in i and i['to_muxed'] == user_muxed_acct:
+            #     print(i)
+            #     return i
+    
+def create_muxed_keypair(account_muxed_id :str, public_key=main_key_publickey) -> Any:
     """
     function to create mutiplex account for each users
     :params public_key - The base public key
@@ -192,7 +200,6 @@ def quidroo_to_user_payment(receiver_acct :str, amt :str) -> xdr:
     this will transfer asset(QUT) from the asset issuer acct to the distributor acct(The muxed account will different who owns what on blockchain).
     this will send QUT token by default
     """
-    # create_trustline(distributor, asset_code, ASSET_ISSUER)
     key_pairs = Keypair.from_secret(asset_issuer)
     sender_load = key_pairs.public_key
 
@@ -227,7 +234,6 @@ def token_burn(user_muxed_acct :str, amount :str) -> xdr:
     sender_load = MuxedAccount.from_account(user_muxed_acct)
 
     source_acct = horizon_server.load_account(sender_load)
-
     base_fee = horizon_server.fetch_base_fee()
     payments = TransactionBuilder(
         source_account=source_acct,
@@ -248,3 +254,6 @@ def token_burn(user_muxed_acct :str, amount :str) -> xdr:
     payments.sign(distributor)
     resp = horizon_server.submit_transaction(payments)
     return resp
+
+
+# print(token_burn("MA6PJDHDFCR6JCOW77F27UYYRIGAKUFZYZNHDBKF4NSI6C4YVP6VQAAAAADCFTQ2KAYJI", 100))

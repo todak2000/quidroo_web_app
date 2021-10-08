@@ -173,6 +173,7 @@ $(function(){
         let main =  document.getElementById("main-form");
         let hash = document.getElementById('hash');
         let btn = document.getElementById('withdraw-btn');
+        let ref_url = document.getElementById('ref_url');
         let msg = document.getElementById("modal-message") || document.getElementById("modal-message-success");
         btn.innerHTML = "Initiating Transaction..."
         // let code = document.getElementById("code_verify").value;
@@ -192,6 +193,7 @@ $(function(){
                     main.classList.add("modal-hide");
                     hash.value = response.tx_hash;
                     msg.innerHTML = response.message; 
+                    ref_url.href ="https://horizon-testnet.stellar.org/transactions/"+response.tx_hash+"/operations"
                 }
                 else{
                     fail.classList.remove("modal-hide");
@@ -227,6 +229,7 @@ $(function(){
         let main =  document.getElementById("t_main-form");
         let hash = document.getElementById('t_hash');
         let btn = document.getElementById('topup-btn');
+        let ref_url = document.getElementById('ref_url_fund');
         let msg = document.getElementById("t_modal-message") || document.getElementById("t_modal-message-success");
         // document.getElementById("spinner").style.display = "block";
         btn.innerHTML = "Initiating Transaction..."
@@ -245,6 +248,7 @@ $(function(){
                     main.classList.add("modal-hide");
                     hash.value = response.tx_hash;
                     msg.innerHTML = response.message; 
+                    ref_url.href ="https://horizon-testnet.stellar.org/transactions/"+response.tx_hash+"/operations"
                 }
                 else{
                     fail.classList.remove("modal-hide");
