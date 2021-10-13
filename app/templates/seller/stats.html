@@ -1,7 +1,7 @@
 {% extends "seller/base.html" %}
 
 {% load static %}
-
+{% load humanize %}
 {% block body%}
 <section class="dashboard-main"> 
     <!-- top-bar -->
@@ -37,17 +37,23 @@
                     <div class="flexy-options-stats">
                         <div class="smally-card" >
                             <img src= "{% static 'img/sold-invoices.svg' %}" alt="upload" class="mb-3">
-                            <h3>31</h3>
+                            <h3>{{completed}}</h3>
                             <p>Invoices sold</p>
                         </div>
                         <div class="smally-card" >
                             <img src= "{% static 'img/total-sales.svg' %}" alt="upload" class="mb-3" >
-                            <h3>&#8358;13.5m</h3>
+                            <h3>&#8358;
+                                {% if totalSold.invoice_amount__sum != None  %}
+                                    {{totalSold.invoice_amount__sum|floatformat:2|intcomma}}
+                                {% else %}
+                                0.00
+                                {% endif%}
+                            </h3>
                             <p>Total Sales</p>
                         </div>
                         <div class="smally-card" >
                             <img src= "{% static 'img/vendors.svg' %}" alt="upload" class="mb-3">
-                            <h3>15</h3>
+                            <h3>{{vendors}}</h3>
                             <p>Vendors</p>
                         </div>
                     </div>
@@ -63,14 +69,16 @@
                         <a class="view disappear">  See All</a>
                     </div>
                     <div class=" mt-1">
+                        {% if recent_activities %}
+                        {% for r in recent_activities %}
                         <div class="mb-3">
-                            <h6 class="trans">Uploaded an Invoice QINV343409</h6>
-                            <a class="trans-date">Today     10:35 AM</a>
+                            <h6 class="trans">{{r.activity}}</h6>
+                            <a class="trans-date">{{r.date_added}}</a>
                         </div>
-                        <div class="mb-3">
-                            <h6 class="trans">Changed account password</h6>
-                            <a class="trans-date">Yesterday     10:35 AM</a>
-                        </div>
+                        {% endfor %}
+                        {% else %}
+                            <p class="no-tx">No recent Activities</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

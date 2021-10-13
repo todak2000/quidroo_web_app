@@ -36,7 +36,7 @@
                             <span id="wall-active">ACTIVE</span>
                             
                         </div>
-                        <p class="mt-3" style="color:#5151E0; font-size:0.85rem;">{{first_muxed_acc}}*****{{last_muxed_acc}} </p>
+                        <p class="mt-3" style="color:#5151E0; font-size:0.85rem;">QII***</p>
                     </div>
                     <!-- wallet card -->
                     <div class="wallet-card" style="background-color: #b3ebd854;">
@@ -47,8 +47,8 @@
                         </div>
 
                         <div id="w_balance_div">
-                            <h3 class="mb-3 clickable" id="w_qut" onclick="w_toggleBalance(this.id);">{{token_balance|floatformat:2|intcomma}} <sup class="sup">USDC</sup></h3>
-                            <h3 class="mb-3 hide clickable" id="w_fiat" onclick="w_toggleBalance(this.id);" >$ {{fiat_equivalent|floatformat:2|intcomma}}</h3>
+                            <h3 class="mb-3 clickable" id="w_qut" >{{fiat_equivalent|floatformat:2|intcomma}} <sup class="sup">NGN</sup></h3>
+                            <!-- <h3 class="mb-3 hide clickable" id="w_fiat" onclick="w_toggleBalance(this.id);" >$ {{fiat_equivalent|floatformat:2|intcomma}}</h3> -->
                             <div class="flex-between">
                                 <a class="view mt-3" data-toggle="modal" data-target="#withdrawModal">  Withdraw</a>
                                 <a class="view mt-3" data-toggle="modal" data-target="#topupModal">  Fund Wallet</a>

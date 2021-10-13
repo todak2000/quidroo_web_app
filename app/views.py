@@ -1,9 +1,10 @@
-import datetime, json
+import datetime as DT
+import datetime
 from django.shortcuts import render, redirect
 from django.contrib.sites.shortcuts import get_current_site
 import jwt
 from django.db.models import Sum, Q
-from app.models import (User,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification)
+from app.models import (RecentActivity, User, VendorList,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification)
 from CustomCode import (password_functions, string_generator, validator)
 
 from quidroo import settings
@@ -14,12 +15,7 @@ from django.http import JsonResponse
 
 from pysendpulse.pysendpulse import PySendPulse
 from decouple import config
-
-
-from blockchain.utils import (generate_UID, create_muxed_keypair, 
-                                get_transaction_history_for_muxed_acct, send_external_payments, 
-                                send_internal_payments, token_burn)
-from blockchain.utils import generate_UID, create_muxed_keypair, get_transaction_history_for_muxed_acct, quidroo_to_user_payment 
+import cloudinary.uploader
 
 REST_API_ID = config("REST_API_ID")
 REST_API_SECRET = config("REST_API_SECRET")
@@ -29,86 +25,10 @@ SPApiProxy = PySendPulse(REST_API_ID, REST_API_SECRET, TOKEN_STORAGE, memcached_
 sender_email = "donotreply@wastecoin.co"
 
 
-#Transaction View for Muxed Account individual users
-@api_view(['GET']) #please handle the security
-def transaction_history(request): 
-    # this endpoint can be used for the "recent transaction" & "recent activity" on the dashboard
-    '''
-    endpoint to return transaction history of a user account
-    :params user_muxed_acct:  The muxed account to fetch transaction history
-    '''
-    user_muxed_acct = request.data
-    try:
-        acct = user_muxed_acct['user_muxed_acct']
-    except:
-        return Response({"message":"user_muxed_acct is a required argument"
-                        }, status=400)
-    else:
-        try:
-            # Send muxed acct to horizon, this only returns the list of transaction performed by a muxed acct,
-            # In case there is no transaction for the muxed acct, it returns an empty list
-            tx = get_transaction_history_for_muxed_acct(acct)
-        except Exception as E:
-            return Response({
-                "message":"Transaction Error"
-            }, status=400)
-        else:
-            return Response({"message":tx}, status=200)
-
-
-@api_view(['POST'])
-def internal_tranfer(request):
-    #This is to be use btw TWO QUIDROO USER
-    #Dont use this endpoint for external transfer
-    req_data = request.data
-    try:
-        receiver = req_data['receiver_muxed_acct']
-        sender = req_data['sender_muxed_acct']
-        amount = req_data['amount']
-    except:
-        return Response({
-            "message":"receiver_muxed_acct, sender_muxed_acct and amount are required field"
-        }, 400)
-    else:
-        try:
-            tx = send_internal_payments(sender, receiver, amount)
-        except:
-            return Response({
-                "message":"Transaction Error"
-            }, status=400)
-        else:
-            return Response({"message":tx}, status=200)
-
-@api_view(['POST'])
-def external_transfer(request):
-    #This should be used for transfers outside of quidroo
-    req_data = request.data
-    try:
-        sender_muxed = req_data['sender_muxed_acct']
-        receiver_pub_key = req_data['receiver_pub_key']
-        amount = req_data['amount']
-
-    except:
-        return Response({
-            "message":"sender_muxed_acct, receiver_pub_key and amount are required field"
-        }, 400)
-    else:
-        try:
-            tx = send_external_payments(sender_muxed, receiver_pub_key, amount)
-        except Exception as e:
-    
-            return Response({
-                "message":"Transaction Error"
-            }, status=400)
-        else:
-            return Response({"message":tx}, status=200)
-
-
 
 # Create your views here.
 @api_view(["GET"])
 def index(request): 
-    # return render(request,"seller/dashboard.html")
     return render(request,"onboarding/index.html")
 
 @api_view(["GET"])
@@ -126,17 +46,59 @@ def forgot_page(request):
     return render(request,"onboarding/forgot_password.html")
 
 @api_view(["GET"])
-def dashboard_page(request):
+def upload_page(request):
     if 'token' in request.session:
         decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
+        vendorList = VendorList.objects.filter(isVerified=True)
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "token": request.session['token'],
+            "user_id": user_data.user_id,
+            "creditScore":user_data.credit_score,
+            "name": user_data.name,
+            "company_name": user_data.company_name,
+            "role": user_data.role,
+            "vendors": vendorList
+
+        }
+        if user_data.role == "seller":
+            return render(request,"seller/upload.html", return_data)
+        else:
+            return_data = {
+                "success": False,
+                "message": "You are not authorized to access this page!",
+                "status" : 205,
+            }
+            return render(request,"onboarding/login.html", return_data) 
+    else:
+        return_data = {
+            "success": False,
+            "message": "Sorry! your session expired. Kindly login again",
+            "status" : 205,
+        }
+        return render(request,"onboarding/login.html", return_data)
+
+@api_view(["GET"])
+def dashboard_page(request):
+    try:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        awaitingInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=0).count()
+        confirmedInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=1).count()
+        buyerInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=2).count()
+        soldInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=3).count()
+        completedInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=4).count()
+        totalSold = Invoice.objects.filter(seller_id=user_id, invoice_state=4).aggregate(Sum('invoice_amount'))
+        vendors = Invoice.objects.filter(seller_id=user_id).values('vendor_name').distinct().count()
+        recent_activities = RecentActivity.objects.filter(user_id=user_id).order_by('-date_added')[:3]
         wallet_data = Wallet.objects.get(user=user_data)
         local_tx = Transaction.objects.filter(Q(sender_id=user_id) | Q(receiver_id=user_id)).order_by('-created_at')[:3]
-        first_muxed = wallet_data.muxed_acct[:4]
-        last_muxed = wallet_data.muxed_acct[-4:]
-        tx = get_transaction_history_for_muxed_acct(wallet_data.muxed_acct)
-        # print(tx)
+
         return_data = {
             "success": True,
             "status" : 200,
@@ -147,21 +109,23 @@ def dashboard_page(request):
             "name": user_data.name,
             "company_name": user_data.company_name,
             "role": user_data.role,
+            "awaiting": awaitingInvoices,
+            "confirmed": confirmedInvoices,
+            "buyer": buyerInvoices,
+            "sold": soldInvoices,
+            "vendors":vendors,
+            "totalSold":totalSold,
+            "completed": completedInvoices,
             "fiat_equivalent":wallet_data.fiat_equivalent,
-            "token_balance":wallet_data.token_balance,
-            "first_muxed_acc": first_muxed,
-            "last_muxed_acc": last_muxed,
-            "muxed_acct": wallet_data.muxed_acct,
-            "memo": wallet_data.memo,
-            "transactions":tx,
-            "local_transaction": local_tx
+            "local_transaction": local_tx,
+            "recent_activities": recent_activities
         }
         if user_data.role == "seller":
-            # return render(request,"seller/dashboard.html", return_data)
-            return render(request,"seller/wallet.html", return_data)
+            return render(request,"seller/dashboard.html", return_data)
+            # return render(request,"seller/wallet.html", return_data)
         elif user_data.role == "investor":
-            # return render(request,"investor/dashboard.html", return_data)
-            return render(request,"investor/wallet.html", return_data)
+            return render(request,"investor/dashboard.html", return_data)
+            # return render(request,"investor/wallet.html", return_data)
         elif user_data.role == "vendor":
             return render(request,"seller/dashboard.html", return_data)
         else:
@@ -170,25 +134,21 @@ def dashboard_page(request):
                 "message": "You are not authorized to access this page!",
                 "status" : 205,
             }
-            return render(request,"onboarding/login.html", return_data) 
-    else:
+            return render(request,"onboarding/login.html", return_data)
+    except jwt.exceptions.ExpiredSignatureError:
         return_data = {
-            "success": False,
-            "message": "Sorry! your session expired. Kindly login again",
-            "status" : 205,
-        }
+            "error": "1",
+            "message": "Token has expired"
+            }
         return render(request,"onboarding/login.html", return_data)
-
+    
 @api_view(["GET"])
 def wallet_page(request):
-    if 'token' in request.session:
+    try:
         decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
         wallet_data = Wallet.objects.get(user=user_data)
-        first_muxed = wallet_data.muxed_acct[:4]
-        last_muxed = wallet_data.muxed_acct[-4:]
-        tx = get_transaction_history_for_muxed_acct(wallet_data.muxed_acct)
         local_tx = Transaction.objects.filter(Q(sender_id=user_id) | Q(receiver_id=user_id)).order_by('-created_at')[:3]
         return_data = {
             "success": True,
@@ -201,12 +161,6 @@ def wallet_page(request):
             "role": user_data.role,
             "name": user_data.name,
             "fiat_equivalent":wallet_data.fiat_equivalent,
-            "token_balance":wallet_data.token_balance,
-            "muxed_acct": wallet_data.muxed_acct,
-            "first_muxed_acc": first_muxed,
-            "last_muxed_acc": last_muxed,
-            "memo": wallet_data.memo,
-            "transactions":tx,
             "local_transaction": local_tx
         }
         if user_data.role == "seller":
@@ -222,20 +176,21 @@ def wallet_page(request):
                 "status" : 205,
             }
             return render(request,"onboarding/login.html", return_data) 
-    else:
+    except jwt.exceptions.ExpiredSignatureError:
         return_data = {
-            "success": False,
-            "message": "Sorry! your session expired. Kindly login again",
-            "status" : 205,
-        }
+            "error": "1",
+            "message": "Token has expired"
+            }
         return render(request,"onboarding/login.html", return_data)
 
 @api_view(["GET"])
 def invoices_page(request):
-    if 'token' in request.session:
+    # if 'token' in request.session:
+    try:
         decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
+        invoices = Invoice.objects.filter(seller_id=user_id).order_by('-created_at')[:10]
         return_data = {
             "success": True,
             "status" : 200,
@@ -246,6 +201,7 @@ def invoices_page(request):
             "user_id": user_data.user_id,
             "company_name": user_data.company_name,
             "role": user_data.role,
+            "invoices": invoices
         }
         if user_data.role == "seller":
             return render(request,"seller/invoices.html", return_data)
@@ -260,20 +216,24 @@ def invoices_page(request):
                 "status" : 205,
             }
             return render(request,"onboarding/login.html", return_data) 
-    else:
+    except jwt.exceptions.ExpiredSignatureError:
         return_data = {
-            "success": False,
-            "message": "Sorry! your session expired. Kindly login again",
-            "status" : 205,
-        }
+            "error": "1",
+            "message": "Token has expired"
+            }
         return render(request,"onboarding/login.html", return_data)
 
 @api_view(["GET"])
 def stats_page(request):
-    if 'token' in request.session:
+    # if 'token' in request.session:
+    try:
         decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
+        completedInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=4).count()
+        totalSold = Invoice.objects.filter(seller_id=user_id, invoice_state=4).aggregate(Sum('invoice_amount'))
+        vendors = Invoice.objects.filter(seller_id=user_id).values('vendor_name').distinct().count()
+        recent_activities = RecentActivity.objects.filter(user_id=user_id).order_by('-date_added')[:3]
         return_data = {
             "success": True,
             "status" : 200,
@@ -284,6 +244,10 @@ def stats_page(request):
             "name": user_data.name,
             "company_name": user_data.company_name,
             "role": user_data.role,
+             "vendors":vendors,
+            "totalSold":totalSold,
+            "completed": completedInvoices,
+            "recent_activities": recent_activities
         }
         if user_data.role == "seller":
             return render(request,"seller/stats.html", return_data)
@@ -298,12 +262,11 @@ def stats_page(request):
                 "status" : 205,
             }
             return render(request,"onboarding/login.html", return_data) 
-    else:
+    except jwt.exceptions.ExpiredSignatureError:
         return_data = {
-            "success": False,
-            "message": "Sorry! your session expired. Kindly login again",
-            "status" : 205,
-        }
+            "error": "1",
+            "message": "Token has expired"
+            }
         return render(request,"onboarding/login.html", return_data)
 
 # SELLER SIGN UP API
@@ -342,18 +305,12 @@ def seller_signup(request):
                                 email=email, password=encryped_password,company_address=company_address, role=role)
             newUserData.save()
             
-            #wallet details updated with muxed and memo saved to db
-            user_memo=generate_UID()
-            user_muxed_acct =create_muxed_keypair(user_memo)
-            balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0, memo=user_memo, muxed_acct=user_muxed_acct['muxed_acct'])
+            balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0)
             balance.save()
-
-
             
             # save user verification datat
             InitialVerificationData = Verification(user=newUserData,cac_no=cac_no)
             InitialVerificationData.save()
-
             # Get User Account Verification item
             validated = User.objects.get(user_id=userRandomId).email_verified
 
@@ -378,6 +335,8 @@ def seller_signup(request):
             }
             sentMail = SPApiProxy.smtp_send_mail(email)
             if newUserData and sentMail and InitialVerificationData:
+                newActivity = RecentActivity(activity="Signed up as a Seller", user_id=newUserData.user_id)
+                newActivity.save()
                 return_data = {
                     "success": True,
                     "status" : 200,
@@ -434,10 +393,7 @@ def investor_company_signup(request):
             InitialVerificationData = Verification(user=newUserData,cac_no=cac_no)
             InitialVerificationData.save()
 
-            #wallet details updated with muxed and memo saved to db
-            user_memo=generate_UID()
-            user_muxed_acct =create_muxed_keypair(user_memo)
-            balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0, memo=user_memo, muxed_acct=user_muxed_acct['muxed_acct'])
+            balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0)
             balance.save()
 
             # Get User Account Verification item
@@ -464,6 +420,8 @@ def investor_company_signup(request):
             }
             sentMail = SPApiProxy.smtp_send_mail(email)
             if newUserData and sentMail and InitialVerificationData:
+                newActivity = RecentActivity(activity="Signed up as a Investor", user_id=newUserData.user_id)
+                newActivity.save()
                 return_data = {
                     "success": True,
                     "status" : 200,
@@ -517,10 +475,8 @@ def investor_individual_signup(request):
 
             # Get User Account Verification item
             validated = User.objects.get(user_id=userRandomId).email_verified
-            #wallet details updated with muxed and memo saved to db
-            user_memo=generate_UID()
-            user_muxed_acct =create_muxed_keypair(user_memo)
-            balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0, memo=user_memo, muxed_acct=user_muxed_acct['muxed_acct'])
+
+            balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0)
             balance.save()
 
 
@@ -545,6 +501,8 @@ def investor_individual_signup(request):
             }
             sentMail = SPApiProxy.smtp_send_mail(email)
             if newUserData and sentMail:
+                newActivity = RecentActivity(activity="Signed up as a Investor", user_id=newUserData.user_id)
+                newActivity.save()
                 return_data = {
                     "success": True,
                     "status" : 200,
@@ -601,10 +559,7 @@ def vendor_signup(request):
             InitialVerificationData = Verification(user=newUserData,cac_no=cac_no)
             InitialVerificationData.save()
 
-            #wallet details updated with muxed and memo saved to db
-            user_memo=generate_UID()
-            user_muxed_acct =create_muxed_keypair(user_memo)
-            balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0, memo=user_memo, muxed_acct=user_muxed_acct['muxed_acct'])
+            balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0)
             balance.save()
 
 
@@ -632,6 +587,8 @@ def vendor_signup(request):
             }
             sentMail = SPApiProxy.smtp_send_mail(email)
             if newUserData and sentMail and InitialVerificationData:
+                newActivity = RecentActivity(activity="Signed up as a Vendor", user_id=newUserData.user_id)
+                newActivity.save()
                 return_data = {
                     "success": True,
                     "status" : 200,
@@ -712,9 +669,11 @@ def signin(request):
                 token = jwt.encode(payload,settings.SECRET_KEY)
                 # save token
                 request.session['token'] = token
+                request.session['credit_score'] = user_data.credit_score
 
                 if is_valid_password and is_verified:
-                    #Need to get user token balance from db which should be display on their dashboard
+                    newActivity = RecentActivity(activity="Just Logged in", user_id=user_data.user_id)
+                    newActivity.save()
                     return_data = {
                         "success": True,
                         "status" : 200,
@@ -724,6 +683,7 @@ def signin(request):
                         "company_name": user_data.company_name,
                         "token-expiration": f"{timeLimit}",
                         "sessionToken":request.session['token'],
+                        "creditScore":user_data.credit_score,
                         "user_id": user_data.user_id,
                         "role": f"{user_data.role}",
                     }
@@ -772,50 +732,75 @@ def signin(request):
 @api_view(["POST"])
 def withdraw(request):
     amount = request.data.get("amount",None) 
-    if 'token' in request.session:
+    try:
         decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
         wallet_data = Wallet.objects.get(user=user_data)
         
         if amount != "" and wallet_data.fiat_equivalent >= float(amount):
-            bc = token_burn(wallet_data.muxed_acct, amount)
-            if bc["successful"]== True:
-                newBalance = wallet_data.fiat_equivalent - float(amount)
-                wallet_data.fiat_equivalent = newBalance
-                wallet_data.token_balance = newBalance
-                wallet_data.save()
-                newTransaction = Transaction(sender_id=user_id, receiver_id="quidroo", fiat_equivalent=float(amount), token_balance=float(amount),transaction_type = "Debit", transaction_note="Withdrawal from Quidroo Account", tx_hash=bc["hash"])
-                newTransaction.save()
-                return_data = {
-                    "success": True,
-                    "status" : 200,
-                    "activated": user_data.verified,
-                    "message": "Your withdrawal request has been received and fund sent to your Bank",
-                    "company_name": user_data.company_name,
-                    "role": user_data.role,
-                    "new_fiat_equivalent":wallet_data.fiat_equivalent,
-                    "new_token_balance":wallet_data.token_balance,
-                    "tx_hash": bc["hash"]
+            newBalance = wallet_data.fiat_equivalent - float(amount)
+            wallet_data.fiat_equivalent = newBalance
+            wallet_data.save()
+            newTransaction = Transaction(sender_id=user_id, receiver_id="quidroo", fiat_equivalent=float(amount), token_balance=float(amount),transaction_type = "Debit", transaction_note="Withdrawal from Quidroo Account")
+            newTransaction.save()
+            if wallet_data and newTransaction:
+                # Send mail to user using SMTP
+                if user_data.name !="":
+                    name = user_data.name
+                else:
+                    name = user_data.company_name 
+                email = user_data.email 
+                mail_subject = 'Quidroo: Withdrawal Request Successful.'
+                email1 = {
+                    'subject': mail_subject,
+                    'html': '<section style="background-color: #EEF1F8;height:auto;width: auto;display: flex;flex-direction: column;align-items: center;justify-content: center;"> <div style="background: #FFFFFF;width: 100%;padding: 10vh;"><img src="https://i.im.ge/2021/09/23/TCyJRy.jpg" style="margin:auto; width:40%; height: auto;" /><h3 style="margin-top:-6vh;">Hello '+str(name)+'!</h3><p style="font-size: 1.15rem;color:#767E9F;">Your withdrawal request has been received and the fund would be deposited into your Bank account withn 24 hours</p></div></section>',
+                    'text': 'Hello, '+str(name)+'!\nYour withdrawal request has been received and the fund would be deposited into your Bank account withn 24 hours',
+                    'from': {'name': 'Quidroo', 'email': sender_email},
+                    'to': [
+                        {'name': name, 'email': email}
+                    ]
                 }
-            else:
+                sentMail = SPApiProxy.smtp_send_mail(email1)
+                # Send mail to ADMIN using SMTP
+                if user_data.name !="":
+                    name = user_data.name
+                else:
+                    name = user_data.company_name 
+                email = "todak2000@gmail.com"
+                mail_subject = str(name)+' just made a Withdrawal Request'
+                email2 = {
+                    'subject': mail_subject,
+                    'html': '<section style="background-color: #EEF1F8;height:auto;width: auto;display: flex;flex-direction: column;align-items: center;justify-content: center;"> <div style="background: #FFFFFF;width: 100%;padding: 10vh;"><img src="https://i.im.ge/2021/09/23/TCyJRy.jpg" style="margin:auto; width:40%; height: auto;" /><h3 style="margin-top:-6vh;">Hello Admin!</h3><p style="font-size: 1.15rem;color:#767E9F;">'+str(name)+' made a withdrawal request. Kindly attend to it within 24 hours.</p></div></section>',
+                    'text': 'Hello, Admin!\n '+str(name)+' made a withdrawal request. Kindly attend to it within 24 hours.',
+                    'from': {'name': 'Quidroo', 'email': sender_email},
+                    'to': [
+                        {'name': name, 'email': email}
+                    ]
+                }
+                sentMail2 = SPApiProxy.smtp_send_mail(email2)
+                newActivity = RecentActivity(activity="Initiated a withdrawal of NGN "+str(amount), user_id=user_data.user_id)
+                newActivity.save()
                 return_data = {
-                "success": False,
-                "message": "Oops! an error occured. try again later",
-                "status" : 205,
-            }
+                "success": True,
+                "status" : 200,
+                "activated": user_data.verified,
+                "message": "Your withdrawal request has been received and the fund would be deposited into your Bank account withn 24 hours",
+                "company_name": user_data.company_name,
+                "role": user_data.role,
+                "new_fiat_equivalent":wallet_data.fiat_equivalent,
+                }
         else:
             return_data = {
                 "success": False,
                 "message": "Sorry, you have insufficient funds or entered no amount value!",
                 "status" : 205,
             }
-    else:
+    except jwt.exceptions.ExpiredSignatureError:
         return_data = {
-            "success": False,
-            "message": "Sorry! your session expired. Kindly login again",
-            "status" : 205,
-        }
+            "error": "1",
+            "message": "Token has expired"
+            }
     return Response(return_data)
 
 # FUND USER ACCOUNT
@@ -823,43 +808,33 @@ def withdraw(request):
 def topup(request):
     
     str_amount = request.data.get("amount",None)
-    if 'token' in request.session: 
+    # if 'token' in request.session: 
+    try:
         if str_amount !="":
             amount = float(str_amount) 
             decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
             user_id = decrypedToken['user_id']
             user_data = User.objects.get(user_id=user_id)
-            wallet_data = Wallet.objects.get(user=user_data)
 
-            bc = quidroo_to_user_payment(wallet_data.muxed_acct, str_amount)
-            tx = get_transaction_history_for_muxed_acct(wallet_data.muxed_acct)
-            if bc["successful"]== True:
-                newBalance = wallet_data.fiat_equivalent + amount
-                wallet_data.fiat_equivalent = newBalance
-                wallet_data.token_balance = newBalance
-                wallet_data.save()
-                newTransaction = Transaction(receiver_id=user_id, sender_id="quidroo", fiat_equivalent=amount, token_balance=amount,transaction_type = "Credit", transaction_note="Topup into Quidroo Account", tx_hash=bc["hash"])
-                newTransaction.save()
-                return_data = {
-                    "success": True,
-                    "status" : 200,
-                    "activated": user_data.verified,
-                    "message": str(user_data.name) or str(user_data.company_name) + "! your Quidroo wallet has been credited successfully with $"+ str(amount),
-                    "company_name": user_data.company_name,
-                    "role": user_data.role,
-                    "new_fiat_equivalent":wallet_data.fiat_equivalent,
-                    "new_token_balance":wallet_data.token_balance,
-                    "blockchain_tx": bc,
-                    "tx_hash": bc["hash"],
-                    "transactions":tx
-                }
+            wallet_data = Wallet.objects.get(user=user_data)
+            newBalance = wallet_data.fiat_equivalent + amount
+            wallet_data.fiat_equivalent = newBalance
+            wallet_data.save()
+
+            newTransaction = Transaction(receiver_id=user_id, sender_id="quidroo", fiat_equivalent=amount, token_balance=amount,transaction_type = "Credit", transaction_note="Topup into Quidroo Account", tx_hash=bc["hash"])
+            newTransaction.save()
+            newActivity = RecentActivity(activity="Initiated a Topup of NGN "+str(amount), user_id=user_data.user_id)
+            newActivity.save()
+            return_data = {
+                "success": True,
+                "status" : 200,
+                "activated": user_data.verified,
+                "message": str(user_data.name) or str(user_data.company_name) + "! your Quidroo wallet has been credited successfully with $"+ str(amount),
+                "company_name": user_data.company_name,
+                "role": user_data.role,
+                "new_fiat_equivalent":wallet_data.fiat_equivalent,
+            }
                 
-            else:
-                return_data = {
-                    "success": False,
-                    "message": "Sorry, we could not process the transaction. Kindly try again!",
-                    "status" : 205,
-                }
         else:
             return_data = {
             "success": False,
@@ -867,10 +842,159 @@ def topup(request):
             "status" : 205,
         }
         
+    except jwt.exceptions.ExpiredSignatureError:
+        return_data = {
+            "error": "1",
+            "message": "Token has expired"
+            }
+    return Response(return_data)
+
+@api_view(["POST"])
+def upload_invoice(request):
+    file = request.data.get("file",None)
+    invoice_name = request.data.get("invoice_name",None)
+    invoice_amount = request.data.get("invoice_amount",None)
+    datee = request.data.get("invoice_date",None)
+    invoice_date= DT.datetime.strptime(datee, '%Y-%m-%d')
+    if request.data.get("vendor_name",None) != "":
+        vendor_name = request.data.get("vendor_name",None)
+    else:
+        vendor_name = request.data.get("vendor_name2",None) # from select tag
+    vendor_phone = request.data.get("vendor_phone",None)
+    vendor_email = request.data.get("vendor_email",None)
+    vendor_contact = request.data.get("vendor_contact",None)
+    invoice_file= cloudinary.uploader.upload(file)
+    if invoice_file:
+        if 'token' in request.session: 
+            decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+            user_id = decrypedToken['user_id']
+            user_data = User.objects.get(user_id=user_id)
+            if request.data.get("vendor_name",None) != "":
+                newVendor = VendorList(name=vendor_name)
+                newVendor.save()
+
+            newUpload = Invoice(seller_id=user_id, additional_details= invoice_name,invoice_url=invoice_file["secure_url"], due_date=invoice_date, vendor_name=vendor_name, vendor_contact_name=vendor_contact,vendor_email  = vendor_email , vendor_phone=vendor_phone, invoice_amount=invoice_amount)
+            newUpload.save()
+            newActivity = RecentActivity(activity="Uploaded an Invoice - "+str(invoice_name), user_id=user_id)
+            newActivity.save()
+            if newUpload and newActivity:
+                return_data = {
+                "success": True,
+                "status" : 200,
+                "activated": user_data.verified,
+                "message": str(user_data.name) or str(user_data.company_name) + "! your Invoice has been successfully uploaded and pending approval",
+                "company_name": user_data.company_name,
+                "role": user_data.role,
+                "invoice_url": newUpload.invoice_url
+            }
+            else:
+                return_data = {
+                "success": False,
+                "message": "Sorry! an error occured",
+                "status" : 205,
+            }
+            
+            
+        else:
+            return_data = {
+                "success": False,
+                "message": "Sorry! your session expired. Kindly login again",
+                "status" : 205,
+            }
+    else:
+        return_data = {
+            "success": False,
+            "message": "Sorry! an error occured! try again",
+            "status" : 205,
+        }
+    return render(request,"seller/upload.html", return_data)
+
+@api_view(["POST"])
+def invoice_search(request):
+    status = request.data.get("status",None)
+    date = int(request.data.get("date",None))
+    
+    if 'token' in request.session:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        today = DT.date.today()
+        selectedDate = today + DT.timedelta(days=date)
+        print("status: ",status)
+        print("date: ",date)
+        if status == "all" and date == 0:
+            searchInvoices = Invoice.objects.filter(seller_id=user_id).order_by('-created_at')[:20]
+        elif status == "all" and date != 0:
+            searchInvoices = Invoice.objects.filter(seller_id=user_id, due_date__gte=today, due_date__lte=selectedDate).order_by('-created_at')[:20]
+        elif status != "all" and date == 0:
+            searchInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=status).order_by('-created_at')[:20]
+        else:
+            searchInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=status, due_date__gte=today, due_date__lte=selectedDate).order_by('-created_at')[:20]
+        num = len(searchInvoices)
+        searchInvoicesList = []
+        for i in range(0,num):
+            due_date = searchInvoices[i].due_date
+            additional_details  = searchInvoices[i].additional_details
+            invoice_amount  = searchInvoices[i].invoice_amount
+            invoice_state = searchInvoices[i].invoice_state
+            vendor_name = searchInvoices[i].vendor_name
+            invoice_url = searchInvoices[i].invoice_url
+            to_json = {
+                "invoice_state": invoice_state,
+                "additional_details": additional_details,
+                "invoice_amount": invoice_amount,
+                "vendor_name": vendor_name,
+                "invoice_url":invoice_url,
+                "due_date": due_date.strftime('%Y-%m-%d')
+            }
+            searchInvoicesList.append(to_json)
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "message": "Successfull",
+            "name": user_data.name,
+            "token": request.session['token'],
+            "user_id": user_data.user_id,
+            "company_name": user_data.company_name,
+            "role": user_data.role,
+            "invoices": searchInvoicesList
+        }
+        return Response(return_data)
     else:
         return_data = {
             "success": False,
             "message": "Sorry! your session expired. Kindly login again",
             "status" : 205,
         }
-    return Response(return_data)
+        return render(request,"onboarding/login.html", return_data)
+
+@api_view(["POST"])
+def invoice_details(request):
+    invoice_id = request.data.get("invoice_id",None)   
+    if 'token' in request.session:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        invoiceSelected = Invoice.objects.get(id=invoice_id)
+        
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "message": "Successfull",
+            "invoice_state": invoiceSelected.invoice_state,
+            "additional_details": invoiceSelected.additional_details,
+            "invoice_amount": invoiceSelected.invoice_amount,
+            "vendor_name": invoiceSelected.vendor_name,
+            "due_date": invoiceSelected.due_date.strftime('%Y-%m-%d'),
+            "invoiceURL": invoiceSelected.invoice_url
+        }
+        return Response(return_data)
+    else:
+        return_data = {
+            "success": False,
+            "message": "Sorry! your session expired. Kindly login again",
+            "status" : 205,
+        }
+        return render(request,"onboarding/login.html", return_data)

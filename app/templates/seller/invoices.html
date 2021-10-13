@@ -1,55 +1,100 @@
 {% extends "seller/base.html" %}
 
 {% load static %}
-
+{% load humanize %}
 {% block body%}
 <section class="dashboard-main"> 
     <!-- top-bar -->
     <nav class="main-top">
-        <img src= "{% static 'img/logo-mobile.svg' %}" alt="logo" class="img-fluid mobile">
-        <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile">
-        <div class="avatar-div disappear"> 
-            <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
-            <div class="avatar-div2 ">
-                <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm">
-                <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
-            </div>
-        </div>
-    </nav>
+      <img src= "{% static 'img/logo-mobile.svg' %}" alt="logo" class="img-fluid mobile">
+      <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile">
+      <div class="avatar-div disappear"> 
+          <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
+          <div class="avatar-div2 " id="drop-down">
+              <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm">
+              <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
+          </div>
+      </div>
+  </nav>
+  <ul style="display: none;" id="drop-list">
+      <li><a href="#"><img src= "{% static 'img/drop-profile.svg' %}" alt="upload" class="mr-3"> View Profile</a></li>
+      <li><a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mr-3">Sign out</a></li>
+  </ul>
     <!-- top-bar ends -->
+    <!-- mobile search -->
+    <div>
+      <div class="main-title mobile-flex2">
+        <h4> <img src= "{% static 'img/in-invoice.svg' %}" alt="upload" class="mr-2">Invoices</h4>
+        <a class="invoice-upload" href="{% url 'upload' %}"> <img src= "{% static 'img/upload-mobile.svg' %}" alt="upload"> Upload Invoice</a>
+      </div>
+      <form  action="" >
+        {% csrf_token %}
+      <div class="flex-between mobile-flex">
+          <div class="flexy">
+              <img src= "{% static 'img/filter.svg' %}" alt="upload" class="mr-2">
+              <p>Filter</p>
+              <select id="select-filter2" class="select-filter ml-3" onchange="searchInvoice()">
+                  <option value="" disabled selected>Status</option>
+                  <option value="all" >All</option>
+                  <option value="0" >Awaiting Confirmation</option>
+                  <option value="1">Confirmed by Vendor</option>
+                  <option value="2" >Awaiting Buyer</option>
+                  <option value="3">Awaiting Maturity</option>
+                  <option value="4">Completed</option>
+              </select>
+              <select id="select-filter-date2" class="select-filter ml-3" onchange="searchInvoice()">
+                  <option value="0" disabled selected>Due Date</option>
+                  <option value="1" >Today</option>
+                  <option value="7">Next 7 Days</option>
+                  <option value="30" >Next 30 Days</option>
+                  <option value="60">Next 60 Days</option>
+                  <option value="120">Next 120 Days</option>
+              </select>
+    
+          </div>
+      </div>
+      </form>
+    </div>
     <!-- main section -->
     <div class="main-section">
         <div class="main-title disappear">
             <h4> <img src= "{% static 'img/in-invoice.svg' %}" alt="upload" class="mr-2">Invoices</h4>
-            <a class="invoice-upload"> <img src= "{% static 'img/upload-mobile.svg' %}" alt="upload"> Upload Invoice</a>
+            <a class="invoice-upload" href="{% url 'upload' %}"> <img src= "{% static 'img/upload-mobile.svg' %}" alt="upload"> Upload Invoice</a>
         </div>
+        <input type="text" value="{{token}}" id="invoice-token" hidden/>
         <div class="main-wallet">
             <div class="main-invoice">
-                <div class="main-card">
-                    <div class="flex-between">
+                <div class="main-card" >
+                  <form  action="" >
+                    {% csrf_token %}
+                    <div class="flex-between disappear">
                         <div class="flexy">
                             <img src= "{% static 'img/filter.svg' %}" alt="upload" class="mr-2">
                             <p>Filter</p>
-                            <select id="select-filter" class="select-filter ml-3">
+                            <select id="select-filter" class="select-filter ml-3" onchange="searchInvoice()">
                                 <option value="" disabled selected>Status</option>
-                                <option value="awaiting" >Awaiting Confirmation</option>
-                                <option value="vendor">Confirmed by Vendor</option>
-                                <option value="buyer" >Awaiting Buyer</option>
-                                <option value="maturity">Awaiting Maturity</option>
+                                <option value="all" >All</option>
+                                <option value="0" >Awaiting Confirmation</option>
+                                <option value="1">Confirmed by Vendor</option>
+                                <option value="2" >Awaiting Buyer</option>
+                                <option value="3">Awaiting Maturity</option>
+                                <option value="4">Completed</option>
                             </select>
-                            <select id="select-filter" class="select-filter ml-3">
-                                <option value="" disabled selected>Due Date</option>
-                                <option value="awaiting" >Today</option>
-                                <option value="vendor">Next 7 Days</option>
-                                <option value="buyer" >30 Days</option>
-                                <option value="maturity">60 Days</option>
-                                <option value="maturity">120 Days</option>
+                            <select id="select-filter-date" class="select-filter ml-3" onchange="searchInvoice()">
+                                <option value="0" disabled selected>Due Date</option>
+                                <option value="1" >Today</option>
+                                <option value="7">Next 7 Days</option>
+                                <option value="30" >Next 30 Days</option>
+                                <option value="60">Next 60 Days</option>
+                                <option value="120">Next 120 Days</option>
                             </select>
 
                         </div>
                     </div>
+                  </form>
                     <!-- invoice table -->
-                    <table class="table">
+                    {% if invoices %}
+                    <table class="table" >
                         <thead>
                           <tr>
                             <th scope="col">Name</th>
@@ -57,40 +102,84 @@
                             <th scope="col">Amount</th>
                             <th scope="col">Due Date</th>
                             <th scope="col">Vendor</th>
+                            <th scope="col"></th>
                           </tr>
                         </thead>
-                        <tbody>
-                          <tr>
-                            <td > <img src= "{% static 'img/invoice-small.svg' %}" alt="upload" class="mr-1"/> Road Project</td>
-                            <td><span class="awaiting">Awaiting Confirmation</span></td>
-                            <td>&#8358;1,000,000.00</td>
-                            <td>12/03/2012</td>
-                            <td>Emeks Entreprises</td>
-                          </tr>
-                          <tr>
-                            <td > <img src= "{% static 'img/invoice-small.svg' %}" alt="upload" class="mr-1"/> Road Project</td>
-                            <td><span class="vendor">Awaiting Confirmation</span></td>
-                            <td>&#8358;1,000,000.00</td>
-                            <td>12/03/2012</td>
-                            <td>Emeks Entreprises</td>
-                          </tr>
-                          <tr>
-                            <td > <img src= "{% static 'img/invoice-small.svg' %}" alt="upload" class="mr-1"/> Road Project</td>
-                            <td><span class="buyer">Awaiting Confirmation</span></td>
-                            <td>&#8358;1,000,000.00</td>
-                            <td>12/03/2012</td>
-                            <td>Emeks Entreprises</td>
-                          </tr>
-                          <tr>
-                            <td > <img src= "{% static 'img/invoice-small.svg' %}" alt="upload" class="mr-1"/> Road Project</td>
-                            <td><span class="maturity">Awaiting Confirmation</span></td>
-                            <td>&#8358;1,000,000.00</td>
-                            <td>12/03/2012</td>
-                            <td>Emeks Entreprises</td>
-                          </tr>
+                        
+                        <tbody id="invoice-table">
                           
+                            {% for i in invoices %}
+                            <tr id={{i.id}} >
+                              <td > <img src= "{% static 'img/invoice-small.svg' %}" alt="upload" class="mr-1"/> {{i.additional_details|slice:":55" }}</td>
+                              {% if i.invoice_state == 0 %}
+                                <td><span class="awaiting">Awaiting Confirmation</span></td>
+                              {% elif i.invoice_state == 1 %}
+                                <td><span class="vendor">Confirmed</span></td>
+                              {% elif i.invoice_state == 2 %}
+                                <td><span class="buyer">Awaiting Buyer</span></td>
+                              {% elif i.invoice_state == 3 %}
+                                <td><span class="maturity">Sold</span></td>
+                              {% elif i.invoice_state == 4 %}
+                                <td><span class="maturity">Completed</span></td>
+                              {% else %}
+                              {% endif %}
+                              <td>&#8358; {{i.invoice_amount|floatformat:2|intcomma}}</td>
+                              <td>{{i.due_date}}</td>
+                              <td>{{i.vendor_name}}</td>
+                              <td><a href="{{i.invoice_url}}" target="_blank"><img src="{% static 'img/eye_hidden.svg' %}" class="img-eye" /></a></td>
+                            </tr>
+                            {% endfor %} 
                         </tbody>
+                        <!-- search table -->
+                        <tbody id="ajax_div"></tbody>
                       </table>
+                      {% else %}
+                      
+                      <div class="no-invoice">
+                        <img src= "{% static 'img/no-invoice.svg' %}" alt="upload" class="mb-3"/>
+                        <p>No Invoices</p>
+                      </div>
+                      {% endif %}
+                       <!-- mobile -->
+                       <div class="mobile" id="search-mobile"></div>
+                       <div class="mobile" id="mobile-table">
+                        {% if invoices %}
+                          {% for i in invoices %}
+                          <div class="mobile-card-invoice mb-1" >
+                            <div class="mob-flex">
+                              <h5>
+                                <img src= "{% static 'img/invoice-small.svg' %}" alt="upload" class="mr-1"/> 
+                                {{i.additional_details|slice:":55" }}
+                              </h5>
+                              <a href="{{i.invoice_url}}" target="_blank"><img src="{% static 'img/eye_hidden.svg' %}" class="img-eye mt-3" style="width:70%;" /></a>
+                            </div>
+                              
+                            
+                            <div class="mob-flex">
+                              {% if i.invoice_state == 0 %}
+                              <p class="awaiting">Awaiting Confirmation</p>
+                              {% elif i.invoice_state == 1 %}
+                                <p class="vendor">Confirmed</p>
+                              {% elif i.invoice_state == 2 %}
+                                <p class="buyer">Awaiting Buyer</p>
+                              {% elif i.invoice_state == 3 %}
+                                <p class="maturity">Sold</p>
+                              {% elif i.invoice_state == 4 %}
+                                <p class="maturity">Completed</p>
+                              {% else %}
+                              {% endif %}
+                              <p style="padding: 0.5rem;">&#8358;{{i.invoice_amount|floatformat:2|intcomma}}</p>
+                            </div>
+                            <div class="mob-flex">
+                              <p class="mob-p"> <img src= "{% static 'img/small-date.svg' %}" alt="upload" class="mr-1"/>{{i.due_date}}</p>
+                              <p class="mob-p"> <img src= "{% static 'img/small-person.svg' %}" alt="upload" class="mr-1"/>{{i.vendor_name}}</p>
+                            </div>
+                           </div>
+                          {% endfor %}
+                        {% else %}
+                        {% endif %}
+                         
+                       </div>
                 </div>
                 
                 
@@ -101,5 +190,6 @@
     </div>
     <!-- main-section ends -->
 </section>
+
 {% endblock %}
 

@@ -8,6 +8,7 @@ urlpatterns = [
     path('signin',views.signin, name='signin'),
     path('login_page',views.login_page, name='login_page'),
     path('forgot_page',views.forgot_page, name='forgot_page'),
+    path('upload',views.upload_page, name='upload'),
     path('vendor_signup',views.vendor_signup, name='vendor_signup'),
     path('investor_company_signup',views.investor_company_signup, name='investor_company_signup'),
     path('investor_individual_signup',views.investor_individual_signup, name='investor_individual_signup'),
@@ -19,12 +20,9 @@ urlpatterns = [
     path('stats',views.stats_page, name='stats'),
     path('logout',views.logout_page, name='logout'),
 
-    path('internal_tranfer', views.internal_tranfer, name='internal_tranfer'),
-    path('transaction_history', views.transaction_history, name='transaction_history'),
-    path('external_transfer', views.external_transfer, name='external_transfer'),
-
-
     path('withdraw',views.withdraw, name='withdraw'),
     path('topup',views.topup, name='topup'),
-    # path('transaction_history', views.transaction_history, name='transaction_history'),
+    path('upload_invoice',views.upload_invoice, name='upload_invoice'),
+    path('invoice_search',views.invoice_search, name='invoice_search'),
+    path('invoice_details',views.invoice_details, name='invoice_details'),
 ]

@@ -13,7 +13,7 @@ class User(models.Model):
     company_name = models.TextField(max_length=200,verbose_name="Company Name", null=True)
     company_address = models.TextField(max_length=200,verbose_name="Company Address", null=True)
     business_type = models.TextField(max_length=200,verbose_name="Business Type", null=True)
-    credit_score = models.TextField(max_length=200,verbose_name="Quidroo Credit Score", null=True)
+    credit_score = models.TextField(max_length=200,verbose_name="Quidroo Credit Score", default= 0.1,null=True)
     role = models.TextField(max_length=50,verbose_name="User role",default="quidroo")
     verified = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
@@ -27,21 +27,27 @@ class Invoice(models.Model):
     class Meta:
         db_table = "Invoice_table"
     invoice_url = models.CharField(max_length=500,unique=True, verbose_name="Invoice Url")
-    due_date = models.DateTimeField(auto_now_add=True, verbose_name="Date Invoice is Due")
+    due_date = models.DateField(verbose_name="Date Invoice is Due")
     vendor_name = models.CharField(max_length=30,verbose_name="Vendor Name",blank=True)
     vendor_contact_name = models.CharField(max_length=30,verbose_name="Vendor Contact Name",blank=True)
-    vendor_email = models.EmailField(max_length=90, unique=True,verbose_name="Vendor Email")
-    vendor_phone = models.CharField(max_length=15, unique=True, null=True, verbose_name="Vendor Phone")
+    vendor_email = models.EmailField(max_length=90, verbose_name="Vendor Email")
+    vendor_phone = models.CharField(max_length=15, null=True, verbose_name="Vendor Phone")
     additional_details = models.TextField(max_length=2000,verbose_name="Invoice Additional notes")
-    invoice_state = models.CharField(max_length=200,verbose_name="Invoice State", null=True)
-    winning_buyer_id = models.CharField(max_length=500,unique=True, verbose_name="Winning Buyer/Investor ID")
-    seller_id = models.CharField(max_length=500,unique=True, verbose_name="Seller ID")
+    # Invoice State info
+    # 0 - Awaiting Confirmation
+    # 1 - Confirmed by Vendor/Quidroo
+    # 2 - Awaiting Buyer (up for bid)
+    # 3 - Awaiting Maturity (sold)
+    # 4 - Completed (Buyer paid and quidroo settled)
+    invoice_state = models.IntegerField(verbose_name="Invoice State", default=0) 
+    winning_buyer_id = models.CharField(max_length=500, verbose_name="Winning Buyer/Investor ID")
+    seller_id = models.CharField(max_length=500, verbose_name="Seller ID")
     seller_ror = models.FloatField(max_length=4,verbose_name="Seller ROR", default=0.09)
     invoice_amount = models.FloatField(max_length=30, verbose_name="Invoice Amount", null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
     updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
     def __str__(self):
-        return f"{self.invoice_url} - {self.due_date} - {self.vendor_name} - {self.vendor_phone} {self.invoice_state} - {self.seller}- {self.winning_buyer} - {self.seller_ror}- {self.invoice_amount} - {self.created_at}"
+        return f"{self.invoice_url} - {self.due_date} - {self.vendor_name} - {self.vendor_phone} {self.invoice_state} - {self.seller_id}- {self.winning_buyer_id} - {self.seller_ror}- {self.invoice_amount} - {self.created_at}"
 
 class Bid(models.Model):
     class Meta:
@@ -65,10 +71,10 @@ class Wallet(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
     
     #Blockchain Account
-    memo = models.CharField(max_length=40, unique=True, verbose_name="memo", blank=True)
-    muxed_acct = models.CharField(max_length=100, unique=True, verbose_name="muxed_acct", blank=True)
+    # memo = models.CharField(max_length=40, unique=True, verbose_name="memo", blank=True)
+    # muxed_acct = models.CharField(max_length=100, unique=True, verbose_name="muxed_acct", blank=True)
     def __str__(self):
-        return f"{self.user} - {self.token_balance} - {self.fiat_equivalent} - {self.created_at} - {self.muxed_acct}"
+        return f"{self.user} - {self.token_balance} - {self.fiat_equivalent} - {self.created_at}"
 
 class Verification(models.Model):
     class Meta:
@@ -114,3 +120,26 @@ class OnboardingVerification(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.code} - {self.isVerified}"
+
+class VendorList(models.Model):
+    class Meta:
+        db_table = "Vendor_table"
+    # Vendors
+    name = models.CharField(max_length=200,verbose_name="Vendor Name",blank=True)
+    credit_score = models.TextField(max_length=20,verbose_name="Vendor Credit score",default= 0.09)
+    isVerified = models.BooleanField(default=False)
+    date_added = models.DateTimeField(auto_now_add=True,)
+
+    def __str__(self):
+        return f"{self.name} - {self.credit_score} - {self.isVerified}"
+
+class RecentActivity(models.Model):
+    class Meta:
+        db_table = "RecentActivty_table"
+    # Recent Activities
+    activity = models.CharField(max_length=200,verbose_name="Vendor Name",blank=True)
+    user_id = models.TextField(max_length=20,verbose_name="Vendor Credit score",default= 0.09)
+    date_added = models.DateTimeField(auto_now_add=True,)
+
+    def __str__(self):
+        return f"{self.user_id} - {self.activity} - {self.date_added}"

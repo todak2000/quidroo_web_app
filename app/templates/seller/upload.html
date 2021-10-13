@@ -1,0 +1,141 @@
+{% extends "seller/base.html" %}
+
+{% load static %}
+{% load humanize %}
+{% block body%}
+<section class="dashboard-main"> 
+    <!-- top-bar -->
+    <nav class="main-top">
+        <img src= "{% static 'img/logo-mobile.svg' %}" alt="logo" class="img-fluid mobile">
+ 
+        <div class="avatar-div "> 
+            <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
+            <div class="avatar-div2 " id="drop-down">
+                <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm">
+                <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
+            </div>
+        </div>
+    </nav>
+    <ul style="display: none;" id="drop-list">
+        <li><a href="{% url 'logout' %}"><img src= "{% static 'img/drop-profile.svg' %}" alt="upload" class="mr-3"> View Profile</a></li>
+        <li><a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mr-3">Sign out</a></li>
+    </ul>
+    <!-- top-bar ends -->
+    <!-- main section -->
+    <div class="main-section">
+        <div class="main-upload">
+            
+            <div class="main-left">
+                <div class="main-card-upload">
+                    {% if message and success == True %}
+                        <div class="up-message">
+                            <img src="{% static 'img/successful_upload.svg' %}"/>
+                            <h3>Invoice Upload Successful</h3>
+                            <p style="text-align: center;">{{message}}</p>
+                            <a class="view " href="{% url 'upload' %}"> Upload Another Invoice</a>
+                            <a class="view-blue " href="{{invoice_url}}" target="_blank"> <img src="{% static 'img/blue-eye.svg' %}" class="mr-2 img-fluid"/> View Invoice</a>
+                            <a class="view-blue " href="{% url 'invoices' %}"> <img src="{% static 'img/blue-back.svg' %}" class="mr-2 img-fluid"/> Back to Invoice</a>
+                        </div>
+                    {% elif message and success == False %}
+                        <div class="up-message">
+                            <img src="{% static 'img/fail_upload.svg' %}"/>
+                            <h3>Invoice Upload Failed</h3>
+                            <p style="text-align: center;">{{message}}</p>
+                            <a class="view" href="{% url 'upload' %}"> Upload Another Invoice</a>
+                            <a class="view-blue" href="{% url 'invoices' %}"> <img src="{% static 'img/blue-back.svg' %}" class="mr-2 img-fluid"/> Back to Invoice</a>
+                        </div>
+                    {% else %}
+                    <div class="flex-between">
+                        <div class="flexy">
+                            <img src= "{% static 'img/upload_invoice.svg' %}" alt="upload" class="mr-2">
+                            <p> Upload Invoices</p>
+                        </div>
+                        <input type="text" id="score" value="{{creditScore}}" hidden/>
+                    </div>
+                    <form class="form" action="{% url 'upload_invoice' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div id="up_form-inner-one">
+                            <label class="lb">Invoice File <span style="font-size: 1.2rem; color:#D13D2A; font-weight: 300;">10mb max  (jpeg, docx, png, pdf, xls)</span></label><br>
+                            <label for="file" style="width: 100%;">
+                            <div class="">
+                                <div style="display: flex; justify-content: left; width:100%;">
+                                    <input type="text" 
+                                class="form-input" 
+                                name="file_display" 
+                                id="file_display"
+                                readonly
+                                placeholder="Add File"
+                                style="border: 1px dotted #D6DAE4; background-color:#fff;width:100%;"
+                                />
+                                <img src="{% static 'img/upload_plus.svg' %}" class="img-plus"  style="margin-left:-4vh" onclick="in_checkFormOne()"/>
+                                <input type="file" id="file" name="file" style="display: none" name="image" accept="image/gif,image/jpeg,image/jpg,image/png, application/pdf,.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" multiple="" data-original-title="upload photos" oninput="in_checkFormOne()">
+                                </div>
+                            </div>
+                            </label><br>
+                            
+                            <label class="lb">Invoice Name</label>
+                            <input type="text" class="form-input" placeholder="Enter Invoice name" id="invoice_name" name="invoice_name" oninput="in_checkFormOne()"/>
+            
+                            <label class="lb">Amount</label>
+                            <input type="text" class="form-input" placeholder="Enter Invoice Amount" id="invoice_amount" name="invoice_amount" oninput="in_checkFormOne()"/>
+            
+                            <label class="lb">Due Date</label>
+                            <div class="">
+                                <div style="display: flex; justify-content: left;"  >
+                                    <div class="form-group" style="width:100%">
+                                        <div class='input-group date form-input' id='datetimepicker1'>
+                                          <input type='text' style="background-color: transparent; border:0; width: 95%;" id="invoice_date" name="invoice_date" />
+                                          <span class="input-group-addon" style="background-color: transparent; border:0">
+                                              <img src="{% static 'img/calender.svg' %}"  onclick="in_checkFormOne()"/>
+                                          </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+            
+                            
+                            <div class="form-btn-div mt-3">
+                                <button class="btn-disabled" disabled id="invoice_continue">Next</button>
+                            </div>
+                        </div>  
+                        <div id="up_form-inner-two" class="disappeared">
+                            <label class="lb">Vendor's Name</label>
+                            <select class="form-input" id="vendor_name2" name="vendor_name2" oninput="in_checkSelect()">
+                                <option disabled selected>Select</option>
+                                {% if vendors %}
+                                {% for i in vendors %}
+                                <option value="{{i.name}}">{{i.name}}</option>
+                                {% endfor %}
+                                {% else %}
+                                {% endif %}
+                                <option value="new">Enter New Company name</option>
+                            </select>
+                            <input type="text" class="form-input" placeholder="Enter Company name that issued Invoice" id="vendor_name" name="vendor_name" oninput="in_checkFormTwo()" style="display: none;"/>
+                            <label class="lb">Contact Person</label>
+                            <input type="text" class="form-input" placeholder="Enter Contact Person Name" id="vendor_contact" name="vendor_contact" oninput="in_checkFormTwo()"/>
+                            <label class="lb">Contact Phone Number</label>
+                            <input type="text" class="form-input" placeholder="Enter Contact Person Phone number" id="vendor_phone" name="vendor_phone" oninput="in_checkFormTwo()"/>
+                            <label class="lb">Contact Email</label>
+                            <input type="text" class="form-input" placeholder="Enter Contact Person Email" id="vendor_email" name="vendor_email" oninput="in_checkFormTwo()"/>
+                            <div class="form-btn-div mt-3">
+                                <button class="btn-back" id="up_btn-back-one">Back</button>
+                                <button class="btn-create-account" type="submit" id="in_btn-nxt" onclick="changeBtn()"><span id="btnText">Upload Invoice </span><img id="uploadImg" src="{% static 'img/spinner.svg' %}" class="img-fluid" style="width: 15%; display: none;"/></button>
+                            </div>
+                        </div>
+            
+                        <p id="up_rec" class="disappeared">You will recieve <span id="recieveable"></span> upon successful approval and bid. Kindly confirm before you proceed</p>
+                    </form>
+                    {% endif %}
+                   
+                </div>
+                
+                
+            </div>
+            
+        </div>
+    </div>
+    <!-- main-section ends -->
+</section>
+{% endblock %}
+
