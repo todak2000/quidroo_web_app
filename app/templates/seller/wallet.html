@@ -29,8 +29,43 @@
                         <div class="flexy">
                             <img src= "{% static 'img/wallet-seller.svg' %}" alt="upload" class="mr-2">
                             <p>Wallet</p>
-                            <span id="wall-active">ACTIVE</span>
+                            {% if activated == True %}
+                                <span id="wall-active">ACTIVE</span>
+                            {% else %}
+                                <span id="wall-inactive">INACTIVE</span>
+                            {% endif %}
+                            <!-- <span id="wall-active">ACTIVE</span> -->
                         </div>
+                    </div>
+                    <div class="flexty mt-3">
+                        <h5>Credit Score</h5>
+                        {% if credit_score <= "0.199" %}
+                            <button type="button" class="btn credit-red ml-3">
+                                <span class="badge badge-red">1</span>
+                                VERY POOR
+                            </button>
+                        {% elif credit_score >= "0.2" and credit_score <= "0.399"%}
+                            <button type="button" class="btn credit-orange ml-3">
+                                <span class="badge badge-orange">2</span>
+                                POOR
+                            </button>
+                        {% elif credit_score >= "0.4" and credit_score <= "0.599"%}
+                            <button type="button" class="btn credit-yellow ml-3">
+                                <span class="badge badge-yellow">3</span>
+                                FAIR
+                            </button>
+                        {% elif credit_score >= "0.6" and credit_score <= "0.799"%}
+                            <button type="button" class="btn credit-light ml-3">
+                                <span class="badge badge-light">4</span>
+                                GOOD
+                            </button>
+                        {% elif credit_score >= "0.8" and credit_score <= "0.999"%}
+                            <button type="button" class="btn credit-green ml-3">
+                                <span class="badge badge-green">5</span>
+                                EXCELLENT
+                            </button>
+                        {% else %}
+                        {% endif %}
                     </div>
                     <!-- wallet card -->
                     <div class="wallet-card" >
@@ -88,10 +123,45 @@
                         <div class="flexy">
                             <img src= "{% static 'img/wallet-seller.svg' %}" alt="upload" class="mr-2">
                             <p>Wallet</p>
-                            <span id="wall-active">ACTIVE</span>
+                            {% if activated == True %}
+                                <span id="wall-active">ACTIVE</span>
+                            {% else %}
+                                <span id="wall-inactive">INACTIVE</span>
+                            {% endif %}
+                            <!-- <span id="wall-active">ACTIVE</span> -->
                         </div>
-                        <a class="view disappear">  View Details</a>
+                        <div class="flexty-wallet">
+                            <h5>Credit Score</h5>
+                            {% if credit_score >= "9" %}
+                                <button type="button" class="btn credit-red ml-3">
+                                    <span class="badge badge-red">1</span>
+                                    VERY POOR
+                                </button>
+                            {% elif credit_score <= "8.99" and credit_score >= "8"%}
+                                <button type="button" class="btn credit-orange ml-3">
+                                    <span class="badge badge-orange">2</span>
+                                    POOR
+                                </button>
+                            {% elif credit_score <= "7.99" and credit_score >= "7"%}
+                                <button type="button" class="btn credit-yellow ml-3">
+                                    <span class="badge badge-yellow">3</span>
+                                    FAIR
+                                </button>
+                            {% elif credit_score <= "6.99" and credit_score >= "6"%}
+                                <button type="button" class="btn credit-light ml-3">
+                                    <span class="badge badge-light">4</span>
+                                    GOOD
+                                </button>
+                                {% elif credit_score <= "5.99" and credit_score >= "5"%}
+                                <button type="button" class="btn credit-green ml-3">
+                                    <span class="badge badge-green">5</span>
+                                    EXCELLENT
+                                </button>
+                            {% else %}
+                            {% endif %}
+                        </div>
                     </div>
+                    
                     <!-- wallet card -->
                     <div class="wallet-card" >
                         <div class="flex-between">
@@ -110,7 +180,7 @@
                     <!-- transactions -->
                     <div class="flex-between mt-3 line">
                         <h6 class="recent-trans">Recent Transactions</h6>
-                        <a class="trans-view ">See More</a>
+                        <!-- <a class="trans-view ">See More</a> -->
                     </div>
                     {% if local_transaction %}
                         {% for t in local_transaction %}

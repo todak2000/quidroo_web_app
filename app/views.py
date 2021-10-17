@@ -1,11 +1,12 @@
 import datetime as DT
 import datetime
+from hashlib import new
 from django.shortcuts import render, redirect
 from django.contrib.sites.shortcuts import get_current_site
 import jwt
 from django.db.models import Sum, Q
 from app.models import (RecentActivity, User, VendorList,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification)
-from CustomCode import (password_functions, string_generator, validator)
+from CustomCode import (password_functions, string_generator, validator, credit_score)
 
 from quidroo import settings
 from rest_framework.decorators import api_view
@@ -98,7 +99,7 @@ def dashboard_page(request):
         recent_activities = RecentActivity.objects.filter(user_id=user_id).order_by('-date_added')[:3]
         wallet_data = Wallet.objects.get(user=user_data)
         local_tx = Transaction.objects.filter(Q(sender_id=user_id) | Q(receiver_id=user_id)).order_by('-created_at')[:3]
-
+        user_ver = Verification.objects.get(user=user_data)
         return_data = {
             "success": True,
             "status" : 200,
@@ -108,6 +109,7 @@ def dashboard_page(request):
             "user_id": user_data.user_id,
             "name": user_data.name,
             "company_name": user_data.company_name,
+            "credit_score": user_data.credit_score,
             "role": user_data.role,
             "awaiting": awaitingInvoices,
             "confirmed": confirmedInvoices,
@@ -118,7 +120,8 @@ def dashboard_page(request):
             "completed": completedInvoices,
             "fiat_equivalent":wallet_data.fiat_equivalent,
             "local_transaction": local_tx,
-            "recent_activities": recent_activities
+            "recent_activities": recent_activities,
+            "awaiting_approval": user_ver.awaiting_approval,
         }
         if user_data.role == "seller":
             return render(request,"seller/dashboard.html", return_data)
@@ -141,7 +144,59 @@ def dashboard_page(request):
             "message": "Token has expired"
             }
         return render(request,"onboarding/login.html", return_data)
-    
+
+@api_view(["GET"])
+def verification_page(request):
+    try:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        user_ver = Verification.objects.get(user=user_data)
+        # awaitingInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=0).count()
+        # confirmedInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=1).count()
+        # buyerInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=2).count()
+        # soldInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=3).count()
+        # completedInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=4).count()
+        # totalSold = Invoice.objects.filter(seller_id=user_id, invoice_state=4).aggregate(Sum('invoice_amount'))
+        # vendors = Invoice.objects.filter(seller_id=user_id).values('vendor_name').distinct().count()
+        # recent_activities = RecentActivity.objects.filter(user_id=user_id).order_by('-date_added')[:3]
+        # wallet_data = Wallet.objects.get(user=user_data)
+        # local_tx = Transaction.objects.filter(Q(sender_id=user_id) | Q(receiver_id=user_id)).order_by('-created_at')[:3]
+
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "token": request.session['token'],
+            "user_id": user_data.user_id,
+            "name": user_data.name,
+            "company_name": user_data.company_name,
+            "credit_score": user_data.credit_score,
+            "role": user_data.role,
+            "awaiting_approval": user_ver.awaiting_approval,
+           
+        }
+        if user_data.role == "seller":
+            return render(request,"seller/verification.html", return_data)
+            # return render(request,"seller/wallet.html", return_data)
+        elif user_data.role == "investor":
+            return render(request,"seller/dashboard.html", return_data)
+            # return render(request,"investor/wallet.html", return_data)
+        elif user_data.role == "vendor":
+            return render(request,"seller/dashboard.html", return_data)
+        else:
+            return_data = {
+                "success": False,
+                "message": "You are not authorized to access this page!",
+                "status" : 205,
+            }
+            return render(request,"onboarding/login.html", return_data)
+    except jwt.exceptions.ExpiredSignatureError:
+        return_data = {
+            "error": "1",
+            "message": "Token has expired"
+            }
+        return render(request,"onboarding/login.html", return_data) 
 @api_view(["GET"])
 def wallet_page(request):
     try:
@@ -159,6 +214,7 @@ def wallet_page(request):
             "user_id": user_data.user_id,
             "company_name": user_data.company_name,
             "role": user_data.role,
+            "credit_score": user_data.credit_score,
             "name": user_data.name,
             "fiat_equivalent":wallet_data.fiat_equivalent,
             "local_transaction": local_tx
@@ -872,8 +928,8 @@ def upload_invoice(request):
             if request.data.get("vendor_name",None) != "":
                 newVendor = VendorList(name=vendor_name)
                 newVendor.save()
-
-            newUpload = Invoice(seller_id=user_id, additional_details= invoice_name,invoice_url=invoice_file["secure_url"], due_date=invoice_date, vendor_name=vendor_name, vendor_contact_name=vendor_contact,vendor_email  = vendor_email , vendor_phone=vendor_phone, invoice_amount=invoice_amount)
+            receivable_amount = float(invoice_amount)*(1-(float(user_data.credit_score)/100))
+            newUpload = Invoice(seller_id=user_id, additional_details= invoice_name,invoice_url=invoice_file["secure_url"], due_date=invoice_date, vendor_name=vendor_name, vendor_contact_name=vendor_contact,vendor_email  = vendor_email , vendor_phone=vendor_phone, invoice_amount=invoice_amount, receivable_amount=receivable_amount, seller_ror=user_data.credit_score)
             newUpload.save()
             newActivity = RecentActivity(activity="Uploaded an Invoice - "+str(invoice_name), user_id=user_id)
             newActivity.save()
@@ -998,3 +1054,94 @@ def invoice_details(request):
             "status" : 205,
         }
         return render(request,"onboarding/login.html", return_data)
+
+@api_view(["POST"])
+def upload_verification_data(request):
+    idCard = request.data.get("file_id",None)
+    cac_cert = request.data.get("cac_cert",None)
+    bank_statement = request.data.get("bank_statement",None)
+
+    tin_no = request.data.get("tin_no",None)
+    nin_no = request.data.get("nin_no",None)
+    verBank = request.data.get("ver-bank",None)
+    verAccNo = request.data.get("ver-acc-no",None)
+    verAccName = request.data.get("ver-acc-name",None)
+    bvn_no = request.data.get("ver-bvn",None)
+
+    id_cloud= cloudinary.uploader.upload(idCard)
+    cac_cloud= cloudinary.uploader.upload(cac_cert)
+    bank_statement_cloud= cloudinary.uploader.upload(bank_statement)
+    # tin_cloud= cloudinary.uploader.upload(tin_no)
+    # nin_cloud= cloudinary.uploader.upload(nin_no)
+
+    # verBank_cloud= cloudinary.uploader.upload(verBank)
+    # verAccNo_cloud= cloudinary.uploader.upload(verAccNo)
+    # verAccName_cloud= cloudinary.uploader.upload(verAccName)
+    # bvn_cloud= cloudinary.uploader.upload(verBvn)
+    # if id_cloud:
+    if bank_statement_cloud and cac_cloud and id_cloud:
+        # if 'token' in request.session: 
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        newVerData = Verification.objects.get(user=user_data)
+        newVerData.user_Idcard=id_cloud["secure_url"]
+        newVerData.bank_statement=bank_statement_cloud["secure_url"]
+        newVerData.cac_certificate=cac_cloud["secure_url"]
+        newVerData.nin=nin_no
+        newVerData.bvn=bvn_no
+        newVerData.account_name=verAccName
+        newVerData.account_no=verAccNo
+        newVerData.bank=verBank
+        newVerData.tin=tin_no
+        newVerData.awaiting_approval=True 
+        newVerData.save()
+        newActivity = RecentActivity(activity="Uploaded an Verification Data", user_id=user_id)
+        newActivity.save()
+        if newVerData and newActivity:
+            latestScore = credit_score.creditScore(float(user_data.credit_score))
+            user_data.credit_score = latestScore
+            user_data.save()
+            # Send mail to ADMIN using SMTP
+            if user_data.name !="":
+                name = user_data.name
+            else:
+                name = user_data.company_name 
+            email = "todak2000@gmail.com"
+            mail_subject = str(name)+' just uploaded their Details'
+            email2 = {
+                'subject': mail_subject,
+                'html': '<section style="background-color: #EEF1F8;height:auto;width: auto;display: flex;flex-direction: column;align-items: center;justify-content: center;"> <div style="background: #FFFFFF;width: 100%;padding: 10vh;"><img src="https://i.im.ge/2021/09/23/TCyJRy.jpg" style="margin:auto; width:40%; height: auto;" /><h3 style="margin-top:-6vh;">Hello Admin!</h3><p style="font-size: 1.15rem;color:#767E9F;">'+str(name)+' has uploaded his verification details. Kindly attend to it within 24 hours and approve or confirm disapproval. Thanks.</p></div></section>',
+                'text': 'Hello, Admin!\n '+str(name)+' has uploaded his verification details. Kindly attend to it within 24 hours and approve or confirm disapproval. Thanks.',
+                'from': {'name': 'Quidroo', 'email': sender_email},
+                'to': [
+                    {'name': 'Quidroo Admin', 'email': email}
+                ]
+            }
+            sentMail2 = SPApiProxy.smtp_send_mail(email2)
+            return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "message": "Verification data Successfully uploaded. Your account would be activated shortly after due evaluation. Thanks",
+            "token": request.session['token'],
+            "user_id": user_data.user_id,
+            "name": user_data.name,
+            "company_name": user_data.company_name,
+            "credit_score": user_data.credit_score,
+            "role": user_data.role,
+        }
+        else:
+            return_data = {
+            "success": False,
+            "message": "Sorry! an error occured",
+            "status" : 205,
+        }
+            
+    else:
+        return_data = {
+            "success": False,
+            "message": "Sorry! an error occured! try again",
+            "status" : 205,
+        }
+    return render(request,"seller/verification.html", return_data)

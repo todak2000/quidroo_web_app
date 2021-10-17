@@ -44,6 +44,7 @@ class Invoice(models.Model):
     seller_id = models.CharField(max_length=500, verbose_name="Seller ID")
     seller_ror = models.FloatField(max_length=4,verbose_name="Seller ROR", default=0.09)
     invoice_amount = models.FloatField(max_length=30, verbose_name="Invoice Amount", null=True)
+    receivable_amount = models.FloatField(max_length=30, verbose_name="Receievable Amount", null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
     updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
     def __str__(self):
@@ -84,11 +85,14 @@ class Verification(models.Model):
     cac_no = models.CharField(max_length=300,verbose_name="CAC No",  unique=True,blank=True)
     cac_certificate = models.CharField(max_length=300, verbose_name="CAC Certificate")
     nin = models.CharField(max_length=105, unique=True, null=True, verbose_name="NIN")
+    tin = models.CharField(max_length=105, unique=True, null=True, verbose_name="TIN")
     bvn = models.CharField(max_length=200,verbose_name="BVN", unique=True, null=True,)
     bank_statement = models.CharField(max_length=200,verbose_name="Bank Statement", null=True)
     account_name = models.CharField(max_length=200,verbose_name="Account Name", null=True)
     account_no = models.TextField(max_length=50,verbose_name="Account Number")
     bank = models.CharField(max_length=30, verbose_name="Bank", null=True)
+    # approved = models.BooleanField(default=False)
+    awaiting_approval = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
     updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
     def __str__(self):

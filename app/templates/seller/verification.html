@@ -1,0 +1,170 @@
+{% extends "seller/base.html" %}
+
+{% load static %}
+{% load humanize %}
+{% block body%}
+<section class="dashboard-main"> 
+    <!-- top-bar -->
+    <nav class="main-top">
+        <img src= "{% static 'img/logo-mobile.svg' %}" alt="logo" class="img-fluid mobile">
+        <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile">
+        <div class="avatar-div disappear"> 
+            <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
+            <div class="avatar-div2 " id="drop-down">
+                <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm">
+                <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
+            </div>
+        </div>
+    </nav>
+    <ul style="display: none;" id="drop-list">
+        <li><a href="#"><img src= "{% static 'img/drop-profile.svg' %}" alt="upload" class="mr-3"> View Profile</a></li>
+        <li><a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mr-3">Sign out</a></li>
+    </ul>
+    <!-- top-bar ends -->
+    <!-- main section -->
+    <div class="main-section">
+        <div class="main-title disappear">
+            <h4>{{company_name}}'s Verification</h4>
+        </div>
+        <div class="main-verification">
+            {% if message and success == True %}
+                <div class="up-message">
+                    <img src="{% static 'img/successful_upload.svg' %}"/>
+                    <h3 style="font-size:1.5rem; font-family: 'DM Sans'; color:#081B33">Your Account is now under Review</h3>
+                    <p style="text-align: center; font-size: 0.95rem; font-family: 'DM Sans'; color:#767E9F">{{message}}</p>
+                    <br>
+                    <a class="view-blue " href="{% url 'dashboard' %}" target="_blank"> <img src="{% static 'img/blue-eye.svg' %}" class="mr-2 img-fluid"/> View Profile</a>
+                    <a class="view-blue " href="{% url 'dashboard' %}"> <img src="{% static 'img/blue-back.svg' %}" class="mr-2 img-fluid"/> Back to Dashboard</a>
+                </div>
+            {% elif message and success == False %}
+                <div class="up-message">
+                    <img src="{% static 'img/fail_upload.svg' %}"/>
+                    <h3 style="font-size:1.5rem; font-family: 'DM Sans'; color:#081B33">Oops! there was an Error</h3>
+                    <p style="text-align: center; font-size: 0.95rem; font-family: 'DM Sans'; color:#767E9F">{{message}}</p>
+                    <br>
+                    <a class="view-blue" href="{% url 'dashboard' %}"> <img src="{% static 'img/blue-back.svg' %}" class="mr-2 img-fluid"/> Back to Dashboard</a>
+                </div>
+            {% else %}
+            <h3><img src= "{% static 'img/verification-icon.svg' %}" alt="avatar" class="mr-2"> Activate Account</h3>
+            <div class="flex-between">
+                <button type="button" class="btn verification-active ml-3" id="documentation">
+                    <span class="badge badge-active" id="doc-badge">1</span>
+                    Documentation
+                </button>
+                <button type="button" class="btn verification-inactive ml-3" id="bank-details">
+                    <span class="badge badge-inactive" id="bank-badge">2</span>
+                    Bank Details
+                </button>
+            </div>
+            <form class="form" action="{% url 'upload_verification_data' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div id="ver_form-inner-one" >
+                    <label class="lb">User Identity Card <br><span style="font-size: 1rem; color:#767E9F; font-weight: 300;">Driver’s Lisence, International Passport, Voter’s Card  </span></label><br>
+                    <label for="file_id" style="width: 100%;">
+                    <div class="">
+                        <div style="display: flex; justify-content: left; width:100%;">
+                            <input type="text" 
+                        class="form-input" 
+                        name="file_display_id" 
+                        id="file_display_id"
+                        readonly
+                        placeholder="Add File"
+                        style="border: 1px dotted #D6DAE4; background-color:#fff;width:100%;padding-right: 5rem;"
+                        />
+                        <img src="{% static 'img/upload_plus.svg' %}" class="img-plus"  style="margin-left:-4vh" onclick="verification_checkFormOne()"/>
+                        <input type="file" id="file_id" name="file_id" style="display: none" accept="image/gif,image/jpeg,image/jpg,image/png, application/pdf,.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" multiple="" data-original-title="upload photos" oninput="verification_checkFormOne()">
+                        </div>
+                    </div>
+                    </label><br>
+                    <label class="lb">CAC Certificate </label><br>
+                    <label for="cac_cert" style="width: 100%;">
+                    <div class="">
+                        <div style="display: flex; justify-content: left; width:100%;">
+                            <input type="text" 
+                        class="form-input" 
+                        name="cac_cert_display" 
+                        id="cac_cert_display"
+                        readonly
+                        placeholder="Add File"
+                        style="border: 1px dotted #D6DAE4; background-color:#fff;width:100%; padding-right: 5rem;"
+                        />
+                        <img src="{% static 'img/upload_plus.svg' %}" class="img-plus"  style="margin-left:-4vh" onclick="verification_checkFormOne()"/>
+                        <input type="file" id="cac_cert" name="cac_cert" style="display: none"  accept="image/gif,image/jpeg,image/jpg,image/png, application/pdf,.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" multiple="" data-original-title="upload photos" oninput="verification_checkFormOne()">
+                        </div>
+                    </div>
+                    </label><br>
+                    <label class="lb">Bank Statement <span style="font-size: 1rem; color:#767E9F; font-weight: 300;">(at least Three months) </span></label><br>
+                    <label for="bank_statement" style="width: 100%;">
+                    <div class="">
+                        <div style="display: flex; justify-content: left; width:100%;">
+                            <input type="text" 
+                        class="form-input" 
+                        name="bank_statement_display" 
+                        id="bank_statement_display"
+                        readonly
+                        placeholder="Add File"
+                        style="border: 1px dotted #D6DAE4; background-color:#fff;width:100%; padding-right: 5rem;"
+                        />
+                        <img src="{% static 'img/upload_plus.svg' %}" class="img-plus"  style="margin-left:-4vh" onclick="verification_checkFormOne()"/>
+                        <input type="file" id="bank_statement" name="bank_statement" style="display: none" accept="image/gif,image/jpeg,image/jpg,image/png, application/pdf,.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" multiple="" data-original-title="upload photos" oninput="verification_checkFormOne()">
+                        </div>
+                    </div>
+                    </label><br>
+
+                    <label class="lb">Tax Identification Number (TIN)</label>
+                    <input type="text" class="form-input" placeholder="Enter TIN number" id="tin_no" name="tin_no" oninput="verification_checkFormOne()" />
+    
+                    <label class="lb">National Identification Number (NIN)</label>
+                    <input type="text" class="form-input" placeholder="Enter NIN number" id="nin_no" name="nin_no" oninput="verification_checkFormOne()"/>
+                    <div class="form-btn-div mt-3">
+                        <!-- <button class="btn-back" id="ic_btn-back-index">Back</button> -->
+                        <button class="btn-disabled" disabled id="ver_btn-continue">Continue</button>
+                    </div>
+                </div>  
+                <div id="ver_form-inner-two" class="disappeared">
+                    <label class="lb">Bank</label>
+                    <select class="form-input" id="ver-bank" name="ver-bank" onselect="verification_checkFormTwo()">
+                        <option disabled selected>Select Bank</option>
+                        <option value="Access Bank">Access Bank</option>
+                        <option value="Citibank">Citibank</option>
+                        <option value="Access (Diamond)">Access (Diamond)</option>
+                        <option value="Ecobank">Ecobank</option>
+                        <option value="Fidelity Bank">Fidelity Bank</option>
+                        <option value="First Bank">First Bank</option>
+                        <option value="FCMB">First City Monument Bank (FCMB)</option>
+                        <option value="GTB">Guaranty Trust Bank (GTB)</option>
+                        <option value="Heritage Bank">Heritage Bank</option>
+                        <option value="Jaiz Bank">Jaiz Bank</option>
+                        <option value="Keystone Bank">Keystone Bank</option>
+                        <option value="Kuda Bank">Kuda Bank</option>
+                        <option value="Polaris Bank">Polaris Bank</option>
+                        <option value="Providus Bank">Providus Bank</option>
+                        <option value="Stanbic IBTC Bank">Stanbic IBTC Bank</option>
+                        <option value="Standard Chartered Bank">Standard Chartered Bank</option>
+                        <option value="Sterling Bank">Sterling Bank</option>
+                        <option value="Union Bank">Union Bank</option>
+                        <option value="UBA">United Bank for Africa (UBA)</option>
+                        <option value="Unity Bank">Unity Bank</option>
+                        <option value="Wema Bank">Wema Bank</option>
+                        <option value="Zenith Bank">Zenith Bank</option>
+                    </select>
+                    <label class="lb">Account Number</label>
+                    <input type="text" class="form-input" placeholder="Enter Account Number" id="ver-acc-no" name="ver-acc-no" oninput="verification_checkFormTwo()"/>
+                    <label class="lb">Account Name</label>
+                    <input type="text" class="form-input" placeholder="Enter Account Name" id="ver-acc-name" name="ver-acc-name" oninput="verification_checkFormTwo()"/>
+                    <label class="lb">Bank Verification Number (BVN)</label>
+                    <input type="text" class="form-input" placeholder="Enter BVN" id="ver-bvn" name="ver-bvn" oninput="verification_checkFormTwo()"/>
+                    
+                    <div class="form-btn-ver mt-3">
+                        <button class="btn-back" id="ver_btn-back-one">Back</button>
+                        <button class="btn-disabled" type="submit" id="activate-btn" onclick="changeActBtn()"><span id="btnActText">Activate Account </span><img id="actImg" src="{% static 'img/spinner.svg' %}" class="img-fluid" style="width: 15%; display: none;"/></button>
+                    </div>
+                </div>
+            </form>
+        {% endif %}
+        </div>
+    </div>
+    <!-- main-section ends -->
+</section>
+{% endblock %}
+

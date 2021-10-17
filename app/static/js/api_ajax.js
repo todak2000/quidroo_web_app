@@ -25,7 +25,7 @@ $(function() {
   });
 
 $(document).ready(function() {
-    
+
     let id = window.location.pathname
     let dashboard = document.getElementById("dashboard");
     let invoices = document.getElementById("invoices");
@@ -35,6 +35,13 @@ $(document).ready(function() {
     let invoiceImg = document.getElementById("invoice-mobile-img");
     let walletImg = document.getElementById("wallet-mobile-img");
     let statsImg = document.getElementById("stats-mobile-img");
+
+    let invoices2 = document.getElementById("invoices1");
+    let wallet2 = document.getElementById("wallet1");
+    let dashboard2 = document.getElementById("dashboard1");
+    let stats2 = document.getElementById("stats1");
+    let settings2 = document.getElementById("settings1");
+
     if (id ==="/invoices"){
         invoices.classList.add("activ");
         dashboard.classList.remove("activ");
@@ -42,11 +49,14 @@ $(document).ready(function() {
 
         dashboardImg.src="/static/img/dashboard-mobile.svg"
         invoiceImg.src="/static/img/invoice-mobile.svg"
+
+        invoices2.style.borderTop = "3px solid #000"
     }
     if (id ==="/dashboard"){
         invoices.classList.remove("activ");
         dashboard.classList.add("activ");
         settings.classList.remove("activ");
+        dashboard2.style.borderTop = "3px solid #000"
     }
     if (id ==="/wallet"){
         invoices.classList.remove("activ");
@@ -55,6 +65,8 @@ $(document).ready(function() {
 
         dashboardImg.src="/static/img/dashboard-mobile.svg"
         walletImg.src="/static/img/wallet-mobile.svg"
+
+        wallet2.style.borderTop = "3px solid #000"
     }
     if (id ==="/stats"){
         invoices.classList.remove("activ");
@@ -63,20 +75,25 @@ $(document).ready(function() {
 
         dashboardImg.src="/static/img/dashboard-mobile.svg"
         statsImg.src="/static/img/stats-mobile.svg"
+
+        stats2.style.borderTop = "3px solid #000"
     }
     if (id ==="/settings"){
         invoices.classList.remove("activ");
         dashboard.classList.remove("activ");
         settings.classList.add("activ");
+
+        settings2.style.borderTop = "3px solid #000"
     }
    
    });
-function makeActive(id) {
+    function makeActive(id) {
     console.log(id);
     let dashboard = document.getElementById("dashboard");
     let invoices = document.getElementById("invoices");
-    let invoices2 = document.getElementById("invoices1");
+    
     let settings = document.getElementById("settings");
+    
 
 
     
@@ -84,26 +101,31 @@ function makeActive(id) {
         invoices.classList.add("activ");
         dashboard.classList.remove("activ");
         settings.classList.remove("activ");
+        // 
     }
     if (id ==="dashboard"){
         invoices.classList.remove("activ");
         dashboard.classList.add("activ");
         settings.classList.remove("activ");
+        // dashboard2.style.borderTop = "3px solid #000"
     }
     if (id === "wallet1" || id ==="wallet"){
         invoices.classList.remove("activ");
         dashboard.classList.remove("activ");
         settings.classList.remove("activ");
+        // wallet2.style.borderTop = "3px solid #000"
     }
     if (id === "stats1" || id ==="stats"){
         invoices.classList.remove("activ");
         dashboard.classList.remove("activ");
         settings.classList.remove("activ");
+        // stats2.style.borderTop = "3px solid #000"
     }
-    if (id ==="settings"){
+    if (id ==="settings" || id ==="settings1"){
         invoices.classList.remove("activ");
         dashboard.classList.remove("activ");
         settings.classList.add("activ");
+        // settings2.style.borderTop = "3px solid #000"
     }
     
     
@@ -311,7 +333,7 @@ function in_checkFormOne() {
     let up_rec = document.getElementById("up_rec");
     let contBtn = document.getElementById("invoice_continue");
     if(invoice_amount !=""){
-        recieveable.innerHTML= formatter.format(invoice_amount*(1-score));
+        recieveable.innerHTML= formatter.format(invoice_amount*(1-(score/100)));
         up_rec.classList.add("appear");
         up_rec.classList.remove("disappeared");
     }
@@ -613,9 +635,22 @@ function changeBtn(){
     let contBtnText = document.getElementById("btnText");
     let contBtn = document.getElementById("in_btn-nxt");
     let contBtnImg = document.getElementById("uploadImg");
-    contBtn.disabled = false;
+    let backBtn = document.getElementById("up_btn-back-one");
+    // contBtn.disabled = true;
     contBtnText.innerText = "Uploading";
     contBtnImg.style.display = "inline-block";
+    backBtn.style.display = "none";
     contBtn.style.padding = "5px";
-    console.log(contBtnImg.src)
 }
+function changeActBtn(){
+    let contBtnText = document.getElementById("btnActText");
+    let contBtn = document.getElementById("activate-btn");
+    let contBtnImg = document.getElementById("actImg");
+    let backBtn = document.getElementById("ver_btn-back-one");
+    // contBtn.disabled = true;
+    contBtnText.innerText = "Activating Account";
+    contBtnImg.style.display = "inline-block";
+    backBtn.style.display = "none";
+    contBtn.style.padding = "5px";
+}
+

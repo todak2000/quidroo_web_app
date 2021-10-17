@@ -25,17 +25,41 @@
     <div class="main-section">
         <div class="main-title disappear">
             <h4>{{company_name}}'s Dashboard</h4>
+            {% if activated == True  %}
             <a class="upload disappear" href="{% url 'upload' %}"> <img src= "{% static 'img/upload.svg' %}" alt="upload"/> Upload Invoice</a>
+            {% else %}
+            {% endif %}
+            
         </div>
+        
+
+        
         <div class="main-main">
             <div class="main-left">
+                {% if activated == False and awaiting_approval == False %}
+                        <div class="inactive-div mb-3">
+                            <p>Your Quidroo account is currently inactive.
+                                Click “activate account” to provide more information for account activation.</p>
+                            <a href="{% url 'verification' %}" class="view">  Activate Account</a>
+                        </div>
+                {% elif activated == False and awaiting_approval == True %}
+                <div class="inactive-div mb-3">
+                    <p>Your Quidroo account is currently inactive.
+                        Kindly check again within 48 hours. Thanks.</p>
+                    <button class="view-pending" disabled>  Pending Approval</button>
+                </div>
+                {% else %}
+                {% endif %}
                 <div class="main-card">
                     <div class="flex-between">
                         <div class="flexy">
                             <img src= "{% static 'img/invoice_seller.svg' %}" alt="upload" class="mr-2">
                             <p>Invoices</p>
                         </div>
+                        {% if activated == True  %}
                         <a class="upload-mobile mobile" href="{% url 'upload' %}"> <img src= "{% static 'img/upload-mobile.svg' %}" alt="upload"> Upload Invoice</a>
+                        {% else %}
+                        {% endif %}
                         <a href="{% url 'invoices' %}" class="view desktop">  View Details</a>
                     </div>
                     <div class="flexy-options">
@@ -120,7 +144,11 @@
                         <div class="flexy">
                             <img src= "{% static 'img/wallet-seller.svg' %}" alt="upload" class="mr-2">
                             <p>Wallet</p>
-                            <span id="wall-active">ACTIVE</span>
+                            {% if activated == True %}
+                                <span id="wall-active">ACTIVE</span>
+                            {% else %}
+                                <span id="wall-inactive">INACTIVE</span>
+                            {% endif %}
                         </div>
                     </div>
                     <!-- wallet card -->
@@ -138,6 +166,36 @@
                         </div>
                         <h3 class="mb-3" id="d_not" style="display: none;">*********</h3>
                         <!-- <h5>Account ID: {{muxed_acct}}</h5> -->
+                    </div>
+                    <div class="flexty mt-3">
+                        <h5>Credit Score</h5>
+                        {% if credit_score >= "9" %}
+                            <button type="button" class="btn credit-red ml-3">
+                                <span class="badge badge-red">1</span>
+                                VERY POOR
+                            </button>
+                        {% elif credit_score <= "8.99" and credit_score >= "8"%}
+                            <button type="button" class="btn credit-orange ml-3">
+                                <span class="badge badge-orange">2</span>
+                                POOR
+                            </button>
+                        {% elif credit_score <= "7.99" and credit_score >= "7"%}
+                            <button type="button" class="btn credit-yellow ml-3">
+                                <span class="badge badge-yellow">3</span>
+                                FAIR
+                            </button>
+                        {% elif credit_score <= "6.99" and credit_score >= "6"%}
+                            <button type="button" class="btn credit-light ml-3">
+                                <span class="badge badge-light">4</span>
+                                GOOD
+                            </button>
+                            {% elif credit_score <= "5.99" and credit_score >= "5"%}
+                            <button type="button" class="btn credit-green ml-3">
+                                <span class="badge badge-green">5</span>
+                                EXCELLENT
+                            </button>
+                        {% else %}
+                        {% endif %}
                     </div>
                     <!-- transactions -->
                     <div class="flex-between mt-3 line">

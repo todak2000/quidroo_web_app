@@ -25,8 +25,8 @@
     
     <script src="{% static 'js/jquery-3.1.1.js' %}"></script>
     <script src="{% static 'bootstrap-4.5.2/js/bootstrap.min.js' %}"></script>
-    <!-- <script src="{% static 'js/helper.js' %}"></script> -->
     <script src="{% static 'js/api_ajax.js' %}"></script>
+    <script src="{% static 'js/helper_two.js' %}"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <!-- date -->
@@ -44,7 +44,7 @@
     <nav class="sidebar">
         <img src= "{% static 'img/logo.svg' %}" alt="logo">
         <ul>
-            <li class="seller-list" id="dashboard" onclick="makeActive(this.id)"><a href="{% url 'dashboard' %}" class="underline"> <img src= "{% static 'img/dashboard.svg' %}" alt="logo" class="mr-3"> Dashboard</a></li>
+            <li class="seller-list" id="dashboard" onclick="makeActive(this.id)"><a href="{% url 'dashboard' %}" class="underline"> <img src= "{% static 'img/dashboard2.svg' %}" alt="logo" class="mr-3"> Dashboard</a></li>
             <li class="seller-list" id="invoices" onclick="makeActive(this.id)"><a href="{% url 'invoices' %}" class="underline"> <img src= "{% static 'img/invoice.svg' %}" alt="logo" class="mr-3"> Invoices</a></li>
             <!-- <li class="seller-list" id="wallet" onclick="makeActive(this.id)"><a href="{% url 'wallet' %}" class="underline"> <img src= "{% static 'img/wallet.svg' %}" alt="logo" class="mr-3"> Wallet</a></li>
             <li class="seller-list" id="stats" onclick="makeActive(this.id)"><a href="#work" class="underline"> <img src= "{% static 'img/stats.svg' %}" alt="logo" class="mr-3"> Stats</a></li> -->

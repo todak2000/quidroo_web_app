@@ -65,7 +65,7 @@
                                 id="file_display"
                                 readonly
                                 placeholder="Add File"
-                                style="border: 1px dotted #D6DAE4; background-color:#fff;width:100%;"
+                                style="border: 1px dotted #D6DAE4; background-color:#fff;width:100%;padding-right: 5rem;"
                                 />
                                 <img src="{% static 'img/upload_plus.svg' %}" class="img-plus"  style="margin-left:-4vh" onclick="in_checkFormOne()"/>
                                 <input type="file" id="file" name="file" style="display: none" name="image" accept="image/gif,image/jpeg,image/jpg,image/png, application/pdf,.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" multiple="" data-original-title="upload photos" oninput="in_checkFormOne()">
@@ -118,7 +118,7 @@
                             <input type="text" class="form-input" placeholder="Enter Contact Person Phone number" id="vendor_phone" name="vendor_phone" oninput="in_checkFormTwo()"/>
                             <label class="lb">Contact Email</label>
                             <input type="text" class="form-input" placeholder="Enter Contact Person Email" id="vendor_email" name="vendor_email" oninput="in_checkFormTwo()"/>
-                            <div class="form-btn-div mt-3">
+                            <div class="form-btn-up mt-3">
                                 <button class="btn-back" id="up_btn-back-one">Back</button>
                                 <button class="btn-create-account" type="submit" id="in_btn-nxt" onclick="changeBtn()"><span id="btnText">Upload Invoice </span><img id="uploadImg" src="{% static 'img/spinner.svg' %}" class="img-fluid" style="width: 15%; display: none;"/></button>
                             </div>

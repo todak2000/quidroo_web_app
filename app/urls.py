@@ -15,6 +15,7 @@ urlpatterns = [
     path('verify/<token>',views.verify_email),
 
     path('dashboard',views.dashboard_page, name='dashboard'),
+    path('verification',views.verification_page, name='verification'),
     path('wallet',views.wallet_page, name='wallet'),
     path('invoices',views.invoices_page, name='invoices'),
     path('stats',views.stats_page, name='stats'),
@@ -25,4 +26,5 @@ urlpatterns = [
     path('upload_invoice',views.upload_invoice, name='upload_invoice'),
     path('invoice_search',views.invoice_search, name='invoice_search'),
     path('invoice_details',views.invoice_details, name='invoice_details'),
+    path('upload_verification_data',views.upload_verification_data, name='upload_verification_data'),
 ]

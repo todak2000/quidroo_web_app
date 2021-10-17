@@ -25,7 +25,11 @@
     <div>
       <div class="main-title mobile-flex2">
         <h4> <img src= "{% static 'img/in-invoice.svg' %}" alt="upload" class="mr-2">Invoices</h4>
-        <a class="invoice-upload" href="{% url 'upload' %}"> <img src= "{% static 'img/upload-mobile.svg' %}" alt="upload"> Upload Invoice</a>
+        {% if activated == True  %}
+          <a class="invoice-upload" href="{% url 'upload' %}"> <img src= "{% static 'img/upload-mobile.svg' %}" alt="upload"> Upload Invoice</a>
+        {% else %}
+        {% endif %}
+        
       </div>
       <form  action="" >
         {% csrf_token %}
@@ -59,7 +63,11 @@
     <div class="main-section">
         <div class="main-title disappear">
             <h4> <img src= "{% static 'img/in-invoice.svg' %}" alt="upload" class="mr-2">Invoices</h4>
-            <a class="invoice-upload" href="{% url 'upload' %}"> <img src= "{% static 'img/upload-mobile.svg' %}" alt="upload"> Upload Invoice</a>
+            {% if activated == True  %}
+              <a class="invoice-upload" href="{% url 'upload' %}"> <img src= "{% static 'img/upload-mobile.svg' %}" alt="upload"> Upload Invoice</a>
+            {% else %}
+            {% endif %}
+            
         </div>
         <input type="text" value="{{token}}" id="invoice-token" hidden/>
         <div class="main-wallet">
