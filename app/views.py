@@ -122,6 +122,9 @@ def dashboard_page(request):
             "local_transaction": local_tx,
             "recent_activities": recent_activities,
             "awaiting_approval": user_ver.awaiting_approval,
+            "account_name":user_ver.account_name,
+            "account_no": user_ver.account_no,
+            "bank": user_ver.bank
         }
         if user_data.role == "seller":
             return render(request,"seller/dashboard.html", return_data)
@@ -205,6 +208,7 @@ def wallet_page(request):
         user_data = User.objects.get(user_id=user_id)
         wallet_data = Wallet.objects.get(user=user_data)
         local_tx = Transaction.objects.filter(Q(sender_id=user_id) | Q(receiver_id=user_id)).order_by('-created_at')[:3]
+        user_ver = Verification.objects.get(user=user_data)
         return_data = {
             "success": True,
             "status" : 200,
@@ -217,7 +221,10 @@ def wallet_page(request):
             "credit_score": user_data.credit_score,
             "name": user_data.name,
             "fiat_equivalent":wallet_data.fiat_equivalent,
-            "local_transaction": local_tx
+            "local_transaction": local_tx,
+            "account_name":user_ver.account_name,
+            "account_no": user_ver.account_no,
+            "bank": user_ver.bank
         }
         if user_data.role == "seller":
             return render(request,"seller/wallet.html", return_data)
@@ -356,9 +363,9 @@ def seller_signup(request):
             #encrypt password
             encryped_password = password_functions.generate_password_hash(password)
             #Save user_data
-        
+            latestScore = credit_score.creditScore(float(0.01))
             newUserData = User(user_id=userRandomId,business_type=business_type,company_name=company_name,
-                                email=email, password=encryped_password,company_address=company_address, role=role)
+                                email=email, password=encryped_password,company_address=company_address, role=role, credit_score=latestScore)
             newUserData.save()
             
             balance = Wallet(user=newUserData, token_balance=0, fiat_equivalent=0)
