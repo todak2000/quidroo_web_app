@@ -1,3 +1,33 @@
+@font-face {
+    font-family: "CabinetGroteskRegular";
+    src: url("/static/fonts/CabinetGrotesk-Regular.ttf");
+}
+@font-face {
+    font-family: "CabinetGroteskLight";
+    src: url("/static/fonts/CabinetGrotesk-Light.ttf");
+}
+@font-face {
+    font-family: "CabinetGroteskMedium";
+    src: url("/static/fonts/CabinetGrotesk-Medium.ttf");
+}
+@font-face {
+    font-family: "CabinetGroteskBold";
+    src: url("/static/fonts/CabinetGrotesk-Bold.ttf");
+}
+
+@font-face {
+    font-family: "GeneralSansBold";
+    src: url("/static/fonts/GeneralSans-Bold.ttf");
+}
+@font-face {
+    font-family: "GeneralSansMedium";
+    src: url("/static/fonts/GeneralSans-Medium.ttf");
+}
+@font-face {
+    font-family: "GeneralSansRegular";
+    src: url("/static/fonts/GeneralSans-Regular.ttf");
+}
+
 input:focus, textarea:focus, select:focus{
     outline: none;
 }
@@ -6,6 +36,7 @@ body{
     padding:0;
     display: flex;
     flex-direction: row;
+    font-family: "GeneralSansRegular"!important;
 }
 .form-input{
     height: 55px;
@@ -16,7 +47,7 @@ body{
     width:100%;
     margin: 0.5rem 0;
     padding: 1rem;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
   }
 a {
     text-decoration: none; 
@@ -59,13 +90,14 @@ a {
 }
 .main-title>h4{
     color: #081B33;
+    font-family: "GeneralSansMedium";
 }
 .invoice-upload{
     background-color: #5151E0;
     border-radius: 7px;
     padding: 1.5rem;
     color: #fff;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
 }
 #drop-list>li>a{
     color: #767e9f!important;
@@ -73,7 +105,7 @@ a {
 #drop-list>li{
     padding:1rem;
     border-bottom: 0.5px solid #EEF1F8;
-    
+    font-family: "GeneralSansRegular"; 
 }
 #drop-list>li:hover{
     background-color: #EEEEFC;
@@ -106,7 +138,7 @@ a {
     padding: 1vh 0;
     color:#081B33!important;
     font-size: 1.3rem;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     padding: 1vh 1vh 1vh 3vh;
 }
 .sidebar >ul >li> a:hover {
@@ -169,11 +201,11 @@ a {
 }
 .main-title>h2{
     color:#081B33;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
 }
 .wallet-green{
     color:#3EAF6E;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     margin-top: 0.7rem;
     width: 50%;
     text-align: right;
@@ -183,20 +215,26 @@ a {
 }
 .acc-det{
     margin: auto;
+    font-family: "GeneralSansRegular";
 }
 .acc-det >h6, .acc-det>p{
     color:#767E9F;
-    margin:0
+    margin:0;
+    font-family: "GeneralSansRegular";
+}
+.modal-title{
+    font-family: "GeneralSansRegular"!important;
 }
 .btn-withdraw{
     margin: auto;
     background-color: #5151E0;
     color: #fff;
     padding: 0.5rem 1.9rem;
+    font-family: "GeneralSansRegular";
 }
 .wallet-red{
     color:#D13D2A;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     margin-top: 0.7rem;
     width: 50%;
     text-align: right;
@@ -206,7 +244,7 @@ a {
     border-radius: 7px;
     padding: 1.5vh;
     color:#767E9F;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
 }
 .view:hover{
     text-decoration: none;
@@ -227,7 +265,7 @@ a {
     height: 2.5rem;
     font-size: 0.95rem;
     border: 0.3px solid #081B33;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
 }
 .view-pending{
     background: #B240B2;
@@ -238,7 +276,7 @@ a {
     height: 2.5rem;
     font-size: 0.95rem;
     border: 0.3px solid transparent;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
 }
 .view-blue{
     background: #fff;
@@ -250,7 +288,7 @@ a {
     text-decoration: none;
     font-size: 0.95rem;
     border: 0.3px solid transparent;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
 }
 .wallet-card{
     width: 100%;
@@ -260,31 +298,31 @@ a {
 }
 .wallet-card>div>h5{
     color:#767E9F;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
 }
 .wallet-card>div>h3{
     color:#081B33;
-    font-family: "Space Grotesk";
+    font-family: "CabinetGroteskBold";
 }
 .recent-trans{
     color:#081B33;
-    font-family: "Space Grotesk";
+    font-family: "CabinetGroteskBold";
 }
 .trans-view{
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     color:#081B33;
 }
 .bottombar >ul>li>a:hover{
     text-decoration: none;
 }
 .trans{
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     color:#081B33;
     margin-bottom: 0;
     font-size: 1.3rem;
 }
 .trans-date{
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     color:#767E9F;
     font-size: 0.75rem;
 }
@@ -324,7 +362,7 @@ a {
 }
 .inactive-div >p{
     color:#081B33;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     width:70%;
     padding:0;
 }
@@ -338,14 +376,16 @@ a {
     font-weight: bolder;
     padding: 0.2rem;
     margin-left: 0.5rem;
+    font-family: "CabinetGroteskBold";
 }
 .small-card>h3, .smally-card>h3{
     color:#081B33;
     font-size: 1.8rem;
+    font-family: "CabinetGroteskBold";
 }
 .small-card>p, .smally-card>p{
     color:#767E9F;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     font-size: 1.3rem;
 }
 #red{
@@ -484,7 +524,7 @@ td{
 }
 .flexty > h5{
     color: #767E9F;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
 }
 .badge-red{
     background-color: #BF3030 !important;
@@ -496,7 +536,7 @@ td{
 }
 .verification-active{
     color: #5151E0;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     border-radius: 5px!important;
     padding: 1rem 0.5rem !important;
     background: #FFFFFF;
@@ -508,7 +548,7 @@ td{
 }
 .verification-inactive{
     color: #767E9F;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     border-radius: 5px!important;
     padding: 1rem 0.5rem !important;
     border: 1px solid #5151E0;
@@ -518,9 +558,12 @@ td{
     font-size: 0.85rem!important;
     width:44%;
 }
+#ver_form-inner-one>label{
+    font-family: "CabinetGroteskMedium";
+}
 .verification-green{
     color: #081B33;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     border-radius: 5px!important;
     padding: 1rem 0.5rem !important;
     border: 1px solid #ECF7F1;
@@ -533,7 +576,7 @@ td{
 .credit-red{
     background-color: #F9EAEA;
     color: #BF3030;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     border-radius: 5px!important;
     padding: 0.5rem !important;
 }
@@ -541,7 +584,7 @@ td{
     background-color: #BF3030 !important;
     margin-right:0.5rem;
     border-radius: 5px!important;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
 }
 .badge-active{
     background-color: #5151E0 !important;
@@ -551,7 +594,7 @@ td{
     height: 20px;
     padding:0.4rem;
     border-radius: 10px!important;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
 }
 .badge-green-ver{
     background-color: transparent !important;
@@ -569,13 +612,13 @@ td{
     height: 20px;
     padding:0.4rem!important;
     border-radius: 10px!important;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
 }
 .credit-red-wallet{
     background-color: #F9EAEA;
     color: #BF3030;
     font-size: 0.99rem!important;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansRegular";
     border-radius: 5px!important;
     padding: 0.4rem !important;
 }
@@ -722,6 +765,7 @@ td{
 }
 .lb{
     color:#767E9F;
+    font-family: "GeneralSansRegular";
 }
 #recieveable{
     color:#3FBB97;
@@ -798,7 +842,7 @@ justify-content: space-between;
 .flexy>p{
     padding-top: 1rem;
     color: #081B33;
-    font-family: "Space Grotesk";
+    font-family: "CabinetGroteskBold";
 }
 .desktop{
     display: block;
@@ -830,6 +874,7 @@ justify-content: space-between;
     box-sizing: border-box;
     border-radius: 10px;
     padding: 0.3rem 1.5rem;
+    font-family: "GeneralSansRegular";
 }
 .mobile-card-invoice:hover{
     background-color: #EEEEFC;

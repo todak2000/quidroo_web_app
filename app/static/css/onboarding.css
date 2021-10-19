@@ -1,3 +1,33 @@
+@font-face {
+  font-family: "CabinetGroteskRegular";
+  src: url("/static/fonts/CabinetGrotesk-Regular.ttf");
+}
+@font-face {
+  font-family: "CabinetGroteskLight";
+  src: url("/static/fonts/CabinetGrotesk-Light.ttf");
+}
+@font-face {
+  font-family: "CabinetGroteskMedium";
+  src: url("/static/fonts/CabinetGrotesk-Medium.ttf");
+}
+@font-face {
+  font-family: "CabinetGroteskBold";
+  src: url("/static/fonts/CabinetGrotesk-Bold.ttf");
+}
+
+@font-face {
+  font-family: "GeneralSansBold";
+  src: url("/static/fonts/GeneralSans-Bold.ttf");
+}
+@font-face {
+  font-family: "GeneralSansMedium";
+  src: url("/static/fonts/GeneralSans-Medium.ttf");
+}
+@font-face {
+  font-family: "GeneralSansRegular";
+  src: url("/static/fonts/GeneralSans-Regular.ttf");
+}
+
 body{
   margin:0;
   padding:0;
@@ -136,14 +166,14 @@ nav {
 }
 .mt--6{
   margin-top:-6vh;
-  font-family: "Space Grotesk";
+  font-family: "CabinetGroteskBold";
 }
 .el-title{
-  font-family: "Space Grotesk";
+  font-family: "CabinetGroteskBold";
   margin-bottom:3rem;
 }
 .l-title{
-  font-family: "Space Grotesk";
+  font-family: "CabinetGroteskBold";
   margin-bottom:3rem;
 }
 #forg{
@@ -151,9 +181,10 @@ nav {
   padding-top: 1.2rem;
   text-decoration: none;
   border-bottom:0;
+  font-family: 'GeneralSansRegular';
 }
 .email-p{
-  font-family: 'DM Sans', sans-serif;
+  font-family: "CabinetGroteskBold";
   font-size: 1.15rem;
   color:#767E9F;
   /* width: 70%; */
@@ -171,6 +202,7 @@ nav {
   color: #8990AC;
   font-weight: 100;
   margin-top:1rem;
+  font-family: 'GeneralSansRegular';
   /* margin-bottom: 2rem; */
 }
 #span-blue{
@@ -179,19 +211,19 @@ nav {
     border-bottom:0;
 }
 .how_card >div>h4{
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'GeneralSansMedium';
 }
 .onboard-card >h3{
   text-align: center;
   width: 30%;
   font-size: 1.3rem;
   margin: 5vh auto 0 auto;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "CabinetGroteskBold";
 }
 .how_card>p{
   color:#6B7685;
   font-size: 0.85rem;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'GeneralSansRegular';
 }
 .btn-nxt{
   background-color: #5151E0;
@@ -199,6 +231,7 @@ nav {
   padding:15px 40px;
   border: 0;
   font-size: 1.2rem;
+  font-family: 'GeneralSansRegular';
   font-weight: 100;
   border-radius: 5px;
 
@@ -208,6 +241,7 @@ nav {
     color:#5151E0;
     padding:15px 40px;
     border: 0;
+    font-family: 'GeneralSansRegular';
     font-size: 1.2rem;
     font-weight: 100;
     border-radius: 5px;
@@ -300,7 +334,7 @@ nav {
 .signup-p{
   color: #767E9F;
   margin-top:2rem;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "GeneralSansMedium";
 }
 .btn-back {
   background-color: #EEEFF1;
@@ -325,7 +359,7 @@ nav {
 }
 .card-inner-top >div>h3{
   font-size: 1.7rem;
-  font-family: "Space Grotesk";
+  font-family: "CabinetGroteskBold";
   margin-left: 1rem;
   margin-top:1.5rem;
   color:#162359;
@@ -344,10 +378,16 @@ nav {
   background-color:#F6F6FD!important;
   color:#5151E0!important;
   border-bottom: 3px solid #5151e0;
+  font-family: "GeneralSansRegular";
 }
 
 .nav-pills .nav-link {
   border-radius: 0!important;
+  font-family: "GeneralSansRegular";
+}
+.form >div>label, .form >div>input, .form >input, .form >label {
+  font-family: "GeneralSansRegular";
+  font-weight: 200;
 }
 .nav-link.active:after {
   content: url("/static/img/active.svg");
@@ -360,7 +400,8 @@ nav {
 }
 .card-inner-top >p{
   color: #767E9F;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "GeneralSansRegular";
+  font-size: 0.95rem;
 }
 .card-inner-top >div{
   display: flex;
@@ -375,7 +416,7 @@ nav {
   width:100%;
   margin: 0.5rem 0;
   padding: 1rem;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "GeneralSansMedium";
 }
 .form{
   padding: 1vh 10vh 3vh 10vh;
@@ -391,7 +432,7 @@ nav {
   color: #767E9F;
   margin-top: 0.5rem;
   margin-left: 5vh;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "GeneralSansMedium";
 }
 .forgot-card {
   background: #FFFFFF;
@@ -406,7 +447,7 @@ nav {
 .forgot-p {
   color: #767E9F;
   margin-bottom: 2rem;
-  font-family: 'DM Sans', sans-serif;
+  font-family: "GeneralSansRegular";
 }
 .login-card {
   background: #FFFFFF;
@@ -460,7 +501,7 @@ nav {
     font-size: 1.4rem;
     font-weight: bold;
     margin: 5vh auto 2vh auto;
-    font-family: "Space Grotesk";
+    font-family: "CabinetGroteskBold";
   }
   #aside {
     margin: 0rem 1rem;
@@ -569,7 +610,7 @@ nav {
     color: #767E9F;
     margin-top: 0.5rem;
     text-align: center;
-    font-family: 'DM Sans', sans-serif;
+    font-family: "GeneralSansMedium";
   }
 }
 @media (max-width: 1250px) {

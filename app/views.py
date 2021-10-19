@@ -121,7 +121,7 @@ def dashboard_page(request):
             "fiat_equivalent":wallet_data.fiat_equivalent,
             "local_transaction": local_tx,
             "recent_activities": recent_activities,
-            "awaiting_approval": user_ver.awaiting_approval,
+            "awaiting_approval": user_ver.awaiting_approval | False,
             "account_name":user_ver.account_name,
             "account_no": user_ver.account_no,
             "bank": user_ver.bank
@@ -535,7 +535,9 @@ def investor_individual_signup(request):
             newUserData = User(user_id=userRandomId,phone=phone,name=name,
                                 email=email, password=encryped_password,company_address=address, role=role)
             newUserData.save()
-
+            # save user verification datat
+            InitialVerificationData = Verification(user=newUserData)
+            InitialVerificationData.save()
             # Get User Account Verification item
             validated = User.objects.get(user_id=userRandomId).email_verified
 

@@ -17,7 +17,7 @@
             {% else %}
                 <p class="success-message">{{message}}</p>
             {% endif %}
-            <form  action="{% url 'signin' %}" method="post">
+            <form  action="{% url 'signin' %}" method="post" class="form">
                 {% csrf_token %}
                 <label>Email Address</label>
                 <input type="text" class="form-input" placeholder="Enter email address" id="rl_email"  name="rl_email" oninput="rl_checkFormOne()"/>
