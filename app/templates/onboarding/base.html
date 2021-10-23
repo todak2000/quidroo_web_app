@@ -30,16 +30,20 @@
     
     <title>Quidroo</title>
 </head>
-<body> 
+<body onload="onLoad()"> 
     <nav class="navbar navbar-expand-lg navbar-light">
         <a class="navbar-brand" id="aside" href="{% url 'index' %}"> <img src= "{% static 'img/logo.svg' %}" alt="logo"></a>
         <img src="{% static 'img/hamburger.svg' %}" class="img-fluid navbar-toggler" data-toggle="collapse" data-target="#navbarText" style="border:0"/>
-        <!-- RIGHT HAND OF NAVBAR -->
-
-    </nav>     
+    </nav>   
+    <div id="loading">
+      <img id="loading-image" src="{% static 'img/favicon.png' %}" alt="Loading..." />
+    </div>  
     {% block body%}
     
     {% endblock %}
     
 </body>
+<script>
+  
+</script>
 </html>

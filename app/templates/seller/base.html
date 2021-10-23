@@ -57,8 +57,8 @@
             <li class="seller-list" id="invoices1" onclick="makeActive(this.id)"><a href="{% url 'invoices' %}" class="underline"> <img src= "{% static 'img/invoice.svg' %}" alt="logo" id="invoice-mobile-img"> <p>Invoices</p></a></li>
             <li class="seller-list" id="wallet1" onclick="makeActive(this.id)"><a href="{% url 'wallet' %}" class="underline"> <img src= "{% static 'img/wallet.svg' %}" alt="logo" id="wallet-mobile-img"> <p>Wallet</p></a></li>
             <li class="seller-list" id="stats1" onclick="makeActive(this.id)"><a href="{% url 'stats' %}" class="underline"> <img src= "{% static 'img/stats.svg' %}" alt="logo" id="stats-mobile-img"> <p>Stats</p></a></li>
-            <!-- <li class="seller-list" id="settings1" onclick="makeActive(this.id)"><a href="{% url 'logout' %}" class="underline"> <img src= "{% static 'img/profile.svg' %}" alt="logo" > <p>Profile</p></a></li> -->
-            <li class="seller-list" id="settings1" onclick="makeActive(this.id)"><a href="{% url 'logout' %}" class="underline"> <img src= "{% static 'img/profile.svg' %}" alt="logo" > <p>Signout</p></a></li>
+            <li class="seller-list" id="settings1" onclick="makeActive(this.id)"><a href="{% url 'profile' %}" class="underline"> <img src= "{% static 'img/profile.svg' %}" alt="logo" id="profile-mobile-img"> <p>Profile</p></a></li>
+            <!-- <li class="seller-list" id="settings1" onclick="makeActive(this.id)"><a href="{% url 'logout' %}" class="underline"> <img src= "{% static 'img/profile.svg' %}" alt="logo" > <p>Signout</p></a></li> -->
         </ul>
     </nav>    
     <!-- Withdraw Modal -->
@@ -198,4 +198,9 @@
     {% endblock %}
     
 </body>
+<script>
+    $(document).ready(function() {
+        document.getElementById('v-pills-profile').style.opacity =1;
+    })
+</script>
 </html>

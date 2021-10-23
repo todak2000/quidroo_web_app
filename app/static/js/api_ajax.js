@@ -1,3 +1,9 @@
+function onLoad(){
+    document.getElementById('loading').style.display ="none";
+    document.getElementById('index').style.display ="flex";
+    
+    
+}
 $(function() {
     $('#datetimepicker1').datetimepicker({ 
         format: 'YYYY-MM-DD',
@@ -25,7 +31,7 @@ $(function() {
   });
 
 $(document).ready(function() {
-
+    
     let id = window.location.pathname
     let dashboard = document.getElementById("dashboard");
     let invoices = document.getElementById("invoices");
@@ -35,6 +41,7 @@ $(document).ready(function() {
     let invoiceImg = document.getElementById("invoice-mobile-img");
     let walletImg = document.getElementById("wallet-mobile-img");
     let statsImg = document.getElementById("stats-mobile-img");
+    let profileImg = document.getElementById("profile-mobile-img");
 
     let invoices2 = document.getElementById("invoices1");
     let wallet2 = document.getElementById("wallet1");
@@ -82,7 +89,16 @@ $(document).ready(function() {
         invoices.classList.remove("activ");
         dashboard.classList.remove("activ");
         settings.classList.add("activ");
-
+        dashboardImg.src="/static/img/dashboard-mobile.svg"
+        statsImg.src="/static/img/stats-mobile.svg"
+        settings2.style.borderTop = "3px solid #000"
+    }
+    if (id ==="/profile"){
+        invoices.classList.remove("activ");
+        dashboard.classList.remove("activ");
+        settings.classList.add("activ");
+        dashboardImg.src="/static/img/dashboard-mobile.svg"
+        profileImg.src="/static/img/profile-mobile.svg"
         settings2.style.borderTop = "3px solid #000"
     }
    

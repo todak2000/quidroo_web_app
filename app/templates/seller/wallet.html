@@ -16,6 +16,10 @@
             </div>
         </div>
     </nav>
+    <ul style="display: none;" id="drop-list">
+        <li><a href="{% url 'profile' %}"><img src= "{% static 'img/drop-profile.svg' %}" alt="upload" class="mr-3"> View Profile</a></li>
+        <li><a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mr-3">Sign out</a></li>
+    </ul>
     <!-- top-bar ends -->
     <!-- main section -->
     <div class="main-section">

@@ -43,6 +43,41 @@ a {
 a:hover{
   text-decoration: none;
 }
+#loading {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  background-color: #fff;
+  top: 0;
+  left: 0;
+  text-align: center;
+  /* opacity: 0.7; */
+  /* background-color: rgb(112, 69, 69); */
+  z-index: 99;
+}
+@-webkit-keyframes blinker {
+  from {opacity: 1.0;}
+  to {opacity: 0.0;}
+}
+#loading-image{
+	text-decoration: blink;
+	-webkit-animation-name: blinker;
+	-webkit-animation-duration: 0.6s;
+	-webkit-animation-iteration-count:infinite;
+	-webkit-animation-timing-function:ease-in-out;
+	-webkit-animation-direction: alternate;
+}
+
+/*  #loading-image{
+  position: absolute;
+  top: 100px;
+  left: 240px;
+  z-index: 100;
+} */
 .onboarding-background{
     background-color: #EEF1F8;
     min-height:90vh;

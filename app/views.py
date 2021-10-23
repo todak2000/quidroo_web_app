@@ -46,6 +46,53 @@ def logout_page(request):
 def forgot_page(request):
     return render(request,"onboarding/forgot_password.html")
 
+# @api_view(["GET"])
+# def profile_page(request):
+#     return render(request,"seller/profile.html")
+
+@api_view(["GET"])
+def profile_page(request):
+    try:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        user_ver = Verification.objects.get(user=user_data)
+
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "token": request.session['token'],
+            "user_id": user_data.user_id,
+            "name": user_data.name,
+            "company_name": user_data.company_name,
+            "role": user_data.role,
+            "ver_data": user_ver,
+            "user_data": user_data
+           
+        }
+        if user_data.role == "seller":
+            return render(request,"seller/profile.html", return_data)
+            # return render(request,"seller/wallet.html", return_data)
+        elif user_data.role == "investor":
+            return render(request,"seller/profile.html", return_data)
+            # return render(request,"investor/wallet.html", return_data)
+        elif user_data.role == "vendor":
+            return render(request,"seller/profile.html", return_data)
+        else:
+            return_data = {
+                "success": False,
+                "message": "You are not authorized to access this page!",
+                "status" : 205,
+            }
+            return render(request,"onboarding/login.html", return_data)
+    except jwt.exceptions.ExpiredSignatureError:
+        return_data = {
+            "error": "1",
+            "message": "Token has expired"
+            }
+        return render(request,"onboarding/login.html", return_data) 
+
 @api_view(["GET"])
 def upload_page(request):
     if 'token' in request.session:
@@ -155,16 +202,6 @@ def verification_page(request):
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
         user_ver = Verification.objects.get(user=user_data)
-        # awaitingInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=0).count()
-        # confirmedInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=1).count()
-        # buyerInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=2).count()
-        # soldInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=3).count()
-        # completedInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=4).count()
-        # totalSold = Invoice.objects.filter(seller_id=user_id, invoice_state=4).aggregate(Sum('invoice_amount'))
-        # vendors = Invoice.objects.filter(seller_id=user_id).values('vendor_name').distinct().count()
-        # recent_activities = RecentActivity.objects.filter(user_id=user_id).order_by('-date_added')[:3]
-        # wallet_data = Wallet.objects.get(user=user_data)
-        # local_tx = Transaction.objects.filter(Q(sender_id=user_id) | Q(receiver_id=user_id)).order_by('-created_at')[:3]
 
         return_data = {
             "success": True,
