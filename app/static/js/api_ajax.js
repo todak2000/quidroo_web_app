@@ -1,6 +1,6 @@
 function onLoad(){
     document.getElementById('loading').style.display ="none";
-    document.getElementById('index').style.display ="flex";
+    document.getElementById('index2').style.display ="flex";
     
     
 }

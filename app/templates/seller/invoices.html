@@ -12,10 +12,12 @@
       <div class="avatar-div disappear"> 
           <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
           <div class="avatar-div2 " id="drop-down">
-            {% if avatar is not ""  %}
-                <img src= "{{avatar}}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+            {% if avatar is ""  %}
+            <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+            {% elif avatar is None  %}
+            <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
             {% else %}
-              <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm">
+            <img src= "{{avatar}}" alt="avatar" class="img-sm">
             {% endif %}
             <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
               <!-- <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm">
