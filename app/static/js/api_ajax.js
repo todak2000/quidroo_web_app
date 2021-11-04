@@ -370,7 +370,8 @@ $(function(){
           } else {
             ul.style.display = "none";
           }
-    })})
+    })
+})
 
 function in_checkFormOne() {
     let file= document.getElementById("file");
@@ -389,15 +390,16 @@ function in_checkFormOne() {
         recieveable.innerHTML= formatter.format(invoice_amount*(1-(score/100)));
         up_rec.classList.add("appear");
         up_rec.classList.remove("disappeared");
-        console.log(file.value)
-        console.log(invoice.value)
-    }
-    
-    else if (file.value !== "" || invoice.value !== "" ){
         contBtn.disabled = false
         contBtn.classList.remove("btn-disabled");
         contBtn.classList.add("btn-create-account");
     }
+    
+    // else if (file.value !== "" || invoice.value !== "" ){
+    //     contBtn.disabled = false
+    //     contBtn.classList.remove("btn-disabled");
+    //     contBtn.classList.add("btn-create-account");
+    // }
     else{
         contBtn.disabled = true
         contBtn.classList.add("btn-disabled");
@@ -421,11 +423,11 @@ function in_checkFormTwo() {
     let email = document.getElementById("vendor_email");
     
     let invoice_amount = document.getElementById("invoice_amount").value;
-    let recieveable = document.getElementById("recieveable");
+    // let recieveable = document.getElementById("recieveable");
     let score = document.getElementById("score").value;
     let up_rec = document.getElementById("up_rec");
     if(invoice_amount !=""){
-        recieveable.innerHTML= formatter.format(invoice_amount*(1-score));
+        // recieveable.innerHTML= formatter.format(invoice_amount*(1-score));
         up_rec.classList.add("appear");
         up_rec.classList.remove("disappeared");
     }
