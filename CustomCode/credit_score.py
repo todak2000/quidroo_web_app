@@ -5,3 +5,6 @@ def creditScore(currScore):
     return y
 
 
+def creditScoreNew(currScore):
+    y = -(5*currScore)+10  # credit score equation
+    return y

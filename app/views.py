@@ -541,7 +541,7 @@ def seller_signup(request):
             #encrypt password
             encryped_password = password_functions.generate_password_hash(password)
             #Save user_data
-            latestScore = credit_score.creditScore(float(0.01))
+            latestScore = credit_score.creditScoreNew(float(0.01))
             newUserData = User(user_id=userRandomId,business_type=business_type,company_name=company_name,
                                 email=email, password=encryped_password,company_address=company_address, role=role, credit_score=latestScore)
             newUserData.save()
@@ -1333,7 +1333,8 @@ def upload_verification_data(request):
             newActivity = RecentActivity(activity="Uploaded an Verification Data", user_id=user_id)
             newActivity.save()
             if newVerData and newActivity:
-                latestScore = credit_score.creditScore(float(user_data.credit_score))
+                inPercent = float(user_data.credit_score)/100
+                latestScore = credit_score.creditScore(inPercent)
                 if latestScore <= 0:
                     user_data.credit_score = 0
                 else:
