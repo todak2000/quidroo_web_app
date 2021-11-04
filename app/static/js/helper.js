@@ -33,10 +33,11 @@ function v_checkFormOne() {
     }
 }
 function ic_checkFormOne() {
-    let company = document.getElementById("ic_company");
+    let company = document.getElementById("ic_company_name");
     let address = document.getElementById("ic_address");
     let cac = document.getElementById("ic_cac");
     let contBtn = document.getElementById("ic_btn-continue");
+    console.log(company.value)
     if (company.value !== "" && address.value !== "" && cac.value !== ""){
         contBtn.disabled = false
         contBtn.classList.remove("btn-disabled");

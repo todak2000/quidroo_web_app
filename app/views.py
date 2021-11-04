@@ -865,7 +865,7 @@ def verify_email(request, token):
                     "success": True,
                     "status" : 200,
                     "role" : user_data.role,
-                    "message": str(user_data.company_name)+", your Quidroo Account is now Verified! Kindly go back to log in"
+                    "message": str(user_data.company_name) or str(user_data.name)+", your Quidroo Account is now Verified! Kindly go back to log in"
                 }
                 return render(request,"onboarding/email_login.html", return_data)
         else:

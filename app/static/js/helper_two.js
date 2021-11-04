@@ -12,11 +12,16 @@ $(function(){
 $(function(){
     $('#ver_btn-back-one').on('click', function (e) {
         e.preventDefault();
+        
         let formOne = document.getElementById("ver_form-inner-one");
         let formTwo = document.getElementById("ver_form-inner-two");
-        formOne .classList.add("appear");
+        console.log(formOne)
+        formOne.classList.add("appear");
+        formOne.classList.remove("disappeared");
+        formTwo.classList.remove("appear");
         formTwo.classList.add("disappeared");
 })})
+
 
 function verification_checkFormOne() {
     let file= document.getElementById("file_id");
@@ -41,9 +46,9 @@ function verification_checkFormOne() {
     let contBtn = document.getElementById("ver_btn-continue");
     
     if (file.value !== "" && cac_cert.value !== "" && bank_statement.value !== "" && nin_no.value !== "" && tin_no.value !== ""){
-        // contBtn.disabled = false
-        // contBtn.classList.remove("btn-disabled");
-        // contBtn.classList.add("btn-create-account");
+        contBtn.disabled = false
+        contBtn.classList.remove("btn-disabled");
+        contBtn.classList.add("btn-create-account");
     }
     else{
         contBtn.disabled = true
