@@ -950,7 +950,7 @@ function calcBidAmount2(r){
     let bidAmt = document.getElementById("bid-amt2")
     let bidAmount = document.getElementById("vv-amount2");
     let accAmount = document.getElementById("accepted-amount2");
-    if (r >0 && r <=6){
+    if (r >0 && r <=4.5){
         let amount = ((r/100)*bidAmount.value)+parseFloat(bidAmount.value) 
         bidAmt.value=formatter.format(amount)
         accAmount.value = amount
@@ -974,7 +974,7 @@ function calcBidAmount(r){
     let bidAmt = document.getElementById("bid-amt")
     let bidAmount = document.getElementById("vv-amount");
     let accAmount = document.getElementById("accepted-amount");
-    if (r >0 && r <=6){
+    if (r >0 && r <=4.5){
         let amount = ((r/100)*bidAmount.value)+parseFloat(bidAmount.value) 
         bidAmt.value=formatter.format(amount)
         accAmount.value = amount
