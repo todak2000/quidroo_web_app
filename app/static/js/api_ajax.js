@@ -37,6 +37,8 @@ $(document).ready(function() {
     let invoices = document.getElementById("invoices");
     let settings = document.getElementById("settings");
 
+    let bids = document.getElementById("bids");
+
     let dashboardImg = document.getElementById("dashboard-mobile-img");
     let invoiceImg = document.getElementById("invoice-mobile-img");
     let walletImg = document.getElementById("wallet-mobile-img");
@@ -53,6 +55,9 @@ $(document).ready(function() {
         invoices.classList.add("activ");
         dashboard.classList.remove("activ");
         settings.classList.remove("activ");
+        if (bids){
+            bids.classList.remove("activ");
+        }
 
         dashboardImg.src="/static/img/dashboard-mobile.svg"
         invoiceImg.src="/static/img/invoice-mobile.svg"
@@ -63,22 +68,46 @@ $(document).ready(function() {
         invoices.classList.remove("activ");
         dashboard.classList.add("activ");
         settings.classList.remove("activ");
+        // bids.classList.remove("activ");
+        if (bids){
+            bids.classList.remove("activ");
+        }
         dashboard2.style.borderTop = "3px solid #000"
     }
     if (id ==="/wallet"){
         invoices.classList.remove("activ");
         dashboard.classList.remove("activ");
         settings.classList.remove("activ");
+        // bids.classList.remove("activ");
+        if (bids){
+            bids.classList.remove("activ");
+        }
 
         dashboardImg.src="/static/img/dashboard-mobile.svg"
         walletImg.src="/static/img/wallet-mobile.svg"
 
         wallet2.style.borderTop = "3px solid #000"
     }
+    if (id ==="/bids"){
+        invoices.classList.remove("activ");
+        dashboard.classList.remove("activ");
+        settings.classList.remove("activ");
+        
+        bids.classList.add("activ");
+
+        dashboardImg.src="/static/img/dashboard-mobile.svg"
+        statsImg.src="/static/img/bid-mob.svg"
+
+        stats2.style.borderTop = "3px solid #000"
+    }
     if (id ==="/stats"){
         invoices.classList.remove("activ");
         dashboard.classList.remove("activ");
         settings.classList.remove("activ");
+        // bids.classList.remove("activ");
+        if (bids){
+            bids.classList.remove("activ");
+        }
 
         dashboardImg.src="/static/img/dashboard-mobile.svg"
         statsImg.src="/static/img/stats-mobile.svg"
@@ -89,6 +118,10 @@ $(document).ready(function() {
         invoices.classList.remove("activ");
         dashboard.classList.remove("activ");
         settings.classList.add("activ");
+        // bids.classList.remove("activ");
+        if (bids){
+            bids.classList.remove("activ");
+        }
         dashboardImg.src="/static/img/dashboard-mobile.svg"
         statsImg.src="/static/img/stats-mobile.svg"
         settings2.style.borderTop = "3px solid #000"
@@ -97,6 +130,10 @@ $(document).ready(function() {
         invoices.classList.remove("activ");
         dashboard.classList.remove("activ");
         settings.classList.add("activ");
+        // bids.classList.remove("activ");
+        if (bids){
+            bids.classList.remove("activ");
+        }
         dashboardImg.src="/static/img/dashboard-mobile.svg"
         profileImg.src="/static/img/profile-mobile.svg"
         settings2.style.borderTop = "3px solid #000"
@@ -107,7 +144,7 @@ $(document).ready(function() {
     console.log(id);
     let dashboard = document.getElementById("dashboard");
     let invoices = document.getElementById("invoices");
-    
+    let bids = document.getElementById("bids");
     let settings = document.getElementById("settings");
     
 
@@ -219,56 +256,56 @@ function w_showBalance() {
 }
 
 // WITHDRAW API
-$(function(){
-    $('#withdraw-btn').on('click', function (e) {
-        e.preventDefault();
-        let amount = document.getElementById("amount").value;
-        let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
-        let success = document.getElementById("success");
-        let fail = document.getElementById("fail");
-        let main =  document.getElementById("main-form");
-        let hash = document.getElementById('hash');
-        let btn = document.getElementById('withdraw-btn');
-        let ref_url = document.getElementById('ref_url');
-        let msg = document.getElementById("modal-message");
-        let msgSuccess = document.getElementById("modal-message-success");
+// $(function(){
+//     $('#withdraw-btn').on('click', function (e) {
+//         e.preventDefault();
+//         let amount = document.getElementById("amount").value;
+//         let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+//         let success = document.getElementById("success");
+//         let fail = document.getElementById("fail");
+//         let main =  document.getElementById("main-form");
+//         let hash = document.getElementById('hash');
+//         let btn = document.getElementById('withdraw-btn');
+//         let ref_url = document.getElementById('ref_url');
+//         let msg = document.getElementById("modal-message");
+//         let msgSuccess = document.getElementById("modal-message-success");
 
-        let contBtnText = document.getElementById("WithBtnText");
-        let contBtnImg = document.getElementById("withUploadImg");
-        btn.disabled = false;
-        contBtnText.innerText = "Withdrawal in Progress";
-        contBtnImg.style.display = "inline-block";
-        $.ajax({
-            url:'/withdraw',
-            type:'POST',
-            headers:{"X-CSRFToken": $crf_token},
-            data:{
-                amount: amount,
-            },
-            success:function(response){
-                console.log(response)
-                if(response.success == true && response.status == 200){
-                    success.classList.remove("modal-hide");
-                    success.classList.remove("modal-show");
-                    main.classList.add("modal-hide");
-                    msgSuccess.innerHTML = response.message; 
-                }
-                else{
-                    fail.classList.remove("modal-hide");
-                    fail.classList.remove("modal-show");
-                    main.classList.add("modal-hide");
-                    msg.innerHTML = response.message;
-                }
-            },
-            error:function(e){
-                console.log(e);
-                $("#spinner").hide();
-            },
-        });
+//         let contBtnText = document.getElementById("WithBtnText");
+//         let contBtnImg = document.getElementById("withUploadImg");
+//         btn.disabled = false;
+//         contBtnText.innerText = "Withdrawal in Progress";
+//         contBtnImg.style.display = "inline-block";
+//         $.ajax({
+//             url:'/withdraw',
+//             type:'POST',
+//             headers:{"X-CSRFToken": $crf_token},
+//             data:{
+//                 amount: amount,
+//             },
+//             success:function(response){
+//                 console.log(response)
+//                 if(response.success == true && response.status == 200){
+//                     success.classList.remove("modal-hide");
+//                     success.classList.remove("modal-show");
+//                     main.classList.add("modal-hide");
+//                     msgSuccess.innerHTML = response.message; 
+//                 }
+//                 else{
+//                     fail.classList.remove("modal-hide");
+//                     fail.classList.remove("modal-show");
+//                     main.classList.add("modal-hide");
+//                     msg.innerHTML = response.message;
+//                 }
+//             },
+//             error:function(e){
+//                 console.log(e);
+//                 $("#spinner").hide();
+//             },
+//         });
         
         
-    });
-});
+//     });
+// });
 
 $(function(){
     $('.close').on('click', function (e) {
@@ -277,51 +314,51 @@ $(function(){
     })
 })
 // FUND API
-$(function(){
-    $('#topup-btn').on('click', function (e) {
-        e.preventDefault();
-        let amount = document.getElementById("f_amount").value;
-        let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
-        let success = document.getElementById("t_success");
-        let fail = document.getElementById("t_fail");
-        let main =  document.getElementById("t_main-form");
-        let hash = document.getElementById('t_hash');
-        let btn = document.getElementById('topup-btn');
-        let ref_url = document.getElementById('ref_url_fund');
-        let msg = document.getElementById("t_modal-message") || document.getElementById("t_modal-message-success");
-        btn.innerHTML = "Initiating Transaction..."
-        $.ajax({
-            url:'/topup',
-            type:'POST',
-            headers:{"X-CSRFToken": $crf_token},
-            data:{
-                amount: amount,
-            },
-            success:function(response){
-                console.log(response)
-                if(response.success == true && response.status == 200){
-                    success.classList.remove("modal-hide");
-                    success.classList.remove("modal-show");
-                    main.classList.add("modal-hide");
-                    hash.value = response.tx_hash;
-                    msg.innerHTML = response.message; 
-                    ref_url.href ="https://horizon-testnet.stellar.org/transactions/"+response.tx_hash+"/operations"
-                }
-                else{
-                    fail.classList.remove("modal-hide");
-                    fail.classList.remove("modal-show");
-                    main.classList.add("modal-hide");
-                    msg.innerHTML = response.message;
-                }
-            },
-            error:function(e){
-                console.log(e);
-            },
-        });
+// $(function(){
+//     $('#topup-btn').on('click', function (e) {
+//         e.preventDefault();
+//         let amount = document.getElementById("f_amount").value;
+//         let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+//         let success = document.getElementById("t_success");
+//         let fail = document.getElementById("t_fail");
+//         let main =  document.getElementById("t_main-form");
+//         let hash = document.getElementById('t_hash');
+//         let btn = document.getElementById('topup-btn');
+//         let ref_url = document.getElementById('ref_url_fund');
+//         let msg = document.getElementById("t_modal-message") || document.getElementById("t_modal-message-success");
+//         btn.innerHTML = "Initiating Transaction..."
+//         $.ajax({
+//             url:'/topup',
+//             type:'POST',
+//             headers:{"X-CSRFToken": $crf_token},
+//             data:{
+//                 amount: amount,
+//             },
+//             success:function(response){
+//                 console.log(response)
+//                 if(response.success == true && response.status == 200){
+//                     success.classList.remove("modal-hide");
+//                     success.classList.remove("modal-show");
+//                     main.classList.add("modal-hide");
+//                     hash.value = response.tx_hash;
+//                     msg.innerHTML = response.message; 
+//                     ref_url.href ="https://horizon-testnet.stellar.org/transactions/"+response.tx_hash+"/operations"
+//                 }
+//                 else{
+//                     fail.classList.remove("modal-hide");
+//                     fail.classList.remove("modal-show");
+//                     main.classList.add("modal-hide");
+//                     msg.innerHTML = response.message;
+//                 }
+//             },
+//             error:function(e){
+//                 console.log(e);
+//             },
+//         });
         
         
-    });
-});
+//     });
+// });
 
 //DROP DOWN
 $(function(){
@@ -352,9 +389,11 @@ function in_checkFormOne() {
         recieveable.innerHTML= formatter.format(invoice_amount*(1-(score/100)));
         up_rec.classList.add("appear");
         up_rec.classList.remove("disappeared");
+        console.log(file.value)
+        console.log(invoice.value)
     }
     
-    else if (file.value !== "" && invoice.value !== "" ){
+    else if (file.value !== "" || invoice.value !== "" ){
         contBtn.disabled = false
         contBtn.classList.remove("btn-disabled");
         contBtn.classList.add("btn-create-account");
@@ -422,7 +461,97 @@ $(function(){
         formTwo.classList.add("disappeared");
         formTwo.classList.remove("appear");
 })})
-
+function searchInvoiceInvestor() {
+    $('#ajax_div').empty();
+    $('#search-mobile').empty();
+    // let status = document.getElementById("select-filter").value 
+    // let status2 = document.getElementById("select-filter2").value;
+    let date = document.getElementById("select-filter-date3").value 
+    // let date2 = document.getElementById("select-filter-date2").value;
+    let table = document.getElementById("search-table");
+    let Ntable = document.getElementById("normal-table");
+    // let mobileTable = document.getElementById("mobile-table");
+    let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+    let data={
+        date: date,
+    }
+    console.log(data)
+    $.ajax({
+        url:'/purchase_invoice_search',
+        type:'POST',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        headers:{"X-CSRFToken": $crf_token},
+        data:JSON.stringify(data),
+        success:function(response){
+            table.style.display = "inline-table";
+            Ntable.style.display = "none";
+            let invoiceList = response.invoices;
+            console.log(invoiceList);
+            if(invoiceList.length > 0){
+                invoiceList.forEach((element) => {
+                    $('#ajax_div').append(
+                            '<tr><td > <img src= "/static/img/invoice-small.svg" alt="upload" class="mr-1"/> '+element.additional_details.substring(0, 55)+'</td>'+
+                            '<td>'+formatter.format(element.receivable_amount)+'</td>'+
+                            '<td>'+element.due_date+'</td>'+
+                            '<td class="mobilell">'+element.vendor_name+'</td>'+
+                            '<td><a href="'+element.invoice_url+'" target="_blank">View Invoice</a></td>'+
+                            '</tr>'
+                    );
+                    // $('#search-mobile').append(
+                    //     '<div class="mobile-card-invoice mb-1" id="mobile-table">'+
+                    //     '<div class="mob-flex">'+
+                    //       '<h5>'+
+                    //         '<img src= "/static/img/invoice-small.svg" alt="upload" class="mr-1"/>'+ 
+                    //         element.additional_details.substring(0, 55)+
+                    //     '</h5>'+
+                    //       '<a href="'+element.invoice_url+'" target="_blank"><img src="/static/img/eye_hidden.svg" class="img-eye mt-3" style="width:70%;" /></a>'+
+                    //     '</div>'+
+                        
+                    //     '<div class="mob-flex">'+
+                    //         (element.invoice_state == 0 ? '<p class="awaiting">Awaiting Confirmation</p>': "")+
+                    //         (element.invoice_state == 1 ? '<p class="vendor">Confirmed</p>' : "")+
+                    //         (element.invoice_state == 2 ? '<p class="buyer">Awaiting Buyer</p>' :"")+
+                    //         (element.invoice_state == 3 ? '<p class="maturity">Sold</p>' :"")+
+                    //         (element.invoice_state == 4 ? '<td><span class="maturity">Completed</span></td>':"")+
+                    //         '<p style="padding: 0.5rem;">'+formatter.format(element.invoice_amount)+'</p>'+
+                    //     '</div>'+
+                    //     '<div class="mob-flex">'+
+                    //         '<p class="mob-p"> <img src= "/static/img/small-date.svg" alt="upload" class="mr-1"/>'+element.due_date+'</p>'+
+                    //         '<p class="mob-p"> <img src= "/static/img/small-person.svg" alt="upload" class="mr-1"/>'+element.vendor_name+'</p>'+
+                    //     '</div>'+
+                    //     '</div>'
+                    // )
+                });
+            }
+            
+            else{
+                $('#ajax_div').append(
+                    '<tr>'+
+                    // '<td style="visibility:collapse;">'+
+                    '<td style="visibility:collapse;">'+
+                    
+                    '<td style="text-align:center">'+
+                        '<img src= "/static/img/no-invoice.svg" alt="upload" class="mb-3"/>'+
+                        '<p>There are no Pending Purchased Invoices due within '+date+' days from now </p>'+
+                    '</td>'+
+                    '<td style="visibility:collapse;">'+
+                    // '<td style="visibility:collapse;">'+
+                    '</tr>'
+                );
+                // $('#search-mobile').append(
+                //    '<div class="no-invoice">'+
+                //     '<img src= "/static/img/no-invoice.svg" alt="upload" class="mb-3"/>'+
+                //     '<p>No Invoices</p>'+
+                //   '</div>'
+                // )
+            }
+        },
+        error:function(e){
+            console.log(e);
+        },
+    });
+}
 function searchInvoice() {
     $('#ajax_div').empty();
     $('#search-mobile').empty();
@@ -670,3 +799,390 @@ function changeActBtn(){
     contBtn.style.padding = "5px";
 }
 
+function makeBid(id){
+    console.log("Invoice ID:", id)
+    // $('#bidModal').modal('show');
+    let bidName = document.getElementById("bid-name");
+    let bidVendor = document.getElementById("bid-vendor");
+    let bidDate = document.getElementById("bid-date");
+    let bidAmount = document.getElementById("bid-amount");
+    let VAmount = document.getElementById("vv-amount");
+    let invoiceID = document.getElementById("invoice-id")
+    let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+    let data={
+        invoice_id: id,
+    }
+    $.ajax({
+        url:'/invoice_details',
+        type:'POST',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        headers:{"X-CSRFToken": $crf_token},
+        data:JSON.stringify(data),
+        success:function(response){
+            console.log(response)
+            // invoiceImg.src = response.invoiceURL;
+            bidName.innerHTML= response.additional_details
+            bidVendor.innerHTML= response.vendor_name
+            // bidDate.innerHTML= response.due_date
+            invoiceID.value= id
+            bidAmount.innerHTML= formatter.format(response.receivable_amount)
+            VAmount.value= response.receivable_amount
+
+            let diffInMs   = new Date(response.due_date) - new Date().getTime()
+            let diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+            bidDate.innerHTML= "Due in "+Math.round(diffInDays) +" Days";
+            // timer
+            var countDownDate = new Date(response.approved_time).getTime();
+            console.log("closing time:", countDownDate)
+            // Update the count down every 1 second
+            var x = setInterval(function() {
+
+                // Get today's date and time
+                var now = new Date().getTime();
+            
+                // Find the distance between now and the count down date
+                var distance = countDownDate - now;
+            
+                // Time calculations for days, hours, minutes and seconds
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+                // Display the result in the element with id="demo"
+                document.getElementById("timer").innerHTML = days + "d " + hours + "h "
+                + minutes + "m " + seconds + "s ";
+            
+                // If the count down is finished, write some text
+                if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("timer").innerHTML = "Bidding Closed";
+                }
+            }, 1000);
+            $('#bidModal').modal('show');
+            
+        },
+        error:function(e){
+            console.log(e);
+        },
+    });
+}
+function editBid(id){
+    // console.log("Invoice ID:", id)
+    // $('#bidModal').modal('show');
+    let bidName = document.getElementById("bid-name2");
+    let bidVendor = document.getElementById("bid-vendor2");
+    let bidDate = document.getElementById("bid-date2");
+    let bidAmount = document.getElementById("bid-amount2");
+    let ror = document.getElementById("my-bid");
+    let totalBids = document.getElementById("total-bids");
+    let topBid = document.getElementById("top-bid");
+    let VAmount = document.getElementById("vv-amount2");
+    let invoiceID = document.getElementById("invoice-id2")
+    let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+    let data={
+        bid_id: id,
+    }
+    $.ajax({
+        url:'/bid_details',
+        type:'POST',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        headers:{"X-CSRFToken": $crf_token},
+        data:JSON.stringify(data),
+        success:function(response){
+            console.log(response)
+            // invoiceImg.src = response.invoiceURL;
+            bidName.innerHTML= response.additional_details
+            bidVendor.innerHTML= response.vendor_name
+            // bidDate.innerHTML= response.due_date
+            invoiceID.value= id
+            bidAmount.innerHTML= formatter.format(response.receivable_amount)
+            VAmount.value= response.receivable_amount
+            ror.innerHTML = response.myBid+ " %"
+            totalBids.innerHTML = response.totalBids
+            topBid.innerHTML = response.topBid+ " %"
+
+            let diffInMs   = new Date(response.due_date) - new Date().getTime()
+            let diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+            bidDate.innerHTML= "Due in "+Math.round(diffInDays) +" Days";
+            // timer
+            var countDownDate = new Date(response.approved_time).getTime();
+            // Update the count down every 1 second
+            var x = setInterval(function() {
+
+                // Get today's date and time
+                var now = new Date().getTime();
+            
+                // Find the distance between now and the count down date
+                var distance = countDownDate - now;
+            
+                // Time calculations for days, hours, minutes and seconds
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+                // Display the result in the element with id="demo"
+                document.getElementById("timer2").innerHTML = days + "d " + hours + "h "
+                + minutes + "m " + seconds + "s ";
+            
+                // If the count down is finished, write some text
+                if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("timer2").innerHTML = "Bidding Closed";
+                }
+            }, 1000);
+            $('#editBidModal').modal('show');
+            
+        },
+        error:function(e){
+            console.log(e);
+        },
+    });
+}
+
+function calcBidAmount2(r){
+    let makeBidBtn = document.getElementById("editBid-btn")
+    let bidAmt = document.getElementById("bid-amt2")
+    let bidAmount = document.getElementById("vv-amount2");
+    let accAmount = document.getElementById("accepted-amount2");
+    if (r >0 && r <=6){
+        let amount = ((r/100)*bidAmount.value)+parseFloat(bidAmount.value) 
+        bidAmt.value=formatter.format(amount)
+        accAmount.value = amount
+        makeBidBtn.classList.add("btn-create-account");
+        makeBidBtn.classList.remove("btn-disabled");
+        makeBidBtn.disabled = false;
+        bidAmt.classList.add("form-input-green");
+    }
+    else{
+        makeBidBtn.classList.remove("btn-create-account");
+        makeBidBtn.classList.add("btn-disabled");
+        bidAmt.value=""
+        bidAmt.classList.add("form-input-red");
+        
+    }
+    
+}
+
+function calcBidAmount(r){
+    let makeBidBtn = document.getElementById("makeBid-btn")
+    let bidAmt = document.getElementById("bid-amt")
+    let bidAmount = document.getElementById("vv-amount");
+    let accAmount = document.getElementById("accepted-amount");
+    if (r >0 && r <=6){
+        let amount = ((r/100)*bidAmount.value)+parseFloat(bidAmount.value) 
+        bidAmt.value=formatter.format(amount)
+        accAmount.value = amount
+        makeBidBtn.classList.add("btn-create-account");
+        makeBidBtn.classList.remove("btn-disabled");
+        makeBidBtn.disabled = false;
+        bidAmt.classList.add("form-input-green");
+    }
+    else{
+        makeBidBtn.classList.remove("btn-create-account");
+        makeBidBtn.classList.add("btn-disabled");
+        bidAmt.value=""
+        bidAmt.classList.add("form-input-red");
+        
+    }
+    
+}
+
+// MAKE BID API
+$(function(){
+    $('#makeBid-btn').on('click', function (e) {
+        e.preventDefault();
+        // let amount = document.getElementById("f_amount").value;
+        let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+        let success = document.getElementById("i-success");
+        let fail = document.getElementById("i-fail");
+        let ror =  document.getElementById("bid-bid");
+        let invoiceID = document.getElementById("invoice-id")
+        let main = document.getElementById('main-form');
+        let accAmount = document.getElementById("accepted-amount");
+        let btn = document.getElementById('makeBid-btn');
+        // let ref_url = document.getElementById('ref_url_fund');
+        let msg = document.getElementById("i_modal-message") || document.getElementById("i_modal-message-success");
+        // let contBtnImg = document.getElementById("withUploadImg2");
+        // contBtnImg.style.display = "inline-block";
+        btn.innerText = "Initiating Bidding Process..."
+        $.ajax({
+            url:'/makebid',
+            type:'POST',
+            headers:{"X-CSRFToken": $crf_token},
+            data:{
+                amount: accAmount.value,
+                buyer_ror: ror.value,
+                invoice_id: invoiceID.value
+            },
+            success:function(response){
+                console.log(response)
+                if(response.success == true && response.status == 200){
+                    success.classList.remove("modal-hide");
+                    success.classList.remove("modal-show");
+                    main.classList.add("modal-hide");
+                    document.getElementById("i_modal-message-success").innerHTML = response.message; 
+                    
+                }
+                else{
+                    fail.classList.remove("modal-hide");
+                    fail.classList.remove("modal-show");
+                    main.classList.add("modal-hide");
+                    document.getElementById("i_modal-message").innerHTML = response.message;
+                }
+            },
+            error:function(e){
+                console.log(e);
+            },
+        });
+        
+        
+    });
+});
+
+// EDIT BID API
+$(function(){
+    $('#editBid-btn').on('click', function (e) {
+        e.preventDefault();
+        // let amount = document.getElementById("f_amount").value;
+        let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+        let success = document.getElementById("e-success");
+        let fail = document.getElementById("e-fail");
+        let ror =  document.getElementById("bid-bid2");
+        let invoiceID = document.getElementById("invoice-id2")
+        let main = document.getElementById('main-form2');
+        let accAmount = document.getElementById("accepted-amount2");
+        let btn = document.getElementById('editBid-btn');
+        // let ref_url = document.getElementById('ref_url_fund');
+        let msg = document.getElementById("e_modal-message") || document.getElementById("e_modal-message-success");
+        // let contBtnImg = document.getElementById("withUploadImg2");
+        // contBtnImg.style.display = "inline-block";
+        btn.innerText = "Editing Bidding in Progress..."
+        $.ajax({
+            url:'/editbid',
+            type:'POST',
+            headers:{"X-CSRFToken": $crf_token},
+            data:{
+                e_amount: accAmount.value,
+                e_buyer_ror: ror.value,
+                e_invoice_id: invoiceID.value
+            },
+            success:function(response){
+                console.log(response)
+                if(response.success == true && response.status == 200){
+                    success.classList.remove("modal-hide");
+                    success.classList.remove("modal-show");
+                    main.classList.add("modal-hide");
+                    document.getElementById("e_modal-message-success").innerHTML = response.message; 
+                    
+                }
+                else{
+                    fail.classList.remove("modal-hide");
+                    fail.classList.remove("modal-show");
+                    main.classList.add("modal-hide");
+                    document.getElementById("e_modal-message").innerHTML = response.message;
+                }
+            },
+            error:function(e){
+                console.log(e);
+            },
+        });
+        
+        
+    });
+});
+
+// top-up api (paystack callback function)
+$(function(){
+    $('#verify_payment_button').on('click', function (e) {
+        e.preventDefault();
+        // document.getElementById("spinner").style.display = "block";
+        document.getElementById("verify_payment_button").value = "Verifying Payment...";
+        let amount = document.getElementById("tt_amount").value;
+        let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+        let ref = document.getElementById("tt_ref").value;
+        $.ajax({
+            url:'/fund',
+            type:'POST',
+            headers:{"X-CSRFToken": $crf_token},
+            data:{
+                txref: ref,
+                amount: amount,
+            },
+            success:function(response){
+                console.log(response);
+                document.getElementById("verify_payment_button").style.display="none";
+                let mess = document.getElementById("mess")
+                mess.innerHTML = "Fund Verified Successfully"
+            },
+            error:function(e){
+                console.log(e);
+            },
+        });
+        
+    });
+});
+
+// withdraw api
+$(function(){
+    $('#withdraw-btn').on('click', function (e) {
+        e.preventDefault();
+        let btn = document.getElementById('withdraw-btn');
+        // document.getElementById("spinner").style.display = "block";
+        let success = document.getElementById("success");
+        document.getElementById("withdraw-btn").value = "Withdrawing Your fund...";
+        let amount = document.getElementById("amount").value;
+        let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+        let msgSuccess = document.getElementById("modal-message-success");
+        let contBtnText = document.getElementById("WithBtnText");
+        let contBtnImg = document.getElementById("withUploadImg");
+        let msg = document.getElementById("modal-message");
+        btn.disabled = false;
+        contBtnText.innerText = "Withdrawal in Progress";
+        contBtnImg.style.display = "inline-block";
+        $.ajax({
+            url:'/withdraw',
+            type:'POST',
+            headers:{"X-CSRFToken": $crf_token},
+            data:{
+                amount: amount,
+            },
+            success:function(response){
+                console.log(response);
+                if(response.success == true && response.status == 200 && response.role=="investor"){
+                    document.getElementById("verify_payment_button").style.display="none";
+                    success.classList.remove("modal-hide");
+                    success.classList.remove("modal-show");
+                    document.getElementById("main-form345").style.display="none";
+                    msgSuccess.innerHTML = response.message; 
+                }
+                else if(response.success == true && response.status == 200 && response.role=="seller"){
+                    success.classList.remove("modal-hide");
+                    success.classList.remove("modal-show");
+                    document.getElementById("main-form").style.display="none";
+                    msgSuccess.innerHTML = response.message; 
+                }
+                else{
+                    fail.classList.remove("modal-hide");
+                    fail.classList.remove("modal-show");
+                    if(document.getElementById("main-form345")){
+                        document.getElementById("main-form345").style.display="none"
+                    }
+                    else{
+                        document.getElementById("main-form").style.display ="none";
+                    }
+                    
+                    msg.innerHTML = response.message;
+                }
+
+            },
+            error:function(e){
+                console.log(e);
+            },
+        });
+        
+    });
+});

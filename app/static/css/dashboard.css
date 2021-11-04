@@ -88,6 +88,28 @@ body{
     padding: 1rem;
     font-family: "GeneralSansRegular";
   }
+.form-input-red{
+    height: 55px;
+    border: 0px solid rgba(8, 27, 51, 0.1);
+    box-sizing: border-box;
+    border-radius: 7px;
+    background: #F9EAEA;
+    width:100%;
+    margin: 0.5rem 0;
+    padding: 1rem;
+    font-family: "GeneralSansRegular";
+}
+.form-input-green{
+    height: 55px;
+    border: 0px solid rgba(8, 27, 51, 0.1);
+    box-sizing: border-box;
+    border-radius: 7px;
+    background: #ECF7F1;
+    width:100%;
+    margin: 0.5rem 0;
+    padding: 1rem;
+    font-family: "GeneralSansRegular";
+}
 a {
     text-decoration: none; 
   }
@@ -299,7 +321,7 @@ a {
     background: #fff;
     border-radius: 7px;
     padding: .5rem 1rem;
-    color:#767E9F;
+    color:#000;
     margin-top: 0.5rem;
     height: 2.5rem;
     font-size: 0.95rem;
@@ -370,8 +392,20 @@ a {
     padding: 0.8rem;
     border-radius: 10px;
 }
+.small-card-investor{
+    width: 32%;
+    padding: 0.8rem;
+    border-radius: 10px;
+}
 .smally-card{
     width: 30%;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #E9EAF4;
+    box-sizing: border-box;
+}
+.smally-card2{
+    width: 48%;
     padding: 1rem;
     border-radius: 10px;
     border: 1px solid #E9EAF4;
@@ -405,15 +439,20 @@ a {
     width:70%;
     padding:0;
 }
+.page-current{
+    color:#081B33;
+    font-family: "GeneralSansMedium";
+    margin-right:2rem;
+}
 #wall-inactive{
     color: #D13D2A;
-    height: 1.5rem;
+    height: 2rem;
     background: #FBECEA;
     border-radius: 4px;
     margin-top: 1rem;
-    font-size: 0.7rem;
+    font-size: 1rem;
     font-weight: bolder;
-    padding: 0.2rem;
+    padding: 0.4rem 0.7rem;
     margin-left: 0.5rem;
     font-family: "CabinetGroteskBold";
 }
@@ -451,9 +490,15 @@ a {
     flex-direction: row;
     justify-content: space-between;
 }
+.main-main-i{
+    width:100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
 .main-verification{
     width:100%;
-    padding: 1rem 35rem;
+    padding: 1rem 32rem;
     border-radius: 10px;
     background-color: #fff;
     justify-content: center;
@@ -478,6 +523,9 @@ a {
 }
 .main-left{
     width:56%;
+}
+.main-left-investor{
+    width:44%;
 }
 .awaiting{
     background-color: #F7EDFA;
@@ -553,11 +601,85 @@ td{
 .main-right{
     width:42%;
 }
+.t-bids{
+    color:#081B33;
+    font-size: 1.7rem;
+    font-family: 'GeneralSansMedium';
+}
+.t-bids2{
+    color:#3EAF6E;
+    font-size: 1.7rem;
+    font-family: 'GeneralSansMedium';
+}
+.t-bids3{
+    color:#E07E24;
+    font-size: 1.7rem;
+    font-family: 'GeneralSansMedium';
+}
+.edit-bid{
+    background: #081B33;
+    border: 1px solid #081B33;
+    box-sizing: border-box;
+    border-radius: 7px;
+    padding:0.6rem;
+    color:#fff;
+}
+.edit-bid2{
+    background: #081B33;
+    border: 1px solid #081B33;
+    box-sizing: border-box;
+    border-radius: 7px;
+    padding:0.6rem 1.5rem;
+    color:#fff;
+}
+.i-h5{
+    color:#081B33;
+    font-family: 'GeneralSansMedium';
+}
+.roi{
+    color:#5151E0;
+}
+.main-right-investor{
+    width:54%;
+}
 .main-card{
     background: #FFFFFF;
     border-radius: 10px;
     width: 100%;
     padding: 0.5rem 1rem;
+    overflow-y: auto!important;
+    max-height: 70vh !important;
+}
+.main-card-investor{
+    background: #FFFFFF;
+    border-radius: 10px;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    max-height: 70vh !important;
+}
+.main-card-investor22 {
+    background: #FFFFFF;
+    border-radius: 10px;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    /* max-height: 70vh !important; */
+}
+.main-card-investor2{
+    background: #FFFFFF;
+    border-radius: 10px;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    /* max-height: 70vh !important; */
+}
+.i-h4{
+    font-family: 'GeneralSansMedium';
+
+}
+.investor-inner{
+    width: 100%;
+    display: flex;
+    /* justify-content: center; */
+    flex-wrap: wrap;
     overflow-y: auto!important;
     max-height: 70vh !important;
 }
@@ -808,7 +930,6 @@ td{
     background: #FFFFFF;
     border-radius: 10px;
     width: 100%;
-    /* height:20vh; */
     padding: 3vh;
 }
 .lb{
@@ -924,7 +1045,20 @@ justify-content: space-between;
     padding: 0.3rem 1.5rem;
     font-family: "GeneralSansRegular";
 }
+.mobile-card-invoice2{
+    width:49%;
+    background-color: #fff;
+    border: 1px solid #E9EAF4;
+    box-sizing: border-box;
+    border-radius: 10px;
+    margin:0.3rem;
+    padding: 0.3rem 1.5rem;
+    font-family: "GeneralSansRegular";
+}
 .mobile-card-invoice:hover{
+    background-color: #EEEEFC;
+}
+.mobile-card-invoice2:hover{
     background-color: #EEEEFC;
 }
 .no-invoice{
@@ -959,6 +1093,33 @@ justify-content: space-between;
     width:20%;
 }
 @media (max-width: 770px) {
+    .main-card-investor22 {
+        height:90vh!important;
+    }
+    .i-h4 {
+        font-size:1.6rem;
+    }
+    .mobile-card-invoice2 {
+        width: 100%;
+    }
+    .main-card-two{
+        background: #FFFFFF;
+        border-radius: 10px;
+        width: 100%;
+        padding: 3vh 0;
+    }
+    .main-main-i{
+        width:100%;
+        display: flex;
+        flex-direction: column;
+        /* justify-content: space-between; */
+    }
+    .main-left-investor {
+        width: 100%;
+    }
+    .main-right-investor {
+        width: 100%;
+    }
     .pro-save{
         background: #BABECF;
         border-radius: 7px;
@@ -1170,6 +1331,21 @@ justify-content: space-between;
     }
     .main-right {
         width: 100%;
+    }
+    #normal-table{
+        display: block;
+        max-height: 40vh;
+        overflow-y: auto;
+    }
+    .table>thead>tr>th {
+        font-size: 1rem!important;
+    }
+    #invoice-table3>tr>td, #ajax_div>tr>td {
+        font-size: 1rem!important;
+        width:30%;
+    }
+    .mobilell{
+        display: none;
     }
 
 }

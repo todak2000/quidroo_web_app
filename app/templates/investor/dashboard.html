@@ -7,17 +7,24 @@
     <!-- top-bar -->
     <nav class="main-top">
         <img src= "{% static 'img/logo-mobile.svg' %}" alt="logo" class="img-fluid mobile">
-        <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile">
+        <!-- <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile"> -->
+        <a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mobile mt-2"></a>
         <div class="avatar-div disappear"> 
             <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
             <div class="avatar-div2 " id="drop-down">
-                <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm">
+                {% if avatar is ""  %}
+                <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+                {% elif avatar is None  %}
+                <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+                {% else %}
+                <img src= "{{avatar}}" alt="avatar" class="img-sm">
+                {% endif %}
                 <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
             </div>
         </div>
     </nav>
     <ul style="display: none;" id="drop-list">
-        <li><a href="{% url 'logout' %}"><img src= "{% static 'img/drop-profile.svg' %}" alt="upload" class="mr-3"> View Profile</a></li>
+        <li><a href="{% url 'profile' %}"><img src= "{% static 'img/drop-profile.svg' %}" alt="upload" class="mr-3"> View Profile</a></li>
         <li><a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mr-3">Sign out</a></li>
     </ul>
     <!-- top-bar ends -->
@@ -28,102 +35,50 @@
             <h4>{{company_name}}'s Dashboard</h4>
             {% else %}
             <h4>{{name}}'s Dashboard</h4>
-            {% endif %}
-            
-            <!-- <a class="upload disappear"> <img src= "{% static 'img/upload.svg' %}" alt="upload"/> Upload Invoice</a> -->
+            {% endif%}
         </div>
-        <div class="main-main">
-            <div class="main-left">
+        
+
+        
+        <div class="main-main-i">
+            <div class="main-left-investor">
                 <div class="main-card">
                     <div class="flex-between">
                         <div class="flexy">
                             <img src= "{% static 'img/invoice_seller.svg' %}" alt="upload" class="mr-2">
                             <p>Invoices</p>
                         </div>
-                        <a class="upload-mobile mobile"> <img src= "{% static 'img/upload-mobile.svg' %}" alt="upload"> Upload Invoice</a>
                         <a href="{% url 'invoices' %}" class="view desktop">  View Details</a>
                     </div>
                     <div class="flexy-options">
-                        <div class="small-card" id="red">
-                            <h3>3</h3>
-                            <p>Awaiting confirmation</p>
+                        <div class="small-card-investor" id="green">
+                            <h3>{{activeBid}}</h3>
+                            <p>Active Bids</p>
                         </div>
-                        <div class="small-card" id="orange">
-                            <h3>2</h3>
-                            <p>Confirmed by Vendor</p>
+                        <div class="small-card-investor" id="yellow">
+                            <h3>{{purchasedInvoices}}</h3>
+                            <p>Purchased Invoices</p>
                         </div>
-                        <div class="small-card" id="yellow">
-                            <h3>1</h3>
-                            <p>Awaiting buyer</p>
-                        </div>
-                        <div class="small-card" id="green">
-                            <h3>3</h3>
-                            <p>Awaiting maturity</p>
+                        <div class="small-card-investor" id="orange">
+                            <h3>{{completedInvoices}}</h3>
+                            <p>Completed Invoices</p>
                         </div>
                     </div>
                 </div>
-                <!-- stats -->
-                <div class="main-card mt-2 bottom-fix disappear">
-                    <div class="flex-between">
-                        <div class="flexy">
-                            <img src= "{% static 'img/stats-seller.svg' %}" alt="upload" class="mr-2">
-                            <p>Stats</p>
-                        </div>
-                        <!-- <a class="view desktop">  View Details</a> -->
-                    </div>
-                    <div class="flexy-options-stats">
-                        <div class="smally-card" >
-                            <img src= "{% static 'img/sold-invoices.svg' %}" alt="upload" class="mb-3">
-                            <h3>31</h3>
-                            <p>Invoices sold</p>
-                        </div>
-                        <div class="smally-card" >
-                            <img src= "{% static 'img/total-sales.svg' %}" alt="upload" class="mb-3" >
-                            <h3>&#8358;13.5m</h3>
-                            <p>Total Sales</p>
-                        </div>
-                        <div class="smally-card" >
-                            <img src= "{% static 'img/vendors.svg' %}" alt="upload" class="mb-3">
-                            <h3>15</h3>
-                            <p>Vendors</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- mobile recent activity -->
-                <div class="main-card-two mt-2 mobile">
-                    <div class="flex-between">
-                        <div class="flexy">
-                            <img src= "{% static 'img/recent.svg' %}" alt="upload" class="mr-2">
-                            <p>Recent Activity</p>
-                        </div>
-                        <a class="view disappear">  See All</a>
-                    </div>
-                    <div class=" mt-1">
-                        <div class="mb-3">
-                            <h6 class="trans">Uploaded an Invoice QINV343409</h6>
-                            <a class="trans-date">Today     10:35 AM</a>
-                        </div>
-                        <div class="mb-3">
-                            <h6 class="trans">Changed account password</h6>
-                            <a class="trans-date">Yesterday     10:35 AM</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- wallet balance -->
-            <div class="main-right disappear">
-                <div class="main-card-two">
+                <div class="main-card-two mt-2 disappear">
                     <div class="flex-between">
                         <div class="flexy">
                             <img src= "{% static 'img/wallet-seller.svg' %}" alt="upload" class="mr-2">
                             <p>Wallet</p>
-                            <span id="wall-active">ACTIVE</span>
+                            {% if activated == True %}
+                                <span id="wall-active">ACTIVE</span>
+                            {% else %}
+                                <span id="wall-inactive">INACTIVE</span>
+                            {% endif %}
                         </div>
-                        <p class="mt-3" style="color:#5151E0; font-size:0.85rem;">QII***</p>
-                        <!-- <a class="view">  View Details</a> -->
                     </div>
                     <!-- wallet card -->
-                    <div class="wallet-card" style="background-color: #b3ebd854;">
+                    <div class="wallet-card" >
                         <div class="flex-between">
                             <h5>Quidroo Balance</h5>
                             <img src= "{% static 'img/eye_show.svg' %}" alt="upload" id="d_show" class="mr-2" onclick="d_showBalance()">
@@ -131,20 +86,50 @@
                         </div>
 
                         <div id="balance_div">
-                            <h3 class="mb-3 clickable" id="d_qut" >{{fiat_equivalent|floatformat:2|intcomma}} <sup class="sup">NGN</sup></h3>
-                            <!-- <h3 class="mb-3 hide clickable" id="d_fiat" onclick="d_toggleBalance(this.id);" >$ {{fiat_equivalent|floatformat:2|intcomma}} </h3> -->
-                            <div class="flex-between">
-                                <a class="view mt-3" data-toggle="modal" data-target="#withdrawModal">  Withdraw</a>
-                                <a class="view mt-3" data-toggle="modal" data-target="#topupModal">  Fund Wallet</a>
-                            </div>
+                            <h3 class="mb-3 clickable" id="d_qut" >&#8358; {{fiat_equivalent |floatformat:2|intcomma}} </h3>
+                            <a class="view mt-3 mr-5" data-toggle="modal" data-target="#topupModal">  Fund</a>
+                            <a class="view mt-3" data-toggle="modal" data-target="#withdrawModal">  Withdraw</a>
                         </div>
                         <h3 class="mb-3" id="d_not" style="display: none;">*********</h3>
                         <!-- <h5>Account ID: {{muxed_acct}}</h5> -->
                     </div>
+                    <div class="flexty mt-3">
+                        <h5>Credit Score</h5>
+                        {% if credit_score >= "9" %}
+                            <button type="button" class="btn credit-red ml-3">
+                                <span class="badge badge-red">1</span>
+                                VERY POOR
+                            </button>
+                        {% elif credit_score <= "8.99" and credit_score >= "8"%}
+                            <button type="button" class="btn credit-orange ml-3">
+                                <span class="badge badge-orange">2</span>
+                                POOR
+                            </button>
+                        {% elif credit_score <= "7.99" and credit_score >= "7"%}
+                            <button type="button" class="btn credit-yellow ml-3">
+                                <span class="badge badge-yellow">3</span>
+                                FAIR
+                            </button>
+                        {% elif credit_score <= "6.99" and credit_score >= "6"%}
+                            <button type="button" class="btn credit-light ml-3">
+                                <span class="badge badge-light">4</span>
+                                GOOD
+                            </button>
+                            {% elif credit_score <= "5.99" and credit_score >= "5"%}
+                            <button type="button" class="btn credit-green ml-3">
+                                <span class="badge badge-green">5</span>
+                                EXCELLENT
+                            </button>
+                        {% else %}
+                        <button type="button" class="btn credit-red ml-3">
+                            <span class="badge badge-red">1</span>
+                            VERY POOR
+                        </button>
+                        {% endif %}
+                    </div>
                     <!-- transactions -->
                     <div class="flex-between mt-3 line">
                         <h6 class="recent-trans">Recent Transactions</h6>
-                        <a class="trans-view">See More</a>
                     </div>
                     {% if local_transaction %}
                         {% for t in local_transaction %}
@@ -154,7 +139,7 @@
                                     <h6 class="trans">{{t.transaction_note}}</h6>
                                     <a class="trans-date">{{t.created_at}}</a>
                                 </div>
-                                <p class="wallet-green">+ &#8358;{{t.fiat_equivalent|floatformat:2|intcomma}}</p>
+                                <p class="wallet-green">+ &#8358;{{t.fiat_equivalent |floatformat:2|intcomma}}</p>
                             </div>
                             {% else %}
                             <div class="flex-between mt-1">
@@ -162,7 +147,7 @@
                                     <h6 class="trans">{{t.transaction_note}}</h6>
                                     <a class="trans-date">{{t.created_at}}</a>
                                 </div>
-                                <p class="wallet-red">- &#8358;{{t.fiat_equivalent|floatformat:2|intcomma}}</p>
+                                <p class="wallet-red">- &#8358;{{t.fiat_equivalent |floatformat:2|intcomma}}</p>
                             </div>
                             {% endif %}
                         
@@ -172,6 +157,138 @@
                     {% endif %}
                     
                 </div>
+                <!-- stats -->
+                <div class="main-card mt-2 bottom-fix disappear">
+                    <div class="flex-between">
+                        <div class="flexy">
+                            <img src= "{% static 'img/stats-seller.svg' %}" alt="upload" class="mr-2">
+                            <p>Stats</p>
+                        </div>
+                    </div>
+                    <div class="flexy-options-stats">
+                        <div class="smally-card2 mb-3" >
+                            <img src= "{% static 'img/sold-invoices.svg' %}" alt="upload" class="mb-3">
+                            <h3>{{purchasedInvoices}}</h3>
+                            <p>Invoices Purchased</p>
+                        </div>
+                        <div class="smally-card2 mb-3" >
+                            <img src= "{% static 'img/total-sales.svg' %}" alt="upload" class="mb-3" >
+                            <h3>&#8358; 
+                                {% if totalPurchases.receivable_amount__sum != None  %}
+                                    {{totalPurchases.receivable_amount__sum|floatformat:2|intcomma}}
+                                {% else %}
+                                0.00
+                                {% endif%}
+                            </h3>
+                            <p>Total Purchases</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- mobile recent activity -->
+                <!-- <div class="main-card-two mt-2 mobile">
+                    <div class="flex-between">
+                        <div class="flexy">
+                            <img src= "{% static 'img/recent.svg' %}" alt="upload" class="mr-2">
+                            <p>Recent Activity</p>
+                        </div>
+                        <a class="view disappear">  See All</a>
+                    </div>
+                    <div class=" mt-1">
+                        {% if recent_activities %}
+                        {% for r in recent_activities %}
+                        <div class="mb-3">
+                            <h6 class="trans">{{r.activity|slice:":50" }}</h6>
+                            <a class="trans-date">{{r.date_added}}</a>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                            <p class="no-tx">No recent Activities</p>
+                        {% endif %}
+                    </div>
+                    
+                </div> -->
+            </div>
+           
+            <div class="main-right-investor ">
+                 <!-- Active Bids -->
+                <div class="main-card-two mb-2">
+                    <div class="flex-between">
+                        <div class="flexy">
+                            <img src= "{% static 'img/active-bid.svg' %}" alt="upload" class="mr-2">
+                            <p>Active Bids ({{activeBid}})</p>
+                        </div>
+                        <a href="{% url 'bids' %}" class="view">  See All</a>
+                    </div>
+                    <!-- individual bids card -->
+                    {% if activeBidss %}
+                    {% for i in activeBidss %}
+                    <div class="mobile-card-invoice mb-1 pt-3 pb-3" >
+                        <div class="mob-flex">
+                          <h5 class="i-h5">
+                            {{i.invoice.additional_details}}
+                          </h5>
+                         <h5><span class="roi">3 - 6 % </span>ROI</h5>
+                        </div>
+                        <div class="mob-flex">
+                          <p>Due in {{i.invoice.due_date|timeuntil}}</p>
+                          <p style="padding: 0.5rem; font-size: 1.9rem; color:#081B33; font-family: GeneralSansMedium;">&#8358;{{i.amount|floatformat:2|intcomma}}</p>
+                        </div>
+                        <div class="mob-flex">
+                            <!-- <p class="mob-p"> Total Bids <span class="t-bids">15</span></p>
+                            <p class="mob-p"> Top Bid <span class="t-bids2">6.5%</span></p> -->
+                            <p class="mob-p"> My Bid <span class="t-bids3">{{i.buyer_ror}}%</span></p>
+                            <button id="{{i.id}}" class="edit-bid" onclick="editBid(this.id)"  >Edit Bid</button>
+                        </div>
+                    </div>
+                    {% endfor %} 
+                    {% else %}      
+                    <div class="no-invoice" style="height:auto;">
+                        <img src= "{% static 'img/no-invoice.svg' %}" alt="upload" class="mb-3"/>
+                        <p>No Active Bids</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Latest Invoices -->
+                <div class="main-card-two ">
+                    <div class="flex-between">
+                        <div class="flexy">
+                            <img src= "{% static 'img/invoice_seller.svg' %}" alt="upload" class="mr-2">
+                            <p>Latest Invoices for Sale ({{noOfInvoices}})</p>
+                        </div>
+                        <a href="{% url 'invoices' %}" class="view">  See All</a>
+                    </div>
+                    <!-- individual invoices card -->
+                    {% if invoices %}
+                    {% for i in invoices %}
+                    <div class="mobile-card-invoice mb-1 pt-3 pb-3" >
+                        
+                        <div class="mob-flex">
+                          <h5 class="i-h5">
+                            {{i.additional_details}}
+                          </h5>
+                         <h5><span class="roi">3 - 6 % </span>ROI</h5>
+                        </div>
+                        <div class="mob-flex">
+                          <p>{{i.due_date|timeuntil}}</p>
+                          <p style="padding: 0.5rem; font-size: 1.9rem; color:#081B33; font-family: GeneralSansMedium;">&#8358;{{i.receivable_amount|floatformat:2|intcomma}}</p>
+                        </div>
+                        <div class="mob-flex">
+                          <p class="mob-p"> <img src= "{% static 'img/small-person.svg' %}" alt="upload" class="mr-1"/> {{i.vendor_name}}</p>
+                          <!-- <button class="edit-bid2" data-toggle="modal" data-target="#bidModal">Bid</button> -->
+                          <button id="{{i.id}}" class="edit-bid2" onclick="makeBid(this.id)">Bid</button>
+                        </div>
+                        <a href="{{i.invoice_url}}" target="_blank" style="color: #5151E0;">View Invoice</a>
+                    </div>
+                    {% endfor %} 
+                    {% else %}      
+                    <div class="no-invoice" style="height:auto;">
+                        <img src= "{% static 'img/no-invoice.svg' %}" alt="upload" class="mb-3"/>
+                        <p>No Invoices</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
                 <!-- recent activities -->
                 <div class="main-card-two mt-2">
                     <div class="flex-between">
@@ -179,17 +296,18 @@
                             <img src= "{% static 'img/recent.svg' %}" alt="upload" class="mr-2">
                             <p>Recent Activity</p>
                         </div>
-                        <!-- <a class="view">  See All</a> -->
                     </div>
                     <div class=" mt-1">
+                        {% if recent_activities %}
+                        {% for r in recent_activities %}
                         <div class="mb-3">
-                            <h6 class="trans">Uploaded an Invoice QINV343409</h6>
-                            <a class="trans-date">Today     10:35 AM</a>
+                            <h6 class="trans">{{r.activity|slice:":50" }}</h6>
+                            <a class="trans-date">{{r.date_added|timesince}}</a>
                         </div>
-                        <div class="mb-3">
-                            <h6 class="trans">Changed account password</h6>
-                            <a class="trans-date">Yesterday     10:35 AM</a>
-                        </div>
+                        {% endfor %}
+                        {% else %}
+                            <p class="no-tx">No recent Activities</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

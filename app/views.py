@@ -1,12 +1,14 @@
 import datetime as DT
 import datetime
 from hashlib import new
+from django.db.models.aggregates import Min
 from django.shortcuts import render, redirect
 from django.contrib.sites.shortcuts import get_current_site
 import jwt
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Max
 from app.models import (RecentActivity, User, VendorList,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification)
 from CustomCode import (password_functions, string_generator, validator, credit_score)
+from django.core.paginator import Paginator
 
 from quidroo import settings
 from rest_framework.decorators import api_view
@@ -68,6 +70,7 @@ def profile_page(request):
             "company_name": user_data.company_name,
             "role": user_data.role,
             "ver_data": user_ver,
+            "avatar": user_data.avatar_url,
             "user_data": user_data
            
         }
@@ -75,7 +78,7 @@ def profile_page(request):
             return render(request,"seller/profile.html", return_data)
             # return render(request,"seller/wallet.html", return_data)
         elif user_data.role == "investor":
-            return render(request,"seller/profile.html", return_data)
+            return render(request,"investor/profile.html", return_data)
             # return render(request,"investor/wallet.html", return_data)
         elif user_data.role == "vendor":
             return render(request,"seller/profile.html", return_data)
@@ -110,6 +113,7 @@ def upload_page(request):
             "name": user_data.name,
             "company_name": user_data.company_name,
             "role": user_data.role,
+            "avatar": user_data.avatar_url,
             "vendors": vendorList
 
         }
@@ -136,51 +140,93 @@ def dashboard_page(request):
         decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
-        awaitingInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=0).count()
-        confirmedInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=1).count()
-        buyerInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=2).count()
-        soldInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=3).count()
-        completedInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=4).count()
-        totalSold = Invoice.objects.filter(seller_id=user_id, invoice_state=4).aggregate(Sum('invoice_amount'))
-        vendors = Invoice.objects.filter(seller_id=user_id).values('vendor_name').distinct().count()
-        recent_activities = RecentActivity.objects.filter(user_id=user_id).order_by('-date_added')[:3]
         wallet_data = Wallet.objects.get(user=user_data)
         local_tx = Transaction.objects.filter(Q(sender_id=user_id) | Q(receiver_id=user_id)).order_by('-created_at')[:3]
+        recent_activities = RecentActivity.objects.filter(user_id=user_id).order_by('-date_added')[:3]
         user_ver = Verification.objects.get(user=user_data)
-        return_data = {
-            "success": True,
-            "status" : 200,
-            "activated": user_data.verified,
-            "message": "Successfull",
-            "token": request.session['token'],
-            "user_id": user_data.user_id,
-            "name": user_data.name,
-            "company_name": user_data.company_name,
-            "credit_score": user_data.credit_score,
-            "role": user_data.role,
-            "awaiting": awaitingInvoices,
-            "confirmed": confirmedInvoices,
-            "buyer": buyerInvoices,
-            "sold": soldInvoices,
-            "vendors":vendors,
-            "totalSold":totalSold,
-            "completed": completedInvoices,
-            "fiat_equivalent":wallet_data.fiat_equivalent,
-            "local_transaction": local_tx,
-            "recent_activities": recent_activities,
-            "awaiting_approval": user_ver.awaiting_approval | False,
-            "account_name":user_ver.account_name,
-            "account_no": user_ver.account_no,
-            "bank": user_ver.bank
-        }
         if user_data.role == "seller":
+            # seller dashboard data
+            awaitingInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=0).count()
+            confirmedInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=1).count()
+            buyerInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=2).count()
+            soldInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=3).count()
+            completedInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=4).count()
+            totalSold = Invoice.objects.filter(seller_id=user_id, invoice_state=3).aggregate(Sum('invoice_amount'))
+            vendors = Invoice.objects.filter(seller_id=user_id).values('vendor_name').distinct().count()
+            
+            # local_tx = Transaction.objects.filter(Q(sender_id=user_id) | Q(receiver_id=user_id)).order_by('-created_at')[:3]
+            
+            return_data = {
+                "success": True,
+                "status" : 200,
+                "activated": user_data.verified,
+                "message": "Successfull",
+                "token": request.session['token'],
+                "user_id": user_data.user_id,
+                "name": user_data.name,
+                "avatar": user_data.avatar_url,
+                "company_name": user_data.company_name,
+                "credit_score": user_data.credit_score,
+                "role": user_data.role,
+                "email":user_data.email,
+                "awaiting": awaitingInvoices,
+                "confirmed": confirmedInvoices,
+                "buyer": buyerInvoices,
+                "sold": soldInvoices,
+                "vendors":vendors,
+                "totalSold":totalSold,
+                "completed": completedInvoices,
+                "fiat_equivalent":wallet_data.fiat_equivalent,
+                "local_transaction": local_tx,
+                "recent_activities": recent_activities,
+                "awaiting_approval": user_ver.awaiting_approval | False,
+                "account_name":user_ver.account_name,
+                "account_no": user_ver.account_no,
+                "bank": user_ver.bank
+            }
             return render(request,"seller/dashboard.html", return_data)
             # return render(request,"seller/wallet.html", return_data)
         elif user_data.role == "investor":
+            # buyer dashboard data
+            activeBids = Bid.objects.filter(bidder_id=user_data.user_id, invoice__winning_buyer_id="0").count()
+            activeBidss = Bid.objects.filter(bidder_id=user_data.user_id, invoice__winning_buyer_id="0")
+            purchasedInvoices = Invoice.objects.filter(winning_buyer_id=user_id).count()
+            completedInvoices = Invoice.objects.filter(winning_buyer_id=user_id, invoice_state=4).count()
+            totalPurchases = Invoice.objects.filter(winning_buyer_id=user_id).aggregate(Sum('receivable_amount'))
+            invoices = Invoice.objects.filter(invoice_state=2).order_by('-created_at')[:2]
+            noOfInvoices = Invoice.objects.filter(invoice_state=2).count()
+            return_data = {
+                "success": True,
+                "status" : 200,
+                "activated": user_data.verified,
+                "message": "Successfull",
+                "token": request.session['token'],
+                "user_id": user_data.user_id,
+                "name": user_data.name,
+                "now": datetime.date.today(),
+                "email":user_data.email,
+                "avatar": user_data.avatar_url,
+                "company_name": user_data.company_name,
+                "credit_score": user_data.credit_score,
+                "role": user_data.role,
+                "recent_activities": recent_activities,
+                "activeBid": activeBids,
+                "activeBidss": activeBidss,
+                "purchasedInvoices": purchasedInvoices,
+                "completedInvoices":completedInvoices,
+                "fiat_equivalent":wallet_data.fiat_equivalent,
+                "local_transaction": local_tx,
+                "totalPurchases":totalPurchases,
+                "invoices":invoices,
+                "noOfInvoices":noOfInvoices,
+                "account_name":user_ver.account_name,
+                "account_no": user_ver.account_no,
+                "bank": user_ver.bank
+            }
             return render(request,"investor/dashboard.html", return_data)
             # return render(request,"investor/wallet.html", return_data)
         elif user_data.role == "vendor":
-            return render(request,"seller/dashboard.html", return_data)
+            return render(request,"seller/dashboard.html")
         else:
             return_data = {
                 "success": False,
@@ -213,6 +259,7 @@ def verification_page(request):
             "company_name": user_data.company_name,
             "credit_score": user_data.credit_score,
             "role": user_data.role,
+            "avatar": user_data.avatar_url,
             "awaiting_approval": user_ver.awaiting_approval,
            
         }
@@ -220,7 +267,7 @@ def verification_page(request):
             return render(request,"seller/verification.html", return_data)
             # return render(request,"seller/wallet.html", return_data)
         elif user_data.role == "investor":
-            return render(request,"seller/dashboard.html", return_data)
+            return render(request,"investor/verification.html", return_data)
             # return render(request,"investor/wallet.html", return_data)
         elif user_data.role == "vendor":
             return render(request,"seller/dashboard.html", return_data)
@@ -261,6 +308,7 @@ def wallet_page(request):
             "local_transaction": local_tx,
             "account_name":user_ver.account_name,
             "account_no": user_ver.account_no,
+            "avatar": user_data.avatar_url,
             "bank": user_ver.bank
         }
         if user_data.role == "seller":
@@ -290,25 +338,52 @@ def invoices_page(request):
         decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
-        invoices = Invoice.objects.filter(seller_id=user_id).order_by('-created_at')[:10]
-        return_data = {
-            "success": True,
-            "status" : 200,
-            "activated": user_data.verified,
-            "message": "Successfull",
-            "name": user_data.name,
-            "token": request.session['token'],
-            "user_id": user_data.user_id,
-            "company_name": user_data.company_name,
-            "role": user_data.role,
-            "invoices": invoices
-        }
+        # invoices = Invoice.objects.filter(seller_id=user_id).order_by('-created_at')[:10]
+        invoices = Invoice.objects.filter(seller_id=user_id).order_by('-created_at')
+        invoices2 = Invoice.objects.filter(invoice_state=2).order_by('-created_at')
+        noOfInvoices = Invoice.objects.filter(invoice_state=2).count()
+        
         if user_data.role == "seller":
+            paginator = Paginator(invoices, 10)
+            page_number = request.GET.get('page')
+            page_obj = paginator.get_page(page_number)
+            return_data = {
+                "success": True,
+                "status" : 200,
+                "activated": user_data.verified,
+                "message": "Successfull",
+                "name": user_data.name,
+                "token": request.session['token'],
+                "user_id": user_data.user_id,
+                "avatar": user_data.avatar_url,
+                "company_name": user_data.company_name,
+                "role": user_data.role,
+                "invoices": invoices,
+                "invoices": page_obj
+                # 'page_obj': 
+            }
             return render(request,"seller/invoices.html", return_data)
         elif user_data.role == "investor":
+            paginator = Paginator(invoices2, 10)
+            page_number = request.GET.get('page')
+            page_obj = paginator.get_page(page_number)
+            return_data = {
+                "success": True,
+                "status" : 200,
+                "activated": user_data.verified,
+                "message": "Successfull",
+                "name": user_data.name,
+                "token": request.session['token'],
+                "user_id": user_data.user_id,
+                "avatar": user_data.avatar_url,
+                "company_name": user_data.company_name,
+                "role": user_data.role,
+                "invoices": page_obj,
+                "noOfInvoices":noOfInvoices
+            }
             return render(request,"investor/invoices.html", return_data)
         elif user_data.role == "vendor":
-            return render(request,"seller/invoices.html", return_data)
+            return render(request,"seller/invoices.html")
         else:
             return_data = {
                 "success": False,
@@ -324,6 +399,64 @@ def invoices_page(request):
         return render(request,"onboarding/login.html", return_data)
 
 @api_view(["GET"])
+def bids_page(request):
+    # if 'token' in request.session:
+    try:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        activeBids = Bid.objects.filter(bidder_id=user_data.user_id, invoice__winning_buyer_id="0").count()
+        activeBidss = Bid.objects.filter(bidder_id=user_data.user_id, invoice__winning_buyer_id="0")
+        purchasedInvoicesCount = Invoice.objects.filter(winning_buyer_id=user_id).count()
+        # purchasedInvoices = Invoice.objects.filter(invoice_state=2).order_by('-created_at')[:10]
+        purchasedInvoices = Invoice.objects.filter(winning_buyer_id=user_id, invoice_state=3).order_by('-created_at')[:10]
+        completedInvoices = Invoice.objects.filter(winning_buyer_id=user_id, invoice_state=4).count()
+        totalPurchases = Invoice.objects.filter(winning_buyer_id=user_id, invoice_state=4).aggregate(Sum('receivable_amount'))
+        invoices = Invoice.objects.filter(invoice_state=2).order_by('-created_at')[:2]
+        noOfInvoices = Invoice.objects.filter(invoice_state=2).count()
+        paginator = Paginator(purchasedInvoices, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "message": "Successfull",
+            "token": request.session['token'],
+            "user_id": user_data.user_id,
+            "name": user_data.name,
+            "now": datetime.date.today(),
+            "avatar": user_data.avatar_url,
+            "company_name": user_data.company_name,
+            "credit_score": user_data.credit_score,
+            "role": user_data.role,
+            "activeBid": activeBids,
+            "activeBidss": activeBidss,
+            "purchasedInvoices": page_obj,
+            "purchasedInvoicesCount": purchasedInvoicesCount,
+            "completedInvoices":completedInvoices,
+            "totalPurchases":totalPurchases,
+            "invoices":invoices,
+            "noOfInvoices":noOfInvoices,
+        }
+        if user_data.role == "investor":
+            return render(request,"investor/bids.html", return_data)
+        else:
+            return_data = {
+                "success": False,
+                "message": "You are not authorized to access this page!",
+                "status" : 205,
+            }
+            return render(request,"onboarding/login.html", return_data) 
+    except jwt.exceptions.ExpiredSignatureError:
+        return_data = {
+            "error": "1",
+            "message": "Token has expired"
+            }
+        return render(request,"onboarding/login.html", return_data)
+
+
+@api_view(["GET"])
 def stats_page(request):
     # if 'token' in request.session:
     try:
@@ -334,6 +467,10 @@ def stats_page(request):
         totalSold = Invoice.objects.filter(seller_id=user_id, invoice_state=4).aggregate(Sum('invoice_amount'))
         vendors = Invoice.objects.filter(seller_id=user_id).values('vendor_name').distinct().count()
         recent_activities = RecentActivity.objects.filter(user_id=user_id).order_by('-date_added')[:3]
+
+        completedInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=4).count()
+        totalSold = Invoice.objects.filter(seller_id=user_id, invoice_state=3).aggregate(Sum('invoice_amount'))
+        vendors = Invoice.objects.filter(seller_id=user_id).values('vendor_name').distinct().count()
         return_data = {
             "success": True,
             "status" : 200,
@@ -342,12 +479,16 @@ def stats_page(request):
             "token": request.session['token'],
             "user_id": user_data.user_id,
             "name": user_data.name,
+            "avatar": user_data.avatar_url,
             "company_name": user_data.company_name,
             "role": user_data.role,
              "vendors":vendors,
             "totalSold":totalSold,
             "completed": completedInvoices,
-            "recent_activities": recent_activities
+            "recent_activities": recent_activities,
+            "vendors":vendors,
+            "totalSold":totalSold,
+            "completed": completedInvoices,
         }
         if user_data.role == "seller":
             return render(request,"seller/stats.html", return_data)
@@ -910,6 +1051,7 @@ def withdraw(request):
 def topup(request):
     
     str_amount = request.data.get("amount",None)
+    ref = request.data.get("txref",None)
     # if 'token' in request.session: 
     try:
         if str_amount !="":
@@ -923,9 +1065,9 @@ def topup(request):
             wallet_data.fiat_equivalent = newBalance
             wallet_data.save()
 
-            newTransaction = Transaction(receiver_id=user_id, sender_id="quidroo", fiat_equivalent=amount, token_balance=amount,transaction_type = "Credit", transaction_note="Topup into Quidroo Account", tx_hash=bc["hash"])
+            newTransaction = Transaction(receiver_id=user_id, sender_id="quidroo", fiat_equivalent=amount, token_balance=amount,transaction_type = "Credit", transaction_note="Topup into Quidroo Account", tx_hash=ref)
             newTransaction.save()
-            newActivity = RecentActivity(activity="Initiated a Topup of NGN "+str(amount), user_id=user_data.user_id)
+            newActivity = RecentActivity(activity="Initiated and completed a Topup of NGN "+str(amount), user_id=user_data.user_id)
             newActivity.save()
             return_data = {
                 "success": True,
@@ -1080,17 +1222,63 @@ def invoice_details(request):
         user_data = User.objects.get(user_id=user_id)
         invoiceSelected = Invoice.objects.get(id=invoice_id)
         
+        today = DT.date.today()
+        bidClosingDate = today + DT.timedelta(days=3)
+
         return_data = {
             "success": True,
             "status" : 200,
             "activated": user_data.verified,
             "message": "Successfull",
+            "now": datetime.date.today(),
             "invoice_state": invoiceSelected.invoice_state,
             "additional_details": invoiceSelected.additional_details,
             "invoice_amount": invoiceSelected.invoice_amount,
+            "receivable_amount": invoiceSelected.receivable_amount,
             "vendor_name": invoiceSelected.vendor_name,
             "due_date": invoiceSelected.due_date.strftime('%Y-%m-%d'),
-            "invoiceURL": invoiceSelected.invoice_url
+            "invoiceURL": invoiceSelected.invoice_url,
+            "approved_time":bidClosingDate
+        }
+        return Response(return_data)
+    else:
+        return_data = {
+            "success": False,
+            "message": "Sorry! your session expired. Kindly login again",
+            "status" : 205,
+        }
+        return render(request,"onboarding/login.html", return_data)
+@api_view(["POST"])
+def bid_details(request):
+    bid_id = request.data.get("bid_id",None)   
+    if 'token' in request.session:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        bidSelected = Bid.objects.get(id=bid_id)
+        invoiceSelected = Invoice.objects.get(id=bidSelected.invoice.id)
+        totalBids = Bid.objects.filter(invoice__id=invoiceSelected.id).count()
+        topBid = Bid.objects.filter(invoice__id=invoiceSelected.id).aggregate(Min('buyer_ror'))
+        # exisitedBid = Bid.objects.filter(invoice__id=invoiceSelected.id, bidder_id=user_id)
+        today = DT.date.today()
+        bidClosingDate = today + DT.timedelta(days=3)
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "message": "Successfull",
+            "now": datetime.date.today(),
+            "invoice_state": invoiceSelected.invoice_state,
+            "additional_details": invoiceSelected.additional_details,
+            "invoice_amount": invoiceSelected.invoice_amount,
+            "receivable_amount": invoiceSelected.receivable_amount,
+            "vendor_name": invoiceSelected.vendor_name,
+            "due_date": invoiceSelected.due_date.strftime('%Y-%m-%d'),
+            "invoiceURL": invoiceSelected.invoice_url,
+            "myBid": bidSelected.buyer_ror,
+            "topBid":topBid["buyer_ror__min"],
+            "totalBids":totalBids,
+            "approved_time":bidClosingDate
         }
         return Response(return_data)
     else:
@@ -1103,73 +1291,125 @@ def invoice_details(request):
 
 @api_view(["POST"])
 def upload_verification_data(request):
-    idCard = request.data.get("file_id",None)
-    cac_cert = request.data.get("cac_cert",None)
-    bank_statement = request.data.get("bank_statement",None)
+    decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+    user_id = decrypedToken['user_id']
+    user_data = User.objects.get(user_id=user_id)
+    if user_data.role == "seller":
+        idCard = request.data.get("file_id",None)
+        pics = request.data.get("pics_id",None) 
+        cac_cert = request.data.get("cac_cert",None)
+        bank_statement = request.data.get("bank_statement",None)
 
-    tin_no = request.data.get("tin_no",None)
-    nin_no = request.data.get("nin_no",None)
-    verBank = request.data.get("ver-bank",None)
-    verAccNo = request.data.get("ver-acc-no",None)
-    verAccName = request.data.get("ver-acc-name",None)
-    bvn_no = request.data.get("ver-bvn",None)
+        tin_no = request.data.get("tin_no",None)
+        nin_no = request.data.get("nin_no",None)
+        verBank = request.data.get("ver-bank",None)
+        verAccNo = request.data.get("ver-acc-no",None)
+        verAccName = request.data.get("ver-acc-name",None)
+        bvn_no = request.data.get("ver-bvn",None)
 
-    id_cloud= cloudinary.uploader.upload(idCard)
-    cac_cloud= cloudinary.uploader.upload(cac_cert)
-    bank_statement_cloud= cloudinary.uploader.upload(bank_statement)
-    # tin_cloud= cloudinary.uploader.upload(tin_no)
-    # nin_cloud= cloudinary.uploader.upload(nin_no)
+        id_cloud= cloudinary.uploader.upload(idCard)
+        pics_cloud= cloudinary.uploader.upload(pics)
+        cac_cloud= cloudinary.uploader.upload(cac_cert)
+        bank_statement_cloud= cloudinary.uploader.upload(bank_statement)
 
-    # verBank_cloud= cloudinary.uploader.upload(verBank)
-    # verAccNo_cloud= cloudinary.uploader.upload(verAccNo)
-    # verAccName_cloud= cloudinary.uploader.upload(verAccName)
-    # bvn_cloud= cloudinary.uploader.upload(verBvn)
-    # if id_cloud:
-    if bank_statement_cloud and cac_cloud and id_cloud:
-        # if 'token' in request.session: 
-        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
-        user_id = decrypedToken['user_id']
-        user_data = User.objects.get(user_id=user_id)
+        if bank_statement_cloud and cac_cloud and id_cloud and pics_cloud:
+            # decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+            # user_id = decrypedToken['user_id']
+            # user_data = User.objects.get(user_id=user_id)
+            newVerData = Verification.objects.get(user=user_data)
+            newVerData.user_Idcard=id_cloud["secure_url"]
+            newVerData.bank_statement=bank_statement_cloud["secure_url"]
+            newVerData.cac_certificate=cac_cloud["secure_url"]
+            newVerData.nin=nin_no
+            newVerData.bvn=bvn_no
+            newVerData.account_name=verAccName
+            newVerData.account_no=verAccNo
+            newVerData.bank=verBank
+            newVerData.tin=tin_no
+            newVerData.awaiting_approval=True 
+            newVerData.save()
+            user_data.avatar_url = pics_cloud["secure_url"]
+            user_data.save()
+            newActivity = RecentActivity(activity="Uploaded an Verification Data", user_id=user_id)
+            newActivity.save()
+            if newVerData and newActivity:
+                latestScore = credit_score.creditScore(float(user_data.credit_score))
+                if latestScore <= 0:
+                    user_data.credit_score = 0
+                else:
+                    user_data.credit_score = latestScore
+                user_data.save()
+                # Send mail to ADMIN using SMTP
+                if user_data.name !="":
+                    name = user_data.name
+                else:
+                    name = user_data.company_name 
+                email = "todak2000@gmail.com"
+                mail_subject = str(name)+' just uploaded their Details'
+                email2 = {
+                    'subject': mail_subject,
+                    'html': '<section style="background-color: #EEF1F8;height:auto;width: auto;display: flex;flex-direction: column;align-items: center;justify-content: center;"> <div style="background: #FFFFFF;width: 100%;padding: 10vh;"><img src="https://i.im.ge/2021/09/23/TCyJRy.jpg" style="margin:auto; width:40%; height: auto;" /><h3 style="margin-top:-6vh;">Hello Admin!</h3><p style="font-size: 1.15rem;color:#767E9F;">'+str(name)+' has uploaded his verification details. Kindly attend to it within 24 hours and approve or confirm disapproval. Thanks.</p></div></section>',
+                    'text': 'Hello, Admin!\n '+str(name)+' has uploaded his verification details. Kindly attend to it within 24 hours and approve or confirm disapproval. Thanks.',
+                    'from': {'name': 'Quidroo', 'email': sender_email},
+                    'to': [
+                        {'name': 'Quidroo Admin', 'email': email}
+                    ]
+                }
+                sentMail2 = SPApiProxy.smtp_send_mail(email2)
+                return_data = {
+                "success": True,
+                "status" : 200,
+                "activated": user_data.verified,
+                "message": "Verification data Successfully uploaded. Your account would be activated shortly after due evaluation. Thanks",
+                "token": request.session['token'],
+                "user_id": user_data.user_id,
+                "name": user_data.name,
+                "company_name": user_data.company_name,
+                "credit_score": user_data.credit_score,
+                "role": user_data.role,
+            }
+            else:
+                return_data = {
+                "success": False,
+                "message": "Sorry! an error occured",
+                "status" : 205,
+            }
+                
+        else:
+            return_data = {
+                "success": False,
+                "message": "Sorry! an error occured! try again",
+                "status" : 205,
+            }
+        return render(request,"seller/verification.html", return_data)
+    else:
+        pics = request.data.get("pics_id",None) 
+        verBank = request.data.get("ver-bank",None)
+        verAccNo = request.data.get("ver-acc-no",None)
+        verAccName = request.data.get("ver-acc-name",None)
+        bvn_no = request.data.get("ver-bvn",None)
+
+        pics_cloud= cloudinary.uploader.upload(pics)
         newVerData = Verification.objects.get(user=user_data)
-        newVerData.user_Idcard=id_cloud["secure_url"]
-        newVerData.bank_statement=bank_statement_cloud["secure_url"]
-        newVerData.cac_certificate=cac_cloud["secure_url"]
-        newVerData.nin=nin_no
         newVerData.bvn=bvn_no
         newVerData.account_name=verAccName
         newVerData.account_no=verAccNo
         newVerData.bank=verBank
-        newVerData.tin=tin_no
-        newVerData.awaiting_approval=True 
+        newVerData.awaiting_approval=False 
         newVerData.save()
-        newActivity = RecentActivity(activity="Uploaded an Verification Data", user_id=user_id)
+        user_data.avatar_url = pics_cloud["secure_url"]
+        user_data.save()
+        newActivity = RecentActivity(activity="Updated your Profile Data", user_id=user_id)
         newActivity.save()
         if newVerData and newActivity:
             latestScore = credit_score.creditScore(float(user_data.credit_score))
             user_data.credit_score = latestScore
             user_data.save()
-            # Send mail to ADMIN using SMTP
-            if user_data.name !="":
-                name = user_data.name
-            else:
-                name = user_data.company_name 
-            email = "todak2000@gmail.com"
-            mail_subject = str(name)+' just uploaded their Details'
-            email2 = {
-                'subject': mail_subject,
-                'html': '<section style="background-color: #EEF1F8;height:auto;width: auto;display: flex;flex-direction: column;align-items: center;justify-content: center;"> <div style="background: #FFFFFF;width: 100%;padding: 10vh;"><img src="https://i.im.ge/2021/09/23/TCyJRy.jpg" style="margin:auto; width:40%; height: auto;" /><h3 style="margin-top:-6vh;">Hello Admin!</h3><p style="font-size: 1.15rem;color:#767E9F;">'+str(name)+' has uploaded his verification details. Kindly attend to it within 24 hours and approve or confirm disapproval. Thanks.</p></div></section>',
-                'text': 'Hello, Admin!\n '+str(name)+' has uploaded his verification details. Kindly attend to it within 24 hours and approve or confirm disapproval. Thanks.',
-                'from': {'name': 'Quidroo', 'email': sender_email},
-                'to': [
-                    {'name': 'Quidroo Admin', 'email': email}
-                ]
-            }
-            sentMail2 = SPApiProxy.smtp_send_mail(email2)
             return_data = {
             "success": True,
             "status" : 200,
             "activated": user_data.verified,
-            "message": "Verification data Successfully uploaded. Your account would be activated shortly after due evaluation. Thanks",
+            "message": "data Successfully uploaded.",
             "token": request.session['token'],
             "user_id": user_data.user_id,
             "name": user_data.name,
@@ -1184,10 +1424,231 @@ def upload_verification_data(request):
             "status" : 205,
         }
             
+
+        return render(request,"investor/verification.html", return_data)
+
+# MAKE BID API
+@api_view(["POST"])
+def makebid(request):
+    
+    str_amount = request.data.get("amount",None)
+    buyer_ror = request.data.get("buyer_ror",None)
+    invoice_id = request.data.get("invoice_id",None)
+    # if 'token' in request.session: 
+    try:
+        if str_amount !="":
+            amount = float(str_amount) 
+            decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+            user_id = decrypedToken['user_id']
+            user_data = User.objects.get(user_id=user_id)
+            userBalance = Wallet.objects.get(user=user_data).fiat_equivalent
+            invoiceSelected = Invoice.objects.get(id=invoice_id)
+            exisitedBid = Bid.objects.filter(invoice__id=invoiceSelected.id, bidder_id=user_id)
+            if exisitedBid:
+
+            # newBiding = Bid(invoice=invoiceSelected,bidder_id=user_id,amount=amount,buyer_ror=buyer_ror)
+            # newBiding.save()
+            # newActivity = RecentActivity(activity="You just bidded for Invoice-"+str(invoiceSelected.id), user_id=user_data.user_id)
+            # newActivity.save()
+                return_data = {
+                    "success": True,
+                    "status" : 205,
+                    "activated": user_data.verified,
+                    "message": "Sorry! you already bidded for this Invoice" ,
+                    "company_name": user_data.company_name,
+                    "name": user_data.name,
+                    "role": user_data.role,
+                }
+            elif amount > userBalance:
+                return_data = {
+                    "success": True,
+                    "status" : 205,
+                    "activated": user_data.verified,
+                    "message": "Sorry! you have insufficient Balance. Kindly Fund your Wallet." ,
+                    "company_name": user_data.company_name,
+                    "name": user_data.name,
+                    "role": user_data.role,
+                }
+            else:
+                newBiding = Bid(invoice=invoiceSelected,bidder_id=user_id,amount=amount,buyer_ror=buyer_ror)
+                newBiding.save()
+                newActivity = RecentActivity(activity="You just bidded for Invoice-"+str(invoiceSelected.id), user_id=user_data.user_id)
+                newActivity.save()
+                return_data = {
+                    "success": True,
+                    "status" : 200,
+                    "activated": user_data.verified,
+                    "message": "You’ve successfully made a bid. The successful bid within the next 70 hours automatically purchases the invoice." ,
+                    "company_name": user_data.company_name,
+                    "name": user_data.name,
+                    "role": user_data.role,
+                }
+                
+        else:
+            return_data = {
+            "success": False,
+            "message": "Sorry! you entered no amount value. Kindly enter a real value",
+            "status" : 205,
+        }
+        
+    except jwt.exceptions.ExpiredSignatureError:
+        return_data = {
+            "error": "1",
+            "message": "Token has expired"
+            }
+    return Response(return_data)
+
+# EDIT BID API
+@api_view(["POST"])
+def editbid(request):
+    
+    str_amount = request.data.get("e_amount",None)
+    buyer_ror = request.data.get("e_buyer_ror",None)
+    invoice_id = request.data.get("e_invoice_id",None)
+    # if 'token' in request.session: 
+    try:
+        if str_amount !="":
+            amount = float(str_amount) 
+            decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+            user_id = decrypedToken['user_id']
+            user_data = User.objects.get(user_id=user_id)
+            exisitedBid = Bid.objects.get(id=invoice_id)
+            exisitedBid.amount=amount
+            exisitedBid.buyer_ror=buyer_ror
+            exisitedBid.save()
+            newActivity = RecentActivity(activity="You just edited your bid for Invoice-"+str(exisitedBid.invoice.id), user_id=user_data.user_id)
+            newActivity.save()
+
+            return_data = {
+                "success": True,
+                "status" : 200,
+                "activated": user_data.verified,
+                "message": "You’ve successfully edited your bid. The top bid within the next 70 hours automatically purchases the invoice." ,
+                "company_name": user_data.company_name,
+                "name": user_data.name,
+                "role": user_data.role,
+            }        
+        else:
+            return_data = {
+            "success": False,
+            "message": "Sorry! you entered no amount value. Kindly enter a real value",
+            "status" : 205,
+        }
+        
+    except jwt.exceptions.ExpiredSignatureError:
+        return_data = {
+            "error": "1",
+            "message": "Token has expired"
+            }
+    return Response(return_data)
+
+@api_view(["POST"])
+def purchase_invoice_search(request):
+    date = int(request.data.get("date",None))
+    
+    if 'token' in request.session:
+        decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = decrypedToken['user_id']
+        user_data = User.objects.get(user_id=user_id)
+        today = DT.date.today()
+        selectedDate = today + DT.timedelta(days=date)
+        # purchasedInvoices = Invoice.objects.filter(invoice_state=2).order_by('-created_at')[:10]
+        # purchasedInvoices = Invoice.objects.filter(winning_buyer_id=user_id).order_by('-created_at')[:10]
+        if date == 0:
+            # searchInvoices = Invoice.objects.filter(invoice_state=2).order_by('-created_at')[:10]
+            searchInvoices = Invoice.objects.filter(winning_buyer_id=user_id, invoice_state=3).order_by('-created_at')[:10]
+            # searchInvoices = Invoice.objects.filter(seller_id=user_id).order_by('-created_at')[:20]
+        else:
+            # searchInvoices = Invoice.objects.filter(invoice_state=2, due_date__gte=today, due_date__lte=selectedDate).order_by('-created_at')[:10]
+            searchInvoices = Invoice.objects.filter(winning_buyer_id=user_id,invoice_state=3, due_date__gte=today, due_date__lte=selectedDate).order_by('-created_at')[:10]
+            # searchInvoices = Invoice.objects.filter(seller_id=user_id, invoice_state=status, due_date__gte=today, due_date__lte=selectedDate).order_by('-created_at')[:20]
+        num = len(searchInvoices)
+        searchInvoicesList = []
+        for i in range(0,num):
+            due_date = searchInvoices[i].due_date
+            additional_details  = searchInvoices[i].additional_details
+            receivable_amount  = searchInvoices[i].receivable_amount
+            invoice_state = searchInvoices[i].invoice_state
+            vendor_name = searchInvoices[i].vendor_name
+            invoice_url = searchInvoices[i].invoice_url
+            to_json = {
+                "invoice_state": invoice_state,
+                "additional_details": additional_details,
+                "receivable_amount": receivable_amount,
+                "vendor_name": vendor_name,
+                "invoice_url":invoice_url,
+                "due_date": due_date.strftime('%Y-%m-%d')
+            }
+            searchInvoicesList.append(to_json)
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "activated": user_data.verified,
+            "message": "Successfull",
+            "name": user_data.name,
+            "token": request.session['token'],
+            "user_id": user_data.user_id,
+            "company_name": user_data.company_name,
+            "role": user_data.role,
+            "invoices": searchInvoicesList
+        }
+        return Response(return_data)
     else:
         return_data = {
             "success": False,
-            "message": "Sorry! an error occured! try again",
+            "message": "Sorry! your session expired. Kindly login again",
             "status" : 205,
         }
-    return render(request,"seller/verification.html", return_data)
+        return render(request,"onboarding/login.html", return_data)
+
+# @api_view(["POST"])
+# def fund(request):
+#     # user_phone = request.data.get("phone",None)
+#     amount = request.POST["amount"]
+#     try: 
+#         decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
+#         user_id = decrypedToken['user_id']
+#         user_data = User.objects.get(user_id=user_id)
+#         user_wallet = Wallet.objects.get(user=user_data).fiat_equivalent
+#         newBalance = user_wallet.walletBalance + float(amount)
+#         user_wallet.walletBalance = newBalance
+#         user_wallet.save()
+
+#         newTransaction = Transaction(receiver_id=user_id, sender_id="quidroo", fiat_equivalent=amount, token_balance=amount,transaction_type = "Credit", transaction_note="Topup into Quidroo Account")
+#         newTransaction.save()
+#         newActivity = RecentActivity(activity="Initiated a Topup of NGN "+str(amount), user_id=user_data.user_id)
+#         newActivity.save()
+
+#         newTransaction = Transaction(from_id="Vista", to_id=user_data.user_id, transaction_type="Credit", transaction_message="Top-up - Paystack", amount=float(amount))
+#         newTransaction.save()
+#         if user_data and newTransaction:
+#             # Send mail using SMTP
+#             mail_subject = user_data.firstname+'! Vista Top-up Update'
+#             email = {
+#                 'subject': mail_subject,
+#                 'html': '<h4>Hello, '+user_data.firstname+'!</h4><p> You payment of NGN'+amount+ ' to your Vista wallet was successful</p>',
+#                 'text': 'Hello, '+user_data.firstname+'!\n You payment of NGN'+amount+ ' to your Vista wallet was successful',
+#                 'from': {'name': 'Vista Fix', 'email': 'donotreply@wastecoin.co'},
+#                 'to': [
+#                     {'name': user_data.firstname, 'email': user_data.email}
+#                 ]
+#             }
+#             SPApiProxy.smtp_send_mail(email)
+#             return_data = {
+#                 "success": True,
+#                 "status" : 200,
+#                 "message": "Top-Up Successful"
+#             }
+#         else:
+#             return_data = {
+#                 "success": False,
+#                 "status" : 201,
+#                 "message": "something went wrong!"
+#             }
+#     except Exception as e:
+#         return_data = {
+#             "success": False,
+#             "status" : 201,
+#             "message": str(e)
+#         }
+#     return Response(return_data)

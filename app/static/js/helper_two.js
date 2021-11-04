@@ -21,22 +21,19 @@ $(function(){
 function verification_checkFormOne() {
     let file= document.getElementById("file_id");
     let file_display= document.getElementById("file_display_id");
+    let pics= document.getElementById("pics_id");
+    let pics_display= document.getElementById("pics_display_id");
     
     let cac_cert= document.getElementById("cac_cert");
     let cac_cert_display = document.getElementById("cac_cert_display");
     let bank_statement= document.getElementById("bank_statement");
     let bank_statement_display = document.getElementById("bank_statement_display");
-    if(file.value !== "" || cac_cert.value !== "" || bank_statement.value !== ""){
+    if(file.value !== "" || cac_cert.value !== "" || bank_statement.value !== "" || pics.value !== "" ){
         file_display.value = file.value
+        pics_display.value = pics.value
         cac_cert_display.value = cac_cert.value;
         bank_statement_display.value = bank_statement.value;
 
-        // let fileing = $("#file_id")[0].files[0]; 
-        // file_display.value = fileing.name;
-        // let cacing = $("#cac_cert")[0].files[0]; 
-        // cac_cert_display.value = cacing.name;
-        // let banking = $("#bank_statement")[0].files[0]; 
-        // bank_statement_display.value = banking.name;
         
     }
     let tin_no= document.getElementById("tin_no");
@@ -44,10 +41,29 @@ function verification_checkFormOne() {
     let contBtn = document.getElementById("ver_btn-continue");
     
     if (file.value !== "" && cac_cert.value !== "" && bank_statement.value !== "" && nin_no.value !== "" && tin_no.value !== ""){
-        contBtn.disabled = false
+        // contBtn.disabled = false
+        // contBtn.classList.remove("btn-disabled");
+        // contBtn.classList.add("btn-create-account");
+    }
+    else{
+        contBtn.disabled = true
+        contBtn.classList.add("btn-disabled");
+        contBtn.classList.remove("btn-create-account");
+    }
+}
+function verification_checkFormOneInvestor() {
+    let pics= document.getElementById("pics_id");
+    let pics_display= document.getElementById("pics_display_id");
+    let contBtn = document.getElementById("ver_btn-continue");
+    if(pics.value !== "" ){
+        pics_display.value = pics.value
         contBtn.classList.remove("btn-disabled");
         contBtn.classList.add("btn-create-account");
+        contBtn.disabled = false
+        
     }
+    
+    
     else{
         contBtn.disabled = true
         contBtn.classList.add("btn-disabled");

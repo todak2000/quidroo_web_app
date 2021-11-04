@@ -1,4 +1,4 @@
-{% extends "seller/base.html" %}
+{% extends "investor/base.html" %}
 
 {% load static %}
 
@@ -7,7 +7,8 @@
     <!-- top-bar -->
     <nav class="main-top">
         <img src= "{% static 'img/logo-mobile.svg' %}" alt="logo" class="img-fluid mobile">
-        <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile">
+        <!-- <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile"> -->
+        <a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mobile mt-2"></a>
         <div class="avatar-div disappear"> 
             <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
             <div class="avatar-div2 ">
@@ -20,7 +21,7 @@
     <!-- main section -->
     <div class="main-section">
         <div class="main-title disappear">
-            <h4>{{company_name}}'s Invoices</h4>
+            <h4>{{company_name}}'s Stats</h4>
             <a class="upload disappear"> <img src= "{% static 'img/upload.svg' %}" alt="upload"> Upload Invoice</a>
         </div>
         <div class="main-wallet">

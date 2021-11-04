@@ -13,7 +13,8 @@
     <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}"/>
     <!-- CSS FILES --> 
     <link rel="stylesheet" href="{% static 'bootstrap-4.5.2/css/bootstrap.css' %}"> 
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">  
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}"> 
+    
 
      <!-- GOOGLE FONTS -->
   <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -24,9 +25,18 @@
     
     <script src="{% static 'js/jquery-3.1.1.js' %}"></script>
     <script src="{% static 'bootstrap-4.5.2/js/bootstrap.min.js' %}"></script>
-    <!-- <script src="{% static 'js/helper.js' %}"></script> -->
     <script src="{% static 'js/api_ajax.js' %}"></script>
+    <script src="{% static 'js/helper_two.js' %}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+    <!-- date -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/js/bootstrap-datetimepicker.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.min.css">
     
     <title>Quidroo</title>
 </head>
@@ -34,153 +44,370 @@
     <nav class="sidebar">
         <img src= "{% static 'img/logo.svg' %}" alt="logo">
         <ul>
-            <li class="seller-list" id="dashboard" onclick="makeActive(this.id)"><a href="{% url 'dashboard' %}" class="underline"> <img src= "{% static 'img/dashboard.svg' %}" alt="logo" class="mr-3"> Dashboard</a></li>
+            <li class="seller-list" id="dashboard" onclick="makeActive(this.id)"><a href="{% url 'dashboard' %}" class="underline"> <img src= "{% static 'img/dashboard2.svg' %}" alt="logo" class="mr-3"> Dashboard</a></li>
             <li class="seller-list" id="invoices" onclick="makeActive(this.id)"><a href="{% url 'invoices' %}" class="underline"> <img src= "{% static 'img/invoice.svg' %}" alt="logo" class="mr-3"> Invoices</a></li>
-            <!-- <li class="seller-list" id="wallet" onclick="makeActive(this.id)"><a href="{% url 'wallet' %}" class="underline"> <img src= "{% static 'img/wallet.svg' %}" alt="logo" class="mr-3"> Wallet</a></li>
-            <li class="seller-list" id="stats" onclick="makeActive(this.id)"><a href="#work" class="underline"> <img src= "{% static 'img/stats.svg' %}" alt="logo" class="mr-3"> Stats</a></li> -->
+            <li class="seller-list" id="bids" onclick="makeActive(this.id)"><a href="{% url 'bids' %}" class="underline"> <img src= "{% static 'img/bids.svg' %}" alt="logo" class="mr-3"> Bids</a></li>
+           <!--  <li class="seller-list" id="stats" onclick="makeActive(this.id)"><a href="#work" class="underline"> <img src= "{% static 'img/stats.svg' %}" alt="logo" class="mr-3"> Stats</a></li> -->
             <li class="seller-list" id="settings" onclick="makeActive(this.id)"><a href="{% url 'dashboard' %}" class="underline"> <img src= "{% static 'img/settings.svg' %}" alt="logo" class="mr-3"> Settings</a></li>
         </ul>
     </nav> 
     <nav class="bottombar ">
         <ul>
-            <li class="seller-list" id="dashboard1" onclick="makeActive(this.id)"><a href="{% url 'dashboard' %}" class="underline"> <img src= "{% static 'img/dashboard.svg' %}" alt="logo" > <p>Dashboard</p></a></li>
-            <li class="seller-list" id="invoices1" onclick="makeActive(this.id)"><a href="{% url 'invoices' %}" class="underline"> <img src= "{% static 'img/invoice.svg' %}"  alt="logo" > <p>Invoices</p></a></li>
-            <li class="seller-list" id="wallet1" onclick="makeActive(this.id)"><a href="{% url 'wallet' %}" class="underline"> <img src= "{% static 'img/wallet.svg' %}" alt="logo" > <p>Wallet</p></a></li>
-            <li class="seller-list" id="stats1" onclick="makeActive(this.id)"><a href="{% url 'stats' %}" class="underline"> <img src= "{% static 'img/stats.svg' %}" alt="logo" > <p>Stats</p></a></li>
-            <!-- <li class="seller-list" id="settings1" onclick="makeActive(this.id)"><a href="{% url 'logout' %}" class="underline"> <img src= "{% static 'img/profile.svg' %}" alt="logo" > <p>Profile</p></a></li> -->
-            <li class="seller-list" id="settings1" onclick="makeActive(this.id)"><a href="{% url 'logout' %}" class="underline"> <img src= "{% static 'img/profile.svg' %}" alt="logo" > <p>Signout</p></a></li>
+            <li class="seller-list" id="dashboard1" onclick="makeActive(this.id)"><a href="{% url 'dashboard' %}" class="underline"> <img src= "{% static 'img/dashboard.svg' %}" alt="logo" id="dashboard-mobile-img"> <p>Dashboard</p></a></li>
+            <li class="seller-list" id="invoices1" onclick="makeActive(this.id)"><a href="{% url 'invoices' %}" class="underline"> <img src= "{% static 'img/invoice.svg' %}" alt="logo" id="invoice-mobile-img"> <p>Invoices</p></a></li>
+            <li class="seller-list" id="stats1" onclick="makeActive(this.id)"><a href="{% url 'bids' %}" class="underline"> <img src= "{% static 'img/bid-con.svg' %}" alt="logo" id="stats-mobile-img"> <p>Bids</p></a></li>
+            <li class="seller-list" id="wallet1" onclick="makeActive(this.id)"><a href="{% url 'wallet' %}" class="underline"> <img src= "{% static 'img/wallet.svg' %}" alt="logo" id="wallet-mobile-img"> <p>Wallet</p></a></li>
+            
+            <li class="seller-list" id="settings1" onclick="makeActive(this.id)"><a href="{% url 'profile' %}" class="underline"> <img src= "{% static 'img/profile.svg' %}" alt="logo" id="profile-mobile-img"> <p>Profile</p></a></li>
+            <!-- <li class="seller-list" id="settings1" onclick="makeActive(this.id)"><a href="{% url 'logout' %}" class="underline"> <img src= "{% static 'img/profile.svg' %}" alt="logo" > <p>Signout</p></a></li> -->
         </ul>
     </nav>    
-    <!-- Withdraw Modal -->
-    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- Make Bid Modal -->
+    <div class="modal fade" id="bidModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Withdraw Funds</h5>
+            <h3 class="modal-title" id="exampleModalLabel">Make Bid</h3>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
             </div>
             <div class="modal-body text-center">
-                <!-- withdraw form -->
+                <!-- make bid form -->
                 <section id="main-form">
-                    <img src= "{% static 'img/withdraw.svg' %}" alt="logo">
+                    <div class="mobile-card-invoice mb-1 pt-3 pb-3" >
+                        <div class="mob-flex">
+                          <h5 class="i-h5" id="bid-name"></h5>
+                         <h5><span class="roi">3 - 6 % </span>ROI</h5>
+                        </div>
+                        <div class="mob-flex">
+                          <p id="bid-date"></p>
+                          <p style="padding: 0.5rem; font-size: 1.9rem; color:#081B33; font-family: GeneralSansMedium;" id="bid-amount"></p>
+                        </div>
+                        <div class="mob-flex">
+                          <p class="mob-p"> <img src= "{% static 'img/small-person.svg' %}" alt="upload" class="mr-1"/><span id="bid-vendor"></span></p>
+                          <button class="edit-bid" ><span id="timer"></span></button>
+                        </div>
+                      </div>
+                      <p>The lower your bid, the more your chances of winning the bid</p>
                     <form action="#"  method="POST" style="padding:2rem;">
                         {% csrf_token %}
-                        <label class="mt-3">Amount</label>
-                        <input type="text" class="form-input" placeholder="$ 0.00" id="amount" name="amount" />
-                        <div class="acc-det">
-                            <h6>Account Details</h6>
-                            <p>Name: {{name}}</p>
-                            <p>Account Number: 90404040404</p>
-                            <p>Bank: RTG Bank</p>
+                        <div class="mob-flex">
+                            <div style="width: 48%; text-align:left;">
+                                <label class="mt-3 text-left">Bid</label>
+                                <input type="text" class="form-input" placeholder="0.0" id="bid-bid" name="bid-bid" oninput="calcBidAmount(this.value)"/>
+                            </div>
+                            <div style="width: 48%; text-align:left;">
+                                <label class="mt-3 text-left">Amount Due</label>
+                                <input type="text" class="form-input" placeholder="&#8358; 0.00" id="bid-amt" name="bid-amt" disabled />
+                                <input type="text" id="vv-amount" style="display: none;"/>
+                                <input type="text" id="accepted-amount" style="display: none;"/>
+                                <input type="text" id="invoice-id" style="display: none;"/>
+                            </div>
                         </div>
+                       
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary btn-withdraw" id="withdraw-btn">Withdraw</button>
+                            <button class="btn-disabled" disabled type="button" id="makeBid-btn" style="width:100%;"><span id="WithBtnText">Make Bid </span><img id="withUploadImg2" src="{% static 'img/spinner.svg' %}" class="img-fluid" style="width: 15%; display: none;"/></button>
                         </div>
                     </form>
                 </section>
                 <!-- success section -->
-                <section class="modal-hide" id="success">
-                    <img src= "{% static 'img/success.svg' %}" alt="logo">
+                <section class="modal-hide" id="i-success">
+                    <img src= "{% static 'img/success-bid.svg' %}" alt="logo">
                     <form action="#"  method="POST" style="padding:2rem;">
                         {% csrf_token %}
-                        <label>Withdrawal Request Successful</label>
-                        <p id="modal-message-success"></p>
-                        <h5 style="color:#A799F2">Transaction hash</h5>
-                        <input type="text" class="form-input"  id="hash" name="hash" readonly style="color:#5151E0"/>
-                        <a id="ref_url" target="_blank">View Transaction Details on Stellar </a>
-                        <div class="modal-footer">
-                            <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
-                            <!-- <button type="button" class="btn btn-primary  btn-withdraw" id="topup-btn">Fund Wallet</button> -->
-                        </div>
+                        <label>Bid Successful!</label>
+                        <p id="i_modal-message-success"></p>
+                        <!-- <a class="view-blue " href="{{invoice_url}}" target="_blank"> <img src="{% static 'img/blue-eye.svg' %}" class="mr-2 img-fluid"/> Back to Invoices</a> -->
                     </form>
                 </section>
                 <!-- failure section -->
-                <section class="modal-hide" id="fail">
+                <section class="modal-hide" id="i-fail">
                     <img src= "{% static 'img/fail.svg' %}" alt="logo">
                     <form action="#"  method="POST" style="padding:2rem;">
                         {% csrf_token %}
                         <label>Oops! an error occured</label>
-                        <p id="modal-message"></p>
-                        <!-- <input type="text" class="form-input" placeholder="$ 0.00" id="f_amount" name="f_amount" /> -->
-                        <div class="modal-footer">
-                            <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
-                            <!-- <button type="button" class="btn btn-primary  btn-withdraw" id="topup-btn">Fund Wallet</button> -->
-                        </div>
+                        <p id="i_modal-message"></p>
+                        <!-- <a class="view " href="{% url 'upload' %}"> Fund Wallet</a> -->
+                        <!-- <a class="view-blue " href="{{invoice_url}}" target="_blank"> <img src="{% static 'img/blue-eye.svg' %}" class="mr-2 img-fluid"/> Back to Invoices</a> -->
                     </form>
-                </section>
-                
-                
+                </section> 
             </div>
             
         </div>
         </div>
     </div> 
 
-    <!-- Topup Modal -->
-    <div class="modal fade" id="topupModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Fund Wallet</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            </div>
-            <div class="modal-body text-center">
-                <!-- fund form -->
-                <section id="t_main-form">
-                    <img src= "{% static 'img/fund.svg' %}" alt="logo">
-                    <form action="#"  method="POST" style="padding:2rem;">
-                        {% csrf_token %}
-                        <label>Amount to Fund</label>
-                        <input type="text" class="form-input" placeholder="$ 0.00" id="f_amount" name="f_amount" />
-                        <div class="modal-footer">
-                            <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
-                            <button type="button" class="btn btn-primary  btn-withdraw" id="topup-btn">Fund Wallet</button>
+      <!-- Edit Bid Modal -->
+<div class="modal fade" id="editBidModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h3 class="modal-title" id="exampleModalLabel">Edit Bid</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body text-center">
+            <!-- edit bid form -->
+            <section id="main-form2">
+                <div class="mobile-card-invoice mb-1 pt-3 pb-3" >
+                    <div class="mob-flex">
+                      <h5 class="i-h5" id="bid-name2"></h5>
+                     <h5><span class="roi">3 - 6 % </span>ROI</h5>
+                    </div>
+                    <div class="mob-flex">
+                      <p id="bid-date2"></p>
+                      <p style="padding: 0.5rem; font-size: 1.9rem; color:#081B33; font-family: GeneralSansMedium;" id="bid-amount2"></p>
+                    </div>
+                    <div class="mob-flex">
+                      <p class="mob-p"> <img src= "{% static 'img/small-person.svg' %}" alt="upload" class="mr-1"/><span id="bid-vendor2"></span></p>
+                      <button class="edit-bid" ><span id="timer2"></span></button>
+                    </div>
+                    <div class="mob-flex mt-3">
+                        <p class="mob-p"> Total Bids <span class="t-bids" id="total-bids"></span></p>
+                        <p class="mob-p"> Top Bid <span class="t-bids2" id="top-bid"></span></p>
+                        <p class="mob-p"> My Bid <span class="t-bids3" id="my-bid"></span></p>
+                        <!-- <button class="edit-bid">12:05:08</button> -->
+                    </div>
+                </div>
+                  <p>The lower your bid, the more your chances of winning the bid</p>
+                <form action="#"  method="POST" style="padding:2rem;">
+                    {% csrf_token %}
+                    <div class="mob-flex">
+                        <div style="width: 48%; text-align:left;">
+                            <label class="mt-3 text-left">Bid</label>
+                            <input type="text" class="form-input" placeholder="0.0" id="bid-bid2" name="bid-bid" oninput="calcBidAmount2(this.value)"/>
                         </div>
-                    </form>
-                </section>
-                <!-- success section -->
-                <section class="modal-hide" id="t_success">
-                    <img src= "{% static 'img/success.svg' %}" alt="logo">
-                    <form action="#"  method="POST" style="padding:2rem;">
-                        {% csrf_token %}
-                        <label>Fund added Successfully</label>
-                        <p id="t_modal-message-success"></p>
-                        <h5 style="color:#A799F2">Transaction hash</h5>
-                        <input type="text" class="form-input"  id="t_hash" name="hash" readonly style="color:#5151E0"/>
-                        <a id="ref_url_fund" target="_blank">View Transaction Details on Stellar </a>
-                        <div class="modal-footer">
-                            <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
-                            <!-- <button type="button" class="btn btn-primary  btn-withdraw" id="topup-btn">Fund Wallet</button> -->
+                        <div style="width: 48%; text-align:left;">
+                            <label class="mt-3 text-left">Amount Due</label>
+                            <input type="text" class="form-input" placeholder="&#8358; 0.00" id="bid-amt2" name="bid-amt" disabled />
+                            <input type="text" id="vv-amount2" style="display: none;"/>
+                            <input type="text" id="accepted-amount2" style="display: none;"/>
+                            <input type="text" id="invoice-id2" style="display: none;"/>
                         </div>
-                    </form>
-                </section>
-                <!-- failure section -->
-                <section class="modal-hide" id="t_fail">
-                    <img src= "{% static 'img/fail.svg' %}" alt="logo">
-                    <form action="#"  method="POST" style="padding:2rem;">
-                        {% csrf_token %}
-                        <label>Oops! an error occured</label>
-                        <p id="t_modal-message"></p>
-                        <!-- <input type="text" class="form-input" placeholder="$ 0.00" id="f_amount" name="f_amount" /> -->
-                        <div class="modal-footer">
-                            <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
-                            <!-- <button type="button" class="btn btn-primary  btn-withdraw" id="topup-btn">Fund Wallet</button> -->
-                        </div>
-                    </form>
-                </section>
-                
-            </div>
+                    </div>
+                   
+                    <div class="modal-footer">
+                        <button class="btn-disabled" disabled type="button" id="editBid-btn" style="width:100%;"><span id="WithBtnText">Edit Bid </span><img id="withUploadImg2" src="{% static 'img/spinner.svg' %}" class="img-fluid" style="width: 15%; display: none;"/></button>
+                    </div>
+                </form>
+            </section>
+            <!-- success section -->
+            <section class="modal-hide" id="e-success">
+                <img src= "{% static 'img/success-bid.svg' %}" alt="logo">
+                <form action="#"  method="POST" style="padding:2rem;">
+                    {% csrf_token %}
+                    <label>Edit Bid Successful!</label>
+                    <p id="e_modal-message-success"></p>
+                    <!-- <a class="view-blue " href="{{invoice_url}}" target="_blank"> <img src="{% static 'img/blue-eye.svg' %}" class="mr-2 img-fluid"/> Back to Invoices</a> -->
+                </form>
+            </section>
+            <!-- failure section -->
+            <section class="modal-hide" id="e-fail">
+                <img src= "{% static 'img/fail.svg' %}" alt="logo">
+                <form action="#"  method="POST" style="padding:2rem;">
+                    {% csrf_token %}
+                    <label>Oops! an error occured</label>
+                    <p id="e_modal-message"></p>
+                    <!-- <a class="view " href="{% url 'upload' %}"> Fund Wallet</a> -->
+                    <!-- <a class="view-blue " href="{{invoice_url}}" target="_blank"> <img src="{% static 'img/blue-eye.svg' %}" class="mr-2 img-fluid"/> Back to Invoices</a> -->
+                </form>
+            </section> 
+        </div>
+        
+    </div>
+    </div>
+</div> 
+
+<!-- Withdraw Modal -->
+<div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Withdraw Funds</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body text-center">
+            <!-- withdraw form -->
+            <section id="main-form345">
+                <img src= "{% static 'img/withdraw.svg' %}" alt="logo">
+                <form action="#"  method="POST" style="padding:2rem;">
+                    {% csrf_token %}
+                    <label class="mt-3">Amount</label>
+                    <input type="text" class="form-input" placeholder="&#8358; 0.00" id="amount" name="amount" />
+                    <div class="acc-det mt-3 mb-5">
+                        
+                        {%if account_name%}
+                        <h6>Account Details</h6>
+                            <p>Name: {{account_name}}</p>
+                            <p>Account Number: {{account_no}}</p>
+                            <p>Bank: {{bank}}</p>
+                        {% else %}
+                        <a class="view" href="{% url 'profile' %}"> Please provide your accout details by update your profile Here</a> 
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <!-- <button type="button" class="btn btn-primary btn-withdraw" id="withdraw-btn">Withdraw</button> -->
+                        {%if account_name%}
+                            <button class="btn-create-account" type="button" id="withdraw-btn"><span id="WithBtnText">Withdraw </span><img id="withUploadImg" src="{% static 'img/spinner.svg' %}" class="img-fluid" style="width: 15%; display: none;"/></button>
+                        {% else %}
+                            <button class="btn-disabled" disabled type="button" id="withdraw-btn"><span id="WithBtnText">Withdraw </span><img id="withUploadImg" src="{% static 'img/spinner.svg' %}" class="img-fluid" style="width: 15%; display: none;"/></button>
+                        {% endif %}
+                    </div>
+                </form>
+            </section>
+            <!-- success section -->
+            <section class="modal-hide" id="success">
+                <img src= "{% static 'img/success.svg' %}" alt="logo">
+                <form action="#"  method="POST" style="padding:2rem;">
+                    {% csrf_token %}
+                    <label>Withdrawal Request Successful</label>
+                    <p id="modal-message-success"></p>
+                </form>
+            </section>
+            <!-- failure section -->
+            <section class="modal-hide" id="fail">
+                <img src= "{% static 'img/fail.svg' %}" alt="logo">
+                <form action="#"  method="POST" style="padding:2rem;">
+                    {% csrf_token %}
+                    <label>Oops! an error occured</label>
+                    <p id="modal-message"></p>
+                </form>
+            </section>
+            
             
         </div>
-        </div>
+        
     </div>
+    </div>
+</div> 
+
+<!-- Topup Modal -->
+<div class="modal fade" id="topupModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Fund Wallet</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body text-center">
+            <!-- fund form -->
+            <section id="fund_main-form">
+                <img src= "{% static 'img/fund.svg' %}" alt="logo">
+                <form action="#"  method="POST" style="padding:2rem;">
+                    {% csrf_token %}
+                    <label>Amount to Fund</label>
+                    <input type="text" class="form-input" placeholder="&#8358; 0.00" id="fund_amount" name="fund_amount" oninput="getAmount(this)"/>
+                    <p style="color:red; font-size:1.2rem;" class="mt-3" id="amount_error"></p>
+                    <div class="modal-footer">
+                        <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+                        <form  method="POST" autocomplete="off">
+                            {% csrf_token %}
+                            <input type="text" id="fund_email" value="{{email}}" hidden>
+                            <script src="https://js.paystack.co/v1/inline.js"></script>
+                            <button type="button" class="btn btn-withdraw" id="topup-btn" onclick="payWithPaystack()">Fund Wallet</button>
+                        </form>
+                    </div>
+                </form>
+            </section>
+            <!-- success section -->
+            <section class="modal-hide" id="fund_success">
+                <img src= "{% static 'img/success.svg' %}" alt="logo">
+                <form action="#"  method="POST" style="padding:2rem;">
+                    {% csrf_token %}
+                    <label id="mess"></label>
+                    <input id="tt_amount" type="text" hidden/>
+                    <input id="tt_ref" type="text" hidden/>
+                    
+                    <!-- <p id="t_modal-message-success"></p>
+                    <h5 style="color:#A799F2">Transaction hash</h5> -->
+                    <!-- <input type="text" class="form-input"  id="t_hash" name="hash" readonly style="color:#5151E0"/> -->
+                    <div class="modal-footer">
+                        <input type="button" value="click to Verify your Payment" class=" btn btn-withdraw mt-5" id="verify_payment_button" >
+                        <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+                        <!-- <button type="button" class="btn btn-primary  btn-withdraw" id="topup-btn">Fund Wallet</button> -->
+                    </div>
+                </form>
+            </section>
+            <!-- failure section -->
+            <section class="modal-hide" id="fund_fail">
+                <img src= "{% static 'img/fail.svg' %}" alt="logo">
+                <form action="#"  method="POST" style="padding:2rem;">
+                    {% csrf_token %}
+                    <label>Oops! an error occured</label>
+                    <p id="t_modal-message"></p>
+                    <!-- <input type="text" class="form-input" placeholder="$ 0.00" id="f_amount" name="f_amount" /> -->
+                    <div class="modal-footer">
+                        <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+                        <!-- <button type="button" class="btn btn-primary  btn-withdraw" id="topup-btn">Fund Wallet</button> -->
+                    </div>
+                </form>
+            </section>
+            
+        </div>
+        
+    </div>
+    </div>
+</div>
     {% block body%}
     
     {% endblock %}
     
 </body>
+<script>
+    $(document).ready(function() {
+        document.getElementById('v-pills-profile').style.opacity =1;
+    })
+    function getAmount(input1) {
+        let input2 = document.getElementById('tt_amount');
+        input2.value = input1.value;
+        console.log(input2.value)
+    }
+      // paystack function
+function payWithPaystack(){
+    let email = document.getElementById("fund_email").value;
+    let amount = document.getElementById("fund_amount").value;
+    // let balance = document.getElementById("edit_balance").value;
+    // let phone = document.getElementById("edit_phone").value;
+    if (amount == 0 || amount == ""){
+      document.getElementById("amount_error").innerHTML = "Sorry, kindly enter a real amount!";
+      setTimeout(function(){ 
+        document.getElementById("amount_error").innerHTML = "";
+      }, 2000);
+
+    }
+    else{
+        var handler = PaystackPop.setup({
+        key: 'pk_test_9edc655cfb67bd1aedb9dc0ee0d30d37f5c56756', //(todak test public)
+        email: email,
+        amount: amount * 100,
+        ref: ''+Math.floor((Math.random() * 1000000000) + 1), // generates a pseudo-unique reference. Please replace with a reference you generated. Or remove the line entirely so our API will generate one for you
+
+        callback: function(response){
+          console.log(response);
+          let txref = document.getElementById('tt_ref');
+          txref.value = response.trxref;
+          let success = document.getElementById("fund_success")
+          let main = document.getElementById("fund_main-form")
+          let mess = document.getElementById("mess")
+          mess.innerHTML = "Fund added Successfully"
+          success.classList.remove("modal-hide");
+          success.classList.remove("modal-show");
+          main.classList.add("modal-hide");
+        },
+        onClose: function(){
+            console.log('window closed');
+        }
+        });
+        // handler.openIframe();
+    };
+    handler.openIframe();
+    
+  }
+</script>
 </html>

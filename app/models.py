@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import HStoreField
 from django.db import models
 
 # Create your models here.
@@ -17,7 +18,7 @@ class User(models.Model):
     role = models.TextField(max_length=50,verbose_name="User role",default="quidroo")
     verified = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
-    avatar_url = models.CharField(max_length=30, verbose_name="Profile Pics", null=True)
+    avatar_url = models.CharField(max_length=200, verbose_name="Profile Pics", null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
    
     def __str__(self):
@@ -40,7 +41,7 @@ class Invoice(models.Model):
     # 3 - Awaiting Maturity (sold)
     # 4 - Completed (Buyer paid and quidroo settled)
     invoice_state = models.IntegerField(verbose_name="Invoice State", default=0) 
-    winning_buyer_id = models.CharField(max_length=500, verbose_name="Winning Buyer/Investor ID")
+    winning_buyer_id = models.CharField(max_length=500, verbose_name="Winning Buyer/Investor ID", default="0")
     seller_id = models.CharField(max_length=500, verbose_name="Seller ID")
     seller_ror = models.FloatField(max_length=4,verbose_name="Seller ROR", default=0.09)
     invoice_amount = models.FloatField(max_length=30, verbose_name="Invoice Amount", null=True)
@@ -53,14 +54,16 @@ class Invoice(models.Model):
 class Bid(models.Model):
     class Meta:
         db_table = "Bids_table"
-    interested_buyer = models.ForeignKey(User, on_delete=models.CASCADE)
+    bidder_id = models.CharField(max_length=30,verbose_name="Bidder ID",blank=True)
     amount = models.FloatField(max_length=30,verbose_name="Bid Amount",blank=True)
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, default=1)
     buyer_ror = models.FloatField(max_length=4,verbose_name="Buyer ROR", default=0.09)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
     updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
+    bidClosed = models.BooleanField(default=False)
     def __str__(self):
-        return f"{self.invoice} - {self.amount} - {self.interested_buyer} - {self.buyer_ror} - {self.created_at}"
+        return f"{self.invoice} - {self.amount} - {self.bidder_id} - {self.buyer_ror} - {self.created_at}"
+
 
 class Wallet(models.Model):
     class Meta:
@@ -107,7 +110,7 @@ class Transaction(models.Model):
     fiat_equivalent = models.FloatField(max_length=30,verbose_name="Fiat Equivalent",blank=True)
     transaction_type = models.CharField(max_length=500,unique=False, verbose_name="Type of Transaction", default="none")
     transaction_note = models.CharField(max_length=30, verbose_name="Transaction note", null=True)
-    tx_hash = models.CharField(max_length=1000, verbose_name="Blockhain Transaction Hash", default="395f2c4c0948911df0461865e9a5fc06ad8c537cfc894224fc748fa4a1b5211f")
+    tx_hash = models.CharField(max_length=1000, verbose_name="Paystack Transaction Reference", default="395f2c4c0948911df0461865e9a5fc06ad8c537cfc894224fc748fa4a1b5211f")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
     updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
     def __str__(self):

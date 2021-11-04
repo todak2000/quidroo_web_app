@@ -7,12 +7,21 @@
     <!-- top-bar -->
     <nav class="main-top">
         <img src= "{% static 'img/logo-mobile.svg' %}" alt="logo" class="img-fluid mobile">
- 
-        <div class="avatar-div "> 
+        <!-- <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile"> -->
+        <a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mobile mt-2"></a>
+        <div class="avatar-div disappear"> 
             <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
             <div class="avatar-div2 " id="drop-down">
-                <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm">
+                {% if avatar is ""  %}
+              <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+              {% elif avatar is None  %}
+              <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+              {% else %}
+              <img src= "{{avatar}}" alt="avatar" class="img-sm">
+              {% endif %}
                 <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
+                <!-- <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm">
+                <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs"> -->
             </div>
         </div>
     </nav>
@@ -115,7 +124,7 @@
                             <label class="lb">Contact Person</label>
                             <input type="text" class="form-input" placeholder="Enter Contact Person Name" id="vendor_contact" name="vendor_contact" oninput="in_checkFormTwo()"/>
                             <label class="lb">Contact Phone Number</label>
-                            <input type="text" class="form-input" placeholder="Enter Contact Person Phone number" id="vendor_phone" name="vendor_phone" oninput="in_checkFormTwo()"/>
+                            <input type="text" class="form-input" placeholder="Enter Contact Person Phone number" id="vendor_phone" maxlength = "11" name="vendor_phone" oninput="in_checkFormTwo()"/>
                             <label class="lb">Contact Email</label>
                             <input type="text" class="form-input" placeholder="Enter Contact Person Email" id="vendor_email" name="vendor_email" oninput="in_checkFormTwo()"/>
                             <div class="form-btn-up mt-3">
