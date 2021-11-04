@@ -54,7 +54,7 @@ class Invoice(models.Model):
 class Bid(models.Model):
     class Meta:
         db_table = "Bids_table"
-    bidder_id = models.CharField(max_length=30,verbose_name="Bidder ID",blank=True)
+    bidder_id = models.CharField(max_length=300,verbose_name="Bidder ID",blank=True)
     amount = models.FloatField(max_length=30,verbose_name="Bid Amount",blank=True)
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, default=1)
     buyer_ror = models.FloatField(max_length=4,verbose_name="Buyer ROR", default=0.09)
