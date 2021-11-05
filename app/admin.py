@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import RecentActivity, Test, User, VendorList,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification
+from .models import RecentActivity, User, VendorList,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification
 
 admin.site.register(User)
 admin.site.register(Verification)
@@ -12,4 +12,3 @@ admin.site.register(Transaction)
 admin.site.register(OnboardingVerification)
 admin.site.register(VendorList)
 admin.site.register(RecentActivity)
-admin.site.register(Test)

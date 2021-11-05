@@ -1,4 +1,4 @@
-from .models import Bid, Invoice, User, Test
+from .models import Bid, Invoice, User
 # import datetime as DT
 from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler

@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib.sites.shortcuts import get_current_site
 import jwt
 from django.db.models import Sum, Q, Max
-from app.models import (RecentActivity, Test, User, VendorList,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification)
+from app.models import (RecentActivity, User, VendorList,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification)
 from CustomCode import (password_functions, string_generator, validator, credit_score)
 from django.core.paginator import Paginator
 
@@ -1600,10 +1600,6 @@ def purchase_invoice_search(request):
             "status" : 205,
         }
         return render(request,"onboarding/login.html", return_data)
-
-# def test_scehdule():
-#     print("hi cron job")
-#     Test.objects.create(name='Daniel')
 
 def expired_bid_check():
 

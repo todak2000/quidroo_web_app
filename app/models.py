@@ -150,13 +150,3 @@ class RecentActivity(models.Model):
 
     def __str__(self):
         return f"{self.user_id} - {self.activity} - {self.date_added}"
-
-class Test(models.Model):
-    class Meta:
-        db_table = "Test_table"
-    # Recent Activities
-    name = models.CharField(max_length=200,verbose_name="Name",blank=True)
-    date_added = models.DateTimeField(auto_now_add=True,)
-
-    def __str__(self):
-        return f"{self.name} - {self.date_added}"
