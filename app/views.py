@@ -1,12 +1,12 @@
 import datetime as DT
 import datetime
 from hashlib import new
-from django.db.models.aggregates import Min
+from django.db.models.aggregates import Count, Min
 from django.shortcuts import render, redirect
 from django.contrib.sites.shortcuts import get_current_site
 import jwt
 from django.db.models import Sum, Q, Max
-from app.models import (RecentActivity, User, VendorList,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification)
+from app.models import (RecentActivity, Test, User, VendorList,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification)
 from CustomCode import (password_functions, string_generator, validator, credit_score)
 from django.core.paginator import Paginator
 
@@ -408,7 +408,6 @@ def bids_page(request):
         activeBids = Bid.objects.filter(bidder_id=user_data.user_id, invoice__winning_buyer_id="0").count()
         activeBidss = Bid.objects.filter(bidder_id=user_data.user_id, invoice__winning_buyer_id="0")
         purchasedInvoicesCount = Invoice.objects.filter(winning_buyer_id=user_id).count()
-        # purchasedInvoices = Invoice.objects.filter(invoice_state=2).order_by('-created_at')[:10]
         purchasedInvoices = Invoice.objects.filter(winning_buyer_id=user_id, invoice_state=3).order_by('-created_at')[:10]
         completedInvoices = Invoice.objects.filter(winning_buyer_id=user_id, invoice_state=4).count()
         totalPurchases = Invoice.objects.filter(winning_buyer_id=user_id, invoice_state=4).aggregate(Sum('receivable_amount'))
@@ -1260,8 +1259,8 @@ def bid_details(request):
         totalBids = Bid.objects.filter(invoice__id=invoiceSelected.id).count()
         topBid = Bid.objects.filter(invoice__id=invoiceSelected.id).aggregate(Min('buyer_ror'))
         # exisitedBid = Bid.objects.filter(invoice__id=invoiceSelected.id, bidder_id=user_id)
-        today = DT.date.today()
-        bidClosingDate = today + DT.timedelta(days=3)
+        # today = DT.date.today()
+        bidClosingDate = bidSelected.invoice.updated_at + DT.timedelta(days=3)
         return_data = {
             "success": True,
             "status" : 200,
@@ -1602,6 +1601,106 @@ def purchase_invoice_search(request):
         }
         return render(request,"onboarding/login.html", return_data)
 
+# def test_scehdule():
+#     print("hi cron job")
+#     Test.objects.create(name='Daniel')
+
+def expired_bid_check():
+
+    bids = Bid.objects.filter(bidClosed=False)
+    today = DT.datetime.now()
+    for bid in bids:
+        
+        bidClosingDate = bid.invoice.updated_at + DT.timedelta(days=2)
+        closingDate = bidClosingDate.strftime('%Y-%m-%d')
+        newTime = today.strftime('%Y-%m-%d')
+        # print("BidClosing: ", closingDate)
+        # print('today: ', newTime)
+        if newTime >= closingDate:
+            bid.bidClosed = True
+            bid.save()
+            updateInvoice = Invoice.objects.get(id=bid.invoice.id)
+            if bid and updateInvoice.invoice_state != 3: 
+                updateInvoice.invoice_state = 3
+                winningBidROR = Bid.objects.filter(invoice=updateInvoice).aggregate(Min('created_at'), Min('buyer_ror'))
+                winningBid = Bid.objects.get(buyer_ror=winningBidROR['buyer_ror__min'])
+                updateInvoice.winning_buyer_id = winningBid.bidder_id
+                updateInvoice.save()
+                winnerData = User.objects.get(user_id=updateInvoice.winning_buyer_id)
+                sellerData = User.objects.get(user_id=updateInvoice.seller_id)
+                if updateInvoice:
+                    winnerWallet = Wallet.objects.get(user=winnerData)
+                    sellerWallet = Wallet.objects.get(user=sellerData)
+                    newBalance = winnerWallet.fiat_equivalent - updateInvoice.receivable_amount
+                    sellerBalance = sellerWallet.fiat_equivalent + updateInvoice.receivable_amount
+                    winnerWallet.fiat_equivalent = newBalance
+                    winnerWallet.save()
+                    sellerWallet.fiat_equivalent = sellerBalance
+                    sellerWallet.save()
+                    newTransactionDebit = Transaction(sender_id=updateInvoice.winning_buyer_id, receiver_id= "quidroo", fiat_equivalent=updateInvoice.receivable_amount, token_balance=updateInvoice.receivable_amount,transaction_type = "Debit", transaction_note="Debit for Invoice-"+str(updateInvoice.id))
+                    newTransactionDebit.save()
+                    newTransactionCredit = Transaction(sender_id="quidroo", receiver_id= updateInvoice.seller_id, fiat_equivalent=updateInvoice.receivable_amount, token_balance=updateInvoice.receivable_amount,transaction_type = "Credit", transaction_note="Credit Payment for Invoice-"+str(updateInvoice.id))
+                    newTransactionCredit.save()
+
+                # send email to winner
+                if winnerData.name:
+                    name = winnerData.name
+                else:
+                    name = winnerData.company_name
+                
+                email = winnerData.email
+                mail_subject =str(name)+'! You just won the bid for Invoice-'+ str(winningBid.invoice.id)
+                email2 = {
+                    'subject': mail_subject,
+                    'html': '<section style="background-color: #EEF1F8;height:auto;width: auto;display: flex;flex-direction: column;align-items: center;justify-content: center;"> <div style="background: #FFFFFF;width: 100%;padding: 10vh;"><img src="https://i.im.ge/2021/09/23/TCyJRy.jpg" style="margin:auto; width:40%; height: auto;" /><h3 style="margin-top:-6vh;">Hello, '+str(name)+'</h3><p style="font-size: 1.15rem;color:#767E9F;">Congratulations! you just won the bid for Invoice-'+str(bid.invoice.id)+'. Your Quidroo balance has been deduced accordingly. Thanks.</p></div></section>',
+                    'text': 'Hello, '+str(name)+'!\n Congratulations! you just won the bid for Invoice-'+str(bid.invoice.id)+'. Your Quidroo balance has been deducted accordingly. Thanks.',
+                    'from': {'name': 'Quidroo', 'email': sender_email},
+                    'to': [
+                        {'name': 'Quidroo Admin', 'email': email}
+                    ]
+                }
+                sentMail2 = SPApiProxy.smtp_send_mail(email2)
+
+                # send email to seller
+                if sellerData.name:
+                    name = sellerData.name
+                else:
+                    name = sellerData.company_name
+                
+                emailTo = sellerData.email
+                mail_subject =str(name)+' Congrats! Invoice-'+ str(winningBid.invoice.id)+' has been bought'
+                email3 = {
+                    'subject': mail_subject,
+                    'html': '<section style="background-color: #EEF1F8;height:auto;width: auto;display: flex;flex-direction: column;align-items: center;justify-content: center;"> <div style="background: #FFFFFF;width: 100%;padding: 10vh;"><img src="https://i.im.ge/2021/09/23/TCyJRy.jpg" style="margin:auto; width:40%; height: auto;" /><h3 style="margin-top:-6vh;">Hello, '+str(name)+'</h3><p style="font-size: 1.15rem;color:#767E9F;">Congratulations! your  Invoice-'+str(winningBid.invoice.id)+' has been sold successfully. Kindly withdraw your earnings from your wallet. Thanks.</p></div></section>',
+                    'text': 'Hello, '+str(name)+'!\n Congratulations! your  Invoice-'+str(winningBid.invoice.id)+' has been sold successfully. Kindly withdraw your earnings from your wallet. Thanks.',
+                    'from': {'name': 'Quidroo', 'email': sender_email},
+                    'to': [
+                        {'name': 'Quidroo Admin', 'email': emailTo}
+                    ]
+                }
+                sentMail3 = SPApiProxy.smtp_send_mail(email3)
+
+                print("winning ID:", updateInvoice.winning_buyer_id)
+                print("winner:", str(winnerData.name) or str(winnerData.company_name))
+                print("bid Amount: ", bid.amount)
+        
+
+
+        # if bidClosingDate > today:
+        #     bid.bidClosed = True
+        #     bid.save()
+            # email = "todak2000@gmail.com"
+            # mail_subject ='Invoice-'+ str(bid.invoice.id)+'  bids just closed'
+            # email2 = {
+            #     'subject': mail_subject,
+            #     'html': '<section style="background-color: #EEF1F8;height:auto;width: auto;display: flex;flex-direction: column;align-items: center;justify-content: center;"> <div style="background: #FFFFFF;width: 100%;padding: 10vh;"><img src="https://i.im.ge/2021/09/23/TCyJRy.jpg" style="margin:auto; width:40%; height: auto;" /><h3 style="margin-top:-6vh;">Hello Admin!</h3><p style="font-size: 1.15rem;color:#767E9F;">'+str(bid.invoice.id)+' bids just closed. Thanks.</p></div></section>',
+            #     'text': 'Hello, Admin!\n Invoice'+str(bid.invoice.id)+' bids just closed. Thanks.',
+            #     'from': {'name': 'Quidroo', 'email': sender_email},
+            #     'to': [
+            #         {'name': 'Quidroo Admin', 'email': email}
+            #     ]
+            # }
+            # sentMail2 = SPApiProxy.smtp_send_mail(email2)
 # @api_view(["POST"])
 # def fund(request):
 #     # user_phone = request.data.get("phone",None)

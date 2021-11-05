@@ -47,9 +47,9 @@ class Invoice(models.Model):
     invoice_amount = models.FloatField(max_length=30, verbose_name="Invoice Amount", null=True)
     receivable_amount = models.FloatField(max_length=30, verbose_name="Receievable Amount", null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
-    updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Date Modified")
     def __str__(self):
-        return f"{self.invoice_url} - {self.due_date} - {self.vendor_name} - {self.vendor_phone} {self.invoice_state} - {self.seller_id}- {self.winning_buyer_id} - {self.seller_ror}- {self.invoice_amount} - {self.created_at}"
+        return f"{self.invoice_url} - {self.due_date} - {self.vendor_name} - {self.vendor_phone} {self.invoice_state} - {self.seller_id}- {self.winning_buyer_id} - {self.seller_ror}- {self.invoice_amount} - {self.updated_at}"
 
 class Bid(models.Model):
     class Meta:
@@ -59,7 +59,7 @@ class Bid(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, default=1)
     buyer_ror = models.FloatField(max_length=4,verbose_name="Buyer ROR", default=0.09)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
-    updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Date Modified")
     bidClosed = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.invoice} - {self.amount} - {self.bidder_id} - {self.buyer_ror} - {self.created_at}"
@@ -72,7 +72,7 @@ class Wallet(models.Model):
     token_balance = models.FloatField(max_length=30,verbose_name="Quidroo Token Balance",blank=True)
     fiat_equivalent = models.FloatField(max_length=30,verbose_name="Fiat Equivalent",blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
-    updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Date Modified")
     
     #Blockchain Account
     # memo = models.CharField(max_length=40, unique=True, verbose_name="memo", blank=True)
@@ -97,7 +97,7 @@ class Verification(models.Model):
     # approved = models.BooleanField(default=False)
     awaiting_approval = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
-    updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Date Modified")
     def __str__(self):
         return f"{self.user} - {self.user_Idcard} - {self.cac_certificate} - {self.nin} {self.bvn} - {self.account_name}- {self.account_no} - {self.bank}- {self.created_at}"
 
@@ -112,7 +112,7 @@ class Transaction(models.Model):
     transaction_note = models.CharField(max_length=30, verbose_name="Transaction note", null=True)
     tx_hash = models.CharField(max_length=1000, verbose_name="Paystack Transaction Reference", default="395f2c4c0948911df0461865e9a5fc06ad8c537cfc894224fc748fa4a1b5211f")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
-    updated_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Modified")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Date Modified")
     def __str__(self):
         return f"{self.sender_id} - {self.receiver_id} - {self.token_balance} - {self.fiat_equivalent} - {self.created_at} - {self.transaction_note} - {self.transaction_type} - {self.tx_hash}"
 
@@ -150,3 +150,13 @@ class RecentActivity(models.Model):
 
     def __str__(self):
         return f"{self.user_id} - {self.activity} - {self.date_added}"
+
+class Test(models.Model):
+    class Meta:
+        db_table = "Test_table"
+    # Recent Activities
+    name = models.CharField(max_length=200,verbose_name="Name",blank=True)
+    date_added = models.DateTimeField(auto_now_add=True,)
+
+    def __str__(self):
+        return f"{self.name} - {self.date_added}"

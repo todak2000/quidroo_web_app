@@ -13,5 +13,8 @@ pysendpulse==0.1.2
 psycopg2==2.8.4
 django-heroku==0.3.1
 stellar-sdk==5.0.0b3
+# django-apscheduler==0.6.0
+APScheduler==3.7.0
+# django-crontab==0.7.1
 
 

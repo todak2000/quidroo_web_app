@@ -34,8 +34,8 @@ SECRET_KEY =config("secret_key")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-# DEBUG = True
+# DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'app',
     'cloudinary',
     'rest_framework',
+    # 'django_apscheduler',
 ]
 
 MIDDLEWARE = [
@@ -97,6 +98,13 @@ DATABASES = {
     }
 }
 
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
+# cron jobs
+# CRONJOBS = [
+#     ('*/1 * * * *', 'app.cron.expired_bid_check'),
+#     ('*/1 * * * *', 'app.cron.test_scehdule', '>> /path/to/log/file.log')
+# ]
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
