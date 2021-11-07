@@ -34,4 +34,10 @@ urlpatterns = [
     path('bid_details',views.bid_details, name='bid_details'),
     path('fund',views.topup, name='fund'),
     path('upload_verification_data',views.upload_verification_data, name='upload_verification_data'),
+
+    # ADMIN
+    path('admin_dashboard',views.admin_dashboard_page, name='admin_dashboard'),
+    path('approve_invoice',views.approve_invoice, name='approve_invoice'),
+    path('admin_invoice_bids',views.admin_invoice_bids, name='admin_invoice_bids'),
+    path('close_bids',views.close_bids, name='close_bids'),
 ]

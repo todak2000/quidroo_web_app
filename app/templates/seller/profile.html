@@ -147,6 +147,7 @@
                     <!-- <input type="text" class="form-input input-disabled" value="{{ver_data.account_name}}" disabled/> -->
     
                     <label class="lb">Bank Verification Number (BVN)</label>
+                    
                     {% if ver_data.bvn %}
                     <input type="text" class="form-input input-disabled" value="{{ver_data.bvn}}" disabled />
                     {% else %}
@@ -154,12 +155,14 @@
                     {% endif %}
                     <!-- <input type="text" class="form-input input-disabled" value="{{ver_data.bvn}}" disabled/> -->
                 </div>
+                
             </div>
             <div class="save-div">
                 <a  href="{% url 'verification' %}" class="pro-save">Re-upload Documents</a>
             </div>
-        
+            
         </div>
+        
     </div>
     <!-- main-section ends -->
 </section>

@@ -997,7 +997,6 @@ function calcBidAmount(r){
 $(function(){
     $('#makeBid-btn').on('click', function (e) {
         e.preventDefault();
-        // let amount = document.getElementById("f_amount").value;
         let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
         let success = document.getElementById("i-success");
         let fail = document.getElementById("i-fail");
@@ -1006,10 +1005,7 @@ $(function(){
         let main = document.getElementById('main-form');
         let accAmount = document.getElementById("accepted-amount");
         let btn = document.getElementById('makeBid-btn');
-        // let ref_url = document.getElementById('ref_url_fund');
         let msg = document.getElementById("i_modal-message") || document.getElementById("i_modal-message-success");
-        // let contBtnImg = document.getElementById("withUploadImg2");
-        // contBtnImg.style.display = "inline-block";
         btn.innerText = "Initiating Bidding Process..."
         $.ajax({
             url:'/makebid',
@@ -1049,7 +1045,6 @@ $(function(){
 $(function(){
     $('#editBid-btn').on('click', function (e) {
         e.preventDefault();
-        // let amount = document.getElementById("f_amount").value;
         let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
         let success = document.getElementById("e-success");
         let fail = document.getElementById("e-fail");
@@ -1058,10 +1053,7 @@ $(function(){
         let main = document.getElementById('main-form2');
         let accAmount = document.getElementById("accepted-amount2");
         let btn = document.getElementById('editBid-btn');
-        // let ref_url = document.getElementById('ref_url_fund');
         let msg = document.getElementById("e_modal-message") || document.getElementById("e_modal-message-success");
-        // let contBtnImg = document.getElementById("withUploadImg2");
-        // contBtnImg.style.display = "inline-block";
         btn.innerText = "Editing Bidding in Progress..."
         $.ajax({
             url:'/editbid',
@@ -1101,7 +1093,6 @@ $(function(){
 $(function(){
     $('#verify_payment_button').on('click', function (e) {
         e.preventDefault();
-        // document.getElementById("spinner").style.display = "block";
         document.getElementById("verify_payment_button").value = "Verifying Payment...";
         let amount = document.getElementById("tt_amount").value;
         let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
@@ -1133,7 +1124,6 @@ $(function(){
     $('#withdraw-btn').on('click', function (e) {
         e.preventDefault();
         let btn = document.getElementById('withdraw-btn');
-        // document.getElementById("spinner").style.display = "block";
         let success = document.getElementById("success");
         document.getElementById("withdraw-btn").value = "Withdrawing Your fund...";
         let amount = document.getElementById("amount").value;
@@ -1179,6 +1169,127 @@ $(function(){
                     
                     msg.innerHTML = response.message;
                 }
+
+            },
+            error:function(e){
+                console.log(e);
+            },
+        });
+        
+    });
+});
+
+function adminInvoiceBids(id){
+    let bidName = document.getElementById("bid-name5");
+    let bidVendor = document.getElementById("bid-vendor5");
+    let bidDate = document.getElementById("bid-date5");
+    let bidAmount = document.getElementById("bid-amount5");
+    let $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+    let data={
+        invoice_id: id,
+    }
+    $.ajax({
+        url:'/admin_invoice_bids',
+        type:'POST',
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        headers:{"X-CSRFToken": $crf_token},
+        data:JSON.stringify(data),
+        success:function(response){
+            console.log(response)
+            bidName.innerHTML= response.additional_details
+            bidVendor.innerHTML= response.vendor_name
+            bidAmount.innerHTML= formatter.format(response.receivable_amount)
+            let bidList = response.bids;
+                console.log(bidList);
+                if(bidList.length > 0){
+                    bidList.forEach((element) => {
+                        
+                            $('#bidders-list').append(
+                                element.isWinner ? 
+                                '<div class="mob-flex2 mt-1" style="background-color:#ECF7F1"><img src="/static/img/winner_bid.svg" class="img-fluid"/><p class="mob-p ">'+element.bidder_name+'</p>'+
+                                '<p class="mob-p ">'+formatter.format(element.bidder_amount)+'</p>'+
+                                '<p class="mob-p ">'+element.bidder_ror+' %</p>'+
+                                '<p class="mob-p">'+element.bidding_time+'</p></div>'
+                                :
+                                '<div class="mob-flex mt-1" style="background-color:#EEEEFC"><p class="mob-p ">'+element.bidder_name+'</p>'+
+                                '<p class="mob-p ">'+formatter.format(element.bidder_amount)+'</p>'+
+                                '<p class="mob-p ">'+element.bidder_ror+' %</p>'+
+                                '<p class="mob-p">'+element.bidding_time+'</p></div>'
+                            );
+                     
+                    
+                    });
+                }
+                
+                else{
+                    $('#bidders-list').append(
+                        '<div class="mob-flex mt-1"><p class="mob-p" style="color:#D13D2A">No bids yet for this Invoice</p></div>'
+                    );
+             
+                }
+
+            let diffInMs   = new Date(response.due_date) - new Date().getTime()
+            let diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+            bidDate.innerHTML= "Due in "+Math.round(diffInDays) +" Days";
+            // timer
+            var countDownDate = new Date(response.approved_time).getTime();
+            // Update the count down every 1 second
+            var x = setInterval(function() {
+
+                // Get today's date and time
+                var now = new Date().getTime();
+            
+                // Find the distance between now and the count down date
+                var distance = countDownDate - now;
+            
+                // Time calculations for days, hours, minutes and seconds
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+                // Display the result in the element with id="demo"
+                document.getElementById("timer5").innerHTML = days + "d " + hours + "h "
+                + minutes + "m " + seconds + "s ";
+            
+                // If the count down is finished, write some text
+                if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("timer5").innerHTML = "Bidding Closed";
+                }
+            }, 1000);
+            $('#adminBidModal').modal('show');
+            
+            
+        },
+        error:function(e){
+            console.log(e);
+        },
+    });
+}
+
+// check bid api
+$(function(){
+    $('#check_bids').on('click', function (e) {
+        e.preventDefault();
+        let btn = document.getElementById('check_bids');
+        let msg = document.getElementById("bid-message");
+        let scanned = document.getElementById("scanned");
+        let closed = document.getElementById("closed");
+        let update = document.getElementById("update");
+        btn.disabled = false;
+        btn.innerHTML = "checking..."
+        $.ajax({
+            url:'/close_bids',
+            type:'GET',
+            success:function(response){
+                console.log(response);
+                msg.innerHTML = response.message;
+                scanned.innerHTML = response.bidScanned;
+                closed.innerHTML = response.nofBidsClosed;
+                update.innerHTML = response.invoicesUpdated;
+                $('#checkerModal').modal('show');
 
             },
             error:function(e){

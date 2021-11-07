@@ -1,0 +1,105 @@
+{% extends "investor/base.html" %}
+
+{% load static %}
+{% load humanize %}
+{% block body%}
+<section class="dashboard-main"> 
+    <!-- top-bar -->
+    <nav class="main-top">
+        <img src= "{% static 'img/logo-mobile.svg' %}" alt="logo" class="img-fluid mobile">
+        <!-- <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile"> -->
+        <a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mobile mt-2"></a>
+        <div class="avatar-div disappear"> 
+            <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
+            <div class="avatar-div2 " id="drop-down">
+              {% if avatar is ""  %}
+              <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+              {% elif avatar is None  %}
+              <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+              {% else %}
+              <img src= "{{avatar}}" alt="avatar" class="img-sm">
+              {% endif %}
+                <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
+            </div>
+        </div>
+    </nav>
+    <ul style="display: none;" id="drop-list">
+      <li><a href="{% url 'profile' %}"><img src= "{% static 'img/drop-profile.svg' %}" alt="upload" class="mr-3"> View Profile</a></li>
+      <li><a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mr-3">Sign out</a></li>
+  </ul>
+    <!-- top-bar ends -->
+    <!-- main section -->
+    <div class="main-section">
+        <div class="main-title disappear">
+            <h4> <img src= "{% static 'img/in-invoice.svg' %}" alt="upload" class="mr-2">Invoices</h4>
+            
+        </div>
+        <div class="main-wallet">
+            <div class="main-invoice">
+                <div class="main-card-investor22">
+                  <div class="mob-flex">
+                    
+                    <h4 class="i-h4"> <img src= "{% static 'img/invoice-small.svg' %}" alt="upload" class="mr-1 mobile" style="display: inline-block;"/> Latest Invoices for Sale ({{noOfInvoices}})</h4>
+                    <div class="disappear">
+                       <!--Pagination-->
+                        <span class="step-links">
+                          <span class="current page-current">
+                              {{ invoices.number }}  of  {{ invoices.paginator.num_pages }}
+                          </span>
+                          
+                          {% if invoices.has_previous and invoices.has_next %}
+                            <!-- <a href="?page=1">&laquo; first</a> -->
+                            <a href="?page={{ invoices.previous_page_number }}"><img src= "{% static 'img/previous.svg' %}" alt="upload" class="ml-1 mr-3"/></a>
+                            <a href="?page={{ invoices.next_page_number }}"><img src= "{% static 'img/next.svg' %}" alt="upload" class="ml-1"/></a>
+                        {% endif %}
+
+                        {% if invoices.has_next and not invoices.has_previous %}
+                            <img src= "{% static 'img/fade-previous.svg' %}" alt="upload" class="ml-1 mr-3"/>
+                            <a href="?page={{ invoices.next_page_number }}"><img src= "{% static 'img/next.svg' %}" alt="upload" class="ml-1"/></a>
+                            <!-- <a href="?page={{ invoices.paginator.num_pages }}">last &raquo;</a> -->
+                        {% endif %}
+                      </span> 
+                      <!--end of Pagination-->
+                      <!-- <h4 class="i-h4 disappear">1 - 8 of 40 </h4> -->
+                    </div>
+                  </div>
+                  <div class="investor-inner">
+                    {% if invoices %}
+                    {% for i in invoices %}
+                    <div class="mobile-card-invoice2 mb-1 pt-3 pb-3" >
+                      <div class="mob-flex">
+                        <h5 class="i-h5">
+                          {{i.additional_details}}
+                        </h5>
+                       <h5><span class="roi">1 - 4.5 % </span>ROI</h5>
+                      </div>
+                      <div class="mob-flex">
+                        <p>Due in {{i.due_date|timeuntil}}</p>
+                        <p style="padding: 0.5rem; font-size: 1.9rem; color:#081B33; font-family: GeneralSansMedium;">&#8358;{{i.receivable_amount|floatformat:2|intcomma}}</p>
+                      </div>
+                      <div class="mob-flex">
+                        <p class="mob-p"> <img src= "{% static 'img/small-person.svg' %}" alt="upload" class="mr-1"/>{{i.vendor_name}}</p>
+                        <button id="{{i.id}}" class="edit-bid2" onclick="makeBid(this.id)">Bid</button>
+                      </div>
+                      <a href="{{i.invoice_url}}" target="_blank" style="color: #5151E0;">View Invoice</a>
+                    </div>
+                    {% endfor %} 
+                    {% else %}      
+                    <div class="no-invoice" style="height:auto;">
+                        <img src= "{% static 'img/no-invoice.svg' %}" alt="upload" class="mb-3"/>
+                        <p>No Invoices</p>
+                    </div>
+                    {% endif %}
+                    
+  
+                  </div>
+                </div> 
+            </div>
+        </div>
+            
+    </div>
+
+    <!-- main-section ends -->
+</section>
+{% endblock %}
+

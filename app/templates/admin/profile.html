@@ -1,0 +1,184 @@
+{% extends "investor/base.html" %}
+
+{% load static %}
+{% load humanize %}
+{% block body%}
+<section class="dashboard-main"> 
+    <!-- top-bar -->
+    <nav class="main-top">
+        <img src= "{% static 'img/logo-mobile.svg' %}" alt="logo" class="img-fluid mobile">
+        <!-- <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile"> -->
+        <a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mobile"></a>
+        <div class="avatar-div disappear"> 
+            <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
+            <div class="avatar-div2 " id="drop-down">
+                {% if avatar is ""  %}
+                <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+                {% elif avatar is None  %}
+                <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+                {% else %}
+                <img src= "{{avatar}}" alt="avatar" class="img-sm">
+                {% endif %}
+                <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
+                <!-- <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm">
+                <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs"> -->
+            </div>
+        </div>
+    </nav>
+    <ul style="display: none;" id="drop-list">
+        <li><a href="{% url 'profile' %}"><img src= "{% static 'img/drop-profile.svg' %}" alt="upload" class="mr-3"> View Profile</a></li>
+        <li><a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mr-3">Sign out</a></li>
+    </ul>
+    <!-- top-bar ends -->
+    <!-- main section -->
+    <div class="main-section">
+        <div class="main-title ">
+            {% if company_name %}
+            <h4><img src="{% static 'img/person.svg' %}" class="mr-3"/> {{company_name}}'s Profile</h4>
+            {% else %}
+            <h4><img src="{% static 'img/person.svg' %}" class="mr-3"/> {{name}}'s Profile</h4>
+            {% endif%}
+            <a  href="{% url 'verification' %}" class=" pro-save mobile">Re-upload</a>
+        </div>
+        <div class="main-profile">
+            
+            {% if name %}
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical" >
+                <a class="nav-link" id="v-pills-home-tab" >
+                    {% if avatar is ""  %}
+                    <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+                    {% elif avatar is None  %}
+                    <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+                    {% else %}
+                    <img src= "{{avatar}}" alt="avatar" class="img-sm">
+                    {% endif %}
+                    <!-- <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm"> -->
+                    <img src= "{% static 'img/blue_plus.svg' %}" alt="plus" class="img-fluid" style="margin-top: 5rem;margin-left: -2rem;">
+                </a>
+                <a class="nav-link active" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="true">Individual</a>
+                <a class="nav-link" id="v-pills-settings-tab" data-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false">Bank Details</a>
+            </div>
+            <div class="tab-content" id="v-pills-tabContent" >
+                <!-- <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">111</div> -->
+                <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                    <label class="lb">Name</label>
+                    <input type="text" class="form-input input-disabled" value="{{user_data.name}}" disabled />
+                    <label class="lb">Address</label>
+                    <input type="text" class="form-input input-disabled" value="{{user_data.company_address}}" disabled />
+                    <label class="lb">Phone Number</label>
+                    <input type="text" class="form-input input-disabled" value="{{user_data.phone}}" disabled />
+                    <!-- <label class="lb">CAC Registration Number</label>
+                    <input type="text" class="form-input input-disabled" value="{{ver_data.cac_no}}" disabled /> -->
+                    <label class="lb">Email Address</label>
+                    <input type="text" class="form-input input-disabled" value="{{user_data.email}}" disabled />
+                </div>
+                <!-- bank details tab -->
+                <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
+                    <label class="lb">Bank</label>
+                    {% if ver_data.bank %}
+                    <input type="text" class="form-input input-disabled" value="{{ver_data.bank}}" disabled />
+                    {% else %}
+                    <p><img src="{% static 'img/cancel.svg' %}" class="img-fluid mr-3" style="width: 15px;" />No Bank data is provided yet</p>
+                    {% endif %}
+    
+                    <label class="lb">Account Number</label>
+                    {% if ver_data.account_no %}
+                    <input type="text" class="form-input input-disabled" value="{{ver_data.account_no}}" disabled />
+                    {% else %}
+                    <p><img src="{% static 'img/cancel.svg' %}" class="img-fluid mr-3" style="width: 15px;" />No Account Number data is provided yet</p>
+                    {% endif %}
+                    <!-- <input type="text" class="form-input input-disabled" value="{{ver_data.account_no}}"disabled/> -->
+
+                    <label class="lb">Account Name</label>
+                    {% if ver_data.account_name %}
+                    <input type="text" class="form-input input-disabled" value="{{ver_data.account_name}}" disabled />
+                    {% else %}
+                    <p><img src="{% static 'img/cancel.svg' %}" class="img-fluid mr-3" style="width: 15px;" />No Account Name data is provided yet</p>
+                    {% endif %}
+                    <!-- <input type="text" class="form-input input-disabled" value="{{ver_data.account_name}}" disabled/> -->
+    
+                    <label class="lb">Bank Verification Number (BVN)</label>
+                    {% if ver_data.bvn %}
+                    <input type="text" class="form-input input-disabled" value="{{ver_data.bvn}}" disabled />
+                    {% else %}
+                    <p><img src="{% static 'img/cancel.svg' %}" class="img-fluid mr-3" style="width: 15px;" />No Bank Verification Number data is provided yet</p>
+                    {% endif %}
+                    <!-- <input type="text" class="form-input input-disabled" value="{{ver_data.bvn}}" disabled/> -->
+                </div>
+            </div>
+            {% else %}
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical" >
+                <a class="nav-link" id="v-pills-home-tab" >
+                    {% if avatar is ""  %}
+                    <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+                    {% elif avatar is None  %}
+                    <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+                    {% else %}
+                    <img src= "{{avatar}}" alt="avatar" class="img-sm">
+                    {% endif %}
+                    <!-- <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm"> -->
+                    <img src= "{% static 'img/blue_plus.svg' %}" alt="plus" class="img-fluid" style="margin-top: 5rem;margin-left: -2rem;">
+                </a>
+                <a class="nav-link active" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="true">Company</a>
+                <a class="nav-link" id="v-pills-settings-tab" data-toggle="pill" href="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false">Bank Details</a>
+            </div>
+            <div class="tab-content" id="v-pills-tabContent" >
+                <!-- <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">111</div> -->
+                <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                    <label class="lb">Type of Business</label>
+                    <input type="text" class="form-input input-disabled" value="{{user_data.business_type}}" disabled />
+                    <label class="lb">Company Name</label>
+                    <input type="text" class="form-input input-disabled" value="{{user_data.company_name}}" disabled />
+                    <label class="lb">Company Address</label>
+                    <input type="text" class="form-input input-disabled" value="{{user_data.company_address}}" disabled />
+                    <label class="lb">CAC Registration Number</label>
+                    <input type="text" class="form-input input-disabled" value="{{ver_data.cac_no}}" disabled />
+                    <label class="lb">Email Address</label>
+                    <input type="text" class="form-input input-disabled" value="{{user_data.email}}" disabled />
+                </div>
+                
+                <!-- bank details tab -->
+                <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
+                    <label class="lb">Bank</label>
+                    {% if ver_data.bank %}
+                    <input type="text" class="form-input input-disabled" value="{{ver_data.bank}}" disabled />
+                    {% else %}
+                    <p><img src="{% static 'img/cancel.svg' %}" class="img-fluid mr-3" style="width: 15px;" />No Bank data is provided yet</p>
+                    {% endif %}
+    
+                    <label class="lb">Account Number</label>
+                    {% if ver_data.account_no %}
+                    <input type="text" class="form-input input-disabled" value="{{ver_data.account_no}}" disabled />
+                    {% else %}
+                    <p><img src="{% static 'img/cancel.svg' %}" class="img-fluid mr-3" style="width: 15px;" />No Account Number data is provided yet</p>
+                    {% endif %}
+                    <!-- <input type="text" class="form-input input-disabled" value="{{ver_data.account_no}}"disabled/> -->
+
+                    <label class="lb">Account Name</label>
+                    {% if ver_data.account_name %}
+                    <input type="text" class="form-input input-disabled" value="{{ver_data.account_name}}" disabled />
+                    {% else %}
+                    <p><img src="{% static 'img/cancel.svg' %}" class="img-fluid mr-3" style="width: 15px;" />No Account Name data is provided yet</p>
+                    {% endif %}
+                    <!-- <input type="text" class="form-input input-disabled" value="{{ver_data.account_name}}" disabled/> -->
+    
+                    <label class="lb">Bank Verification Number (BVN)</label>
+                    {% if ver_data.bvn %}
+                    <input type="text" class="form-input input-disabled" value="{{ver_data.bvn}}" disabled />
+                    {% else %}
+                    <p><img src="{% static 'img/cancel.svg' %}" class="img-fluid mr-3" style="width: 15px;" />No Bank Verification Number data is provided yet</p>
+                    {% endif %}
+                    <!-- <input type="text" class="form-input input-disabled" value="{{ver_data.bvn}}" disabled/> -->
+                </div>
+            </div>
+            {% endif %}
+            <div class="save-div">
+                <a  href="{% url 'verification' %}" class="pro-save">Edit Profile</a>
+            </div>
+        
+        </div>
+    </div>
+    <!-- main-section ends -->
+</section>
+{% endblock %}
+

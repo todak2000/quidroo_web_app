@@ -15,7 +15,7 @@ from .views import  expired_bid_check
 
 def start():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(expired_bid_check, 'interval', seconds=10)
+    scheduler.add_job(expired_bid_check, 'interval', seconds=86400)
     scheduler.start()
 
 # def test_scehdule():
