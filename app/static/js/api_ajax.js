@@ -1232,6 +1232,7 @@ function adminInvoiceBids(id){
             let diffInMs   = new Date(response.due_date) - new Date().getTime()
             let diffInDays = diffInMs / (1000 * 60 * 60 * 24);
             bidDate.innerHTML= "Due in "+Math.round(diffInDays) +" Days";
+
             // timer
             var countDownDate = new Date(response.approved_time).getTime();
             // Update the count down every 1 second
