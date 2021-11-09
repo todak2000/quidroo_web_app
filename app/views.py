@@ -303,6 +303,7 @@ def wallet_page(request):
             "user_id": user_data.user_id,
             "company_name": user_data.company_name,
             "role": user_data.role,
+            "email":user_data.email,
             "credit_score": user_data.credit_score,
             "name": user_data.name,
             "fiat_equivalent":wallet_data.fiat_equivalent,
@@ -1954,3 +1955,129 @@ def close_bids(request):
     }
     return Response(return_data)
                 
+@api_view(["GET"])
+def admin_sellers(request):
+    try:
+        approvedSellers = User.objects.filter(role="seller",verified=True)
+        unapprovedSellers = User.objects.filter(role="seller",verified=False)
+        approvedSellersCount = User.objects.filter(role="seller",verified=True).count()
+        unapprovedSellersCount = User.objects.filter(role="seller",verified=False).count()
+        sellersCount = User.objects.filter(role="seller").count()
+        
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "approvedSellers": approvedSellers,
+            "unapprovedSellers": unapprovedSellers, 
+            "approvedSellersCount": approvedSellersCount, 
+            "unapprovedSellersCount": unapprovedSellersCount,
+            "sellersCount":sellersCount
+        }
+        return render(request,"admin/sellers.html", return_data)
+    except Exception as e:
+        return_data = {
+            "success": False,
+            "status" : 201,
+            "message": str(e)
+        }
+    return render(request,"admin/sellers.html", return_data)
+
+@api_view(["GET"])
+def admin_investors(request):
+    try:
+        investors = Wallet.objects.filter(user__role="investor")
+        investorsCount = User.objects.filter(role="investor").count()
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "investors": investors,
+            "investorsCount":investorsCount,
+        }
+        return render(request,"admin/investors.html", return_data)
+    except Exception as e:
+        return_data = {
+            "success": False,
+            "status" : 201,
+            "message": str(e)
+        }
+    return render(request,"admin/investors.html", return_data)
+
+@api_view(["POST"])
+def verify_seller(request):
+    seller_id = request.POST["seller_id"]
+    try:
+        updatedUser = User.objects.get(user_id=seller_id )
+        approvedSellers = User.objects.filter(role="seller",verified=True)
+        unapprovedSellers = User.objects.filter(role="seller",verified=False)
+        approvedSellersCount = User.objects.filter(role="seller",verified=True).count()
+        unapprovedSellersCount = User.objects.filter(role="seller",verified=False).count()
+        sellersCount = User.objects.filter(role="seller").count()
+        if updatedUser.verified==True:
+            pass
+        else:
+            updatedUser.verified=True
+            updatedUser.save()
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "approvedSellers": approvedSellers,
+            "unapprovedSellers": unapprovedSellers, 
+            "approvedSellersCount": approvedSellersCount, 
+            "unapprovedSellersCount": unapprovedSellersCount,
+            "sellersCount":sellersCount
+        }
+        return render(request,"admin/sellers.html", return_data)
+    except Exception as e:
+        return_data = {
+            "success": False,
+            "status" : 201,
+            "message": str(e)
+        }
+    return render(request,"admin/sellers.html", return_data)
+
+@api_view(["POST"])
+def unverify_seller(request):
+    seller_id = request.POST["seller_id2"]
+    try:
+        updatedUser = User.objects.get(user_id=seller_id )
+        approvedSellers = User.objects.filter(role="seller",verified=True)
+        unapprovedSellers = User.objects.filter(role="seller",verified=False)
+        approvedSellersCount = User.objects.filter(role="seller",verified=True).count()
+        unapprovedSellersCount = User.objects.filter(role="seller",verified=False).count()
+        sellersCount = User.objects.filter(role="seller").count()
+        print("hi")
+        if updatedUser.verified==True:
+            updatedUser.verified=False
+            updatedUser.save()
+            
+            return_data = {
+                "success": True,
+                "status" : 200,
+                "message": "successful",
+                "approvedSellers": approvedSellers,
+                "unapprovedSellers": unapprovedSellers, 
+                "approvedSellersCount": approvedSellersCount, 
+                "unapprovedSellersCount": unapprovedSellersCount,
+                "sellersCount":sellersCount
+            }
+        else:
+            pass
+        #     updatedUser.verified=False
+        #     updatedUser.save()
+        # return_data = {
+        #     "success": True,
+        #     "status" : 200,
+        #     "approvedSellers": approvedSellers,
+        #     "unapprovedSellers": unapprovedSellers, 
+        #     "approvedSellersCount": approvedSellersCount, 
+        #     "unapprovedSellersCount": unapprovedSellersCount,
+        #     "sellersCount":sellersCount
+        # }
+        return render(request,"admin/sellers.html", return_data)
+    except Exception as e:
+        return_data = {
+            "success": False,
+            "status" : 201,
+            "message": str(e)
+        }
+    return render(request,"admin/sellers.html", return_data)

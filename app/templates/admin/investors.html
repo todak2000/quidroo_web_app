@@ -1,0 +1,89 @@
+{% extends "investor/baseAdmin.html" %}
+
+{% load static %}
+{% load humanize %}
+{% block body%}
+<section class="dashboard-main"> 
+    <!-- top-bar -->
+    <nav class="main-top">
+        <img src= "{% static 'img/logo-mobile.svg' %}" alt="logo" class="img-fluid mobile">
+        <!-- <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile"> -->
+        <a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mobile mt-2"></a>
+        <div class="avatar-div disappear"> 
+            <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
+            <div class="avatar-div2 " id="drop-down">
+                <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+                <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
+            </div>
+        </div>
+    </nav>
+    <ul style="display: none;" id="drop-list">
+        <li><a href="{% url 'profile' %}"><img src= "{% static 'img/drop-profile.svg' %}" alt="upload" class="mr-3"> View Profile</a></li>
+        <li><a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mr-3">Sign out</a></li>
+    </ul>
+    <!-- top-bar ends -->
+    <!-- main section -->
+    <div class="main-section">
+        <div class="main-title disappear">
+            <h4>Admin Investors' List 
+              (
+                {% if investorsCount %}
+              {{investorsCount}}
+              {% else %}
+              {% endif %}
+              ) </h4>
+            <button class="btn btn-withdraw" id="check_bids"> Check Bids</button>
+            <!-- <a href="{% url 'close_bids' %}" target="_blank" style="color:#5151E0;">Close Bids</a> -->
+        </div>
+        <div class="main-admin-dashboard">
+            
+          <table class="table" id="normal-table">
+            {% if investors %}
+            
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Address</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Balance</th>
+                <th scope="col">Joined</th>
+                <!-- <th scope="col"></th> -->
+              </tr>
+            </thead>
+            <!-- <tbody id="ajax_div"></tbody> -->
+            
+            <tbody id="invoice-table3">
+              {% for i in investors %}
+              <tr>
+                <td> 
+                  {% if i.user.company_name%}
+                  {{i.user.company_name}}
+                  {% else %}
+                  {{i.user.name}}
+                  {% endif %}
+                </td>
+                <td>{{i.user.company_address}}</td>
+                <td> {{i.user.email}}</td>
+                <td> {{i.user.phone}}</td>
+                <td> 
+                  &#8358; {{i.fiat_equivalent |floatformat:2|intcomma}}
+                </td>
+                <td>Joined {{i.user.created_at|timesince}} ago</td>
+              </tr>
+              {% endfor %} 
+            </tbody>
+            
+            {% else %}      
+            <div class="no-invoice" style="height:auto;">
+                <img src= "{% static 'img/no-invoice.svg' %}" alt="upload" class="mb-3"/>
+                <p>You have no unverified sellers !</p>
+            </div>
+            {% endif %}
+          </table>
+        </div>
+    </div>
+    <!-- main-section ends -->
+</section>
+{% endblock %}
+
