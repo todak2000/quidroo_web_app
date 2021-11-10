@@ -115,7 +115,7 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Date Modified")
     def __str__(self):
-        return f"{self.sender_id} - {self.receiver_id} - {self.token_balance} - {self.fiat_equivalent} - {self.created_at} - {self.transaction_note} - {self.transaction_type} - {self.tx_hash}"
+        return f"{self.sender_id} - {self.receiver_id} - {self.token_balance} - {self.fiat_equivalent} - {self.created_at} - {self.transaction_note} - {self.paidByQuidroo} - {self.transaction_type} - {self.tx_hash}"
 
 class OnboardingVerification(models.Model):
     class Meta:
