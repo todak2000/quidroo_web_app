@@ -140,7 +140,12 @@
                         <div class="flexy">
                             <img src= "{% static 'img/wallet-seller.svg' %}" alt="upload" class="mr-2">
                             <p>Wallet</p>
-                            <span id="wall-active">ACTIVE</span>
+                            {% if activated == True %}
+                                <span id="wall-active">ACTIVE</span>
+                            {% else %}
+                                <span id="wall-inactive">INACTIVE</span>
+                            {% endif %}
+                            <!-- <span id="wall-active">ACTIVE</span> -->
                         </div>
                         <!-- <div class="flexty-wallet">
                             <h5>Credit Score</h5>

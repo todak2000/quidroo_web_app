@@ -301,6 +301,19 @@ a {
     width: 50%;
     text-align: right;
 }
+.fund-wallet{
+    background: #E07E24!important;
+    border-radius: 7px;
+    padding: 1.5vh;
+    color:#fff;
+    font-family: "GeneralSansRegular";
+}
+.fund-wallet:hover{
+    color:#E07E24;
+    background: #fff!important;
+    border: 1px solid #E07E24;
+    text-decoration: none;
+}
 .upload{
     background: #F5F7FC;
     border-radius: 7px;

@@ -11,16 +11,19 @@
             <div class="how_card" id="blue" onClick="selectUser(this.id)">
                 <div>
                     <img src="{% static 'img/seller.svg' %}" class="img-fluid mt-3 mb-3" />
-                    <h4>Sellers</h4>
+                    <!-- <h4>Sellers</h4> -->
+                    <h4>SMEs</h4>
                 </div>
-                <p>Upload and sell your confirmed invoices to buyers on Quidroo and get quick funds</p>
+                <!-- <p>Upload and sell your confirmed invoices to buyers on Quidroo and get quick funds</p> -->
+                <p>Upload your invoice and get it funded quickly by Investors</p>
             </div>
             <div class="how_card" id="green" onClick="selectUser(this.id)">
                 <div>
                     <img src="{% static 'img/investor.svg' %}" class="img-fluid mt-3 mb-3" />
                     <h4>Investors</h4>
                 </div>
-                <p>Lend funds to sellers with confirmed invoices and earn a percentage of interest</p>
+                <!-- <p>Lend funds to sellers with confirmed invoices and earn a percentage of interest</p> -->
+                <p>Lend funds to SMEs and earn a percentage of interest</p>
             </div>
             <div class="how_card" id="red" onClick="selectUser(this.id)">
                 <div>
@@ -42,9 +45,10 @@
         <div class="card-inner-top">
             <div>
                 <img src="{% static 'img/seller.svg' %}" class="img-fluid" />
-                <h3>Seller Registration</h3>
+                <!-- <h3>Seller Registration</h3> -->
+                <h3>SME Registration</h3>
             </div>
-            <p>Not a Seller? <span class="p-bold" id="s_diff_account">Choose a different account type</span></p>
+            <p>Not a SME? <span class="p-bold" id="s_diff_account">Choose a different account type</span></p>
         </div>
         <form class="form" action="{% url 'seller_signup' %}" method="post">
             {% csrf_token %}

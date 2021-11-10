@@ -36,13 +36,14 @@
             {% else %}
             <h4>{{name}}'s Dashboard</h4>
             {% endif%}
+            <a class="fund-wallet disappear" href="" data-toggle="modal" data-target="#topupModal">  Fund Wallet</a>
         </div>
         
 
         
         <div class="main-main-i">
             <div class="main-left-investor">
-                <div class="main-card">
+                <!-- <div class="main-card">
                     <div class="flex-between">
                         <div class="flexy">
                             <img src= "{% static 'img/invoice_seller.svg' %}" alt="upload" class="mr-2">
@@ -64,7 +65,7 @@
                             <p>Completed Invoices</p>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 <div class="main-card-two mt-2 disappear">
                     <div class="flex-between">
                         <div class="flexy">
@@ -89,40 +90,7 @@
                         <h3 class="mb-3" id="d_not" style="display: none;">*********</h3>
                         <!-- <h5>Account ID: {{muxed_acct}}</h5> -->
                     </div>
-                    <!-- <div class="flexty mt-3">
-                        <h5>Credit Score</h5>
-                        {% if credit_score >= "9" %}
-                            <button type="button" class="btn credit-red ml-3">
-                                <span class="badge badge-red">1</span>
-                                VERY POOR
-                            </button>
-                        {% elif credit_score <= "8.99" and credit_score >= "8"%}
-                            <button type="button" class="btn credit-orange ml-3">
-                                <span class="badge badge-orange">2</span>
-                                POOR
-                            </button>
-                        {% elif credit_score <= "7.99" and credit_score >= "7"%}
-                            <button type="button" class="btn credit-yellow ml-3">
-                                <span class="badge badge-yellow">3</span>
-                                FAIR
-                            </button>
-                        {% elif credit_score <= "6.99" and credit_score >= "6"%}
-                            <button type="button" class="btn credit-light ml-3">
-                                <span class="badge badge-light">4</span>
-                                GOOD
-                            </button>
-                            {% elif credit_score <= "5.99" and credit_score >= "5"%}
-                            <button type="button" class="btn credit-green ml-3">
-                                <span class="badge badge-green">5</span>
-                                EXCELLENT
-                            </button>
-                        {% else %}
-                        <button type="button" class="btn credit-red ml-3">
-                            <span class="badge badge-red">1</span>
-                            VERY POOR
-                        </button>
-                        {% endif %}
-                    </div> -->
+                    
                     <!-- transactions -->
                     <div class="flex-between mt-3 line">
                         <h6 class="recent-trans">Recent Transactions</h6>
@@ -206,6 +174,30 @@
             </div>
            
             <div class="main-right-investor ">
+                <!-- summary of invoices -->
+                <div class="main-card">
+                    <div class="flex-between">
+                        <div class="flexy">
+                            <img src= "{% static 'img/invoice_seller.svg' %}" alt="upload" class="mr-2">
+                            <p>Invoices</p>
+                        </div>
+                        <a href="{% url 'invoices' %}" class="view desktop">  View Details</a>
+                    </div>
+                    <div class="flexy-options">
+                        <div class="small-card-investor" id="green">
+                            <h3>{{activeBid}}</h3>
+                            <p>Active Bids</p>
+                        </div>
+                        <div class="small-card-investor" id="yellow">
+                            <h3>{{purchasedInvoices}}</h3>
+                            <p>Purchased Invoices</p>
+                        </div>
+                        <div class="small-card-investor" id="orange">
+                            <h3>{{completedInvoices}}</h3>
+                            <p>Completed Invoices</p>
+                        </div>
+                    </div>
+                </div>
                  <!-- Active Bids -->
                 <div class="main-card-two mb-2">
                     <div class="flex-between">
