@@ -426,6 +426,43 @@
         </div>
         </div>
     </div>
+<!-- Invetor check Result Bid Modal -->
+<div class="modal fade" id="investorModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+        <!-- <h3 class="modal-title" id="exampleModalLabel">Bidders</h3> -->
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="modal-body text-center">
+            <!-- edit bid form -->
+            <section id="main-form2">
+                <div class="mobile-card-invoice mb-1 pt-3 pb-3" >
+                    <img src= "{% static 'img/success.svg' %}" alt="logo">
+                    <h3 id="bid-message2"></h3>
+                    <div class="mob-flex">
+                      <p id="bid-date5"> <img src= "{% static 'img/small-person.svg' %}" alt="upload" class="mr-1"/>No of Investors Paid:</p>
+                      <p style="padding: 0.5rem; font-size: 1.9rem; color:#081B33; font-family: GeneralSansMedium;" id="scanned2"></p>
+                    </div>
+                    <!-- <div class="mob-flex">
+                        <p id="bid-date5"> <img src= "{% static 'img/small-person.svg' %}" alt="upload" class="mr-1"/>No of Bids Due/Closed:</p>
+                        <p style="padding: 0.5rem; font-size: 1.9rem; color:#081B33; font-family: GeneralSansMedium;" id="closed"></p>
+                    </div>
+                    <div class="mob-flex">
+                        <p id="bid-date5"> <img src= "{% static 'img/small-person.svg' %}" alt="upload" class="mr-1"/>No of Invoices Purchased/Updated:</p>
+                        <p style="padding: 0.5rem; font-size: 1.9rem; color:#081B33; font-family: GeneralSansMedium;" id="update"></p>
+                    </div> -->
+
+                </div>
+                 
+            </section>
+        </div>
+        
+    </div>
+    </div>
+</div>
     {% block body%}
     
     {% endblock %}

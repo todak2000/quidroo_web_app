@@ -27,15 +27,36 @@
         <div class="main-title disappear">
             <h4>Admin Dashboard</h4>
             <button class="btn btn-withdraw" id="check_bids"> Check Bids</button>
+            <button class="btn fund-wallet" id="check_investments"> Check Due Investments</button>
             <!-- <a href="{% url 'close_bids' %}" target="_blank" style="color:#5151E0;">Close Bids</a> -->
         </div>
         <div class="main-admin-dashboard">
             
             <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical" >
-                <a class="nav-link active" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="true">Awaiting Confirmation</a>
-                <a class="nav-link" id="v-pills-messages-tab" data-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="false">Awaiting Buyer</a>
-                <a class="nav-link" id="matured" data-toggle="pill" href="#t-matured" role="tab" >Awaiting Maturity</a>
-                <a class="nav-link" id="v-pills-settings-tab2" data-toggle="pill" href="#v-pills-settings2" role="tab" aria-controls="v-pills-settings2" aria-selected="false">Completed</a>
+                <a class="nav-link active" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="true">Awaiting Confirmation 
+                  {% if invoicesCount %}
+                  ({{invoicesCount}})
+                  {% else %}
+                  {% endif %}
+                </a>
+                <a class="nav-link" id="v-pills-messages-tab" data-toggle="pill" href="#v-pills-messages" role="tab" aria-controls="v-pills-messages" aria-selected="false">Awaiting Buyer
+                  {% if biddableCount %}
+                  ({{biddableCount}})
+                  {% else %}
+                  {% endif %}
+                </a>
+                <a class="nav-link" id="matured" data-toggle="pill" href="#t-matured" role="tab" >Awaiting Maturity
+                  {% if maturedCount %}
+                  ({{maturedCount}})
+                  {% else %}
+                  {% endif %}
+                </a>
+                <a class="nav-link" id="v-pills-settings-tab2" data-toggle="pill" href="#v-pills-settings2" role="tab" aria-controls="v-pills-settings2" aria-selected="false">Completed
+                  {% if completedCount %}
+                  ({{completedCount}})
+                  {% else %}
+                  {% endif %}
+                </a>
             </div>
             <div class="tab-content" id="v-pills-tabContent" style="width:80%;" >
                 <!-- awaiting confirmation tab -->

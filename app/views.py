@@ -1768,6 +1768,12 @@ def admin_dashboard_page(request):
             "biddable": biddableInvoices, 
             "matured": maturedInvoices, 
             "completed": completedInvoices,
+
+            "invoicesCount":awaitingInvoices.count(),
+            "biddableCount":biddableInvoices.count(),
+            "maturedCount":maturedInvoices.count(),
+            "completedCount":completedInvoices.count()
+
         }
         return render(request,"admin/dashboard.html", return_data)
     except Exception as e:
@@ -1802,7 +1808,11 @@ def approve_invoice(request):
             "invoices": awaitingInvoices,
             "biddable": biddableInvoices, 
             "matured": maturedInvoices, 
-            "completed": completedInvoices 
+            "completed": completedInvoices,
+            "invoicesCount":awaitingInvoices.count(),
+            "biddableCount":biddableInvoices.count(),
+            "maturedCount":maturedInvoices.count(),
+            "completedCount":completedInvoices.count() 
         }
         return render(request,"admin/dashboard.html", return_data)
     except Exception as e:
@@ -1954,7 +1964,80 @@ def close_bids(request):
         "bidScanned": bids.count()
     }
     return Response(return_data)
+
+@api_view(["GET"])
+def pay_investors(request):
+    today = DT.datetime.now()
+    bids = Bid.objects.filter(bidClosed=True).order_by('-created_at')
+    
+    # bidsScanned = Bid.objects.filter(bidClosed=False).count()
+    nofInvestors = 0
+    # invoicesUpdated = 0
+    for bid in bids:
+        
+        # bidClosingDate = bid.invoice.updated_at + DT.timedelta(days=2)  # change bid closing time to 2 or 3 days when ready for production
+        closingDate = bid.invoice.created_at.strftime('%Y-%m-%d')
+        newTime = today.strftime('%Y-%m-%d')
+        # print("BidClosing: ", closingDate)
+        # print('today: ', newTime)
+        if newTime >= closingDate:
+            # bid.invoice. = True
+            payeeWallet = Wallet.objects.get(user__user_id=bid.bidder_id)
+            # capital= bid.invoice.receivable_amount
+            # interest = bid.invoice.receivable_amount * bid.invoice.buyer_ror
+            payeeWallet.fiat_equivalent = payeeWallet.fiat_equivalent+ bid.amount
+            payeeWallet.save()
+            updateInvoice = Invoice.objects.get(id=bid.invoice.id)
+            updateInvoice.invoice_state = 4
+            updateInvoice.save()
+            newTransactionCredit = Transaction(sender_id="quidroo", receiver_id= bid.bidder_id, fiat_equivalent=bid.amount, token_balance=bid.amount,transaction_type = "Credit", transaction_note="Credit Payment for Invoice-"+str(bid.invoice.id))
+            newTransactionCredit.save()
+            if updateInvoice and payeeWallet and newTransactionCredit:
+                nofInvestors = nofInvestors+1
+                # send email to investor
+                if payeeWallet.user.name:
+                    name = payeeWallet.user.name
+                else:
+                    name = payeeWallet.user.company_name
                 
+                email = payeeWallet.user.email
+                mail_subject =str(name)+'! Capital + Interest payment for Invoice-'+ str(bid.invoice.id)
+                email2 = {
+                    'subject': mail_subject,
+                    'html': '<section style="background-color: #EEF1F8;height:auto;width: auto;display: flex;flex-direction: column;align-items: center;justify-content: center;"> <div style="background: #FFFFFF;width: 100%;padding: 10vh;"><img src="https://i.im.ge/2021/09/23/TCyJRy.jpg" style="margin:auto; width:40%; height: auto;" /><h3 style="margin-top:-6vh;">Hello, '+str(name)+'</h3><p style="font-size: 1.15rem;color:#767E9F;">Congratulations! you have just been credited (Capital + Interest) for Invoice-'+str(bid.invoice.id)+'. Your Quidroo balance has been credited accordingly. Thanks.</p></div></section>',
+                    'text': 'Hello, '+str(name)+'!\n Congratulations! you have just been credited (Capital + Interest) for Invoice-'+str(bid.invoice.id)+'. Your Quidroo balance has been credited accordingly. Thanks.',
+                    'from': {'name': 'Quidroo', 'email': sender_email},
+                    'to': [
+                        {'name': 'Quidroo Admin', 'email': email}
+                    ]
+                }
+                sentMail2 = SPApiProxy.smtp_send_mail(email2)
+
+                # send email to Admin
+                
+                emailTo = "todak2000@gmail.com"
+                mail_subject = 'Capital + Interest payment made for Invoice-'+ str(bid.invoice.id)
+                email3 = {
+                    'subject': mail_subject,
+                    'html': '<section style="background-color: #EEF1F8;height:auto;width: auto;display: flex;flex-direction: column;align-items: center;justify-content: center;"> <div style="background: #FFFFFF;width: 100%;padding: 10vh;"><img src="https://i.im.ge/2021/09/23/TCyJRy.jpg" style="margin:auto; width:40%; height: auto;" /><h3 style="margin-top:-6vh;">Hello, Admin</h3><p style="font-size: 1.15rem;color:#767E9F;">Final payment for  Invoice-'+str(bid.invoice.id)+' to '+str(name)+' has been made.Thanks.</p></div></section>',
+                    'text': 'Hello, Admin !\n Final payment for Invoice-'+str(bid.invoice.id)+' to '+str(name)+' has been made. Thanks.',
+                    'from': {'name': 'Quidroo', 'email': sender_email},
+                    'to': [
+                        {'name': 'Quidroo Admin', 'email': emailTo}
+                    ]
+                }
+                sentMail3 = SPApiProxy.smtp_send_mail(email3)
+                # print("winning ID:", updateInvoice.winning_buyer_id)
+                # print("winner:", str(winnerData.name) or str(winnerData.company_name))
+                # print("bid Amount: ", bid.amount)
+    return_data = {
+        "success": True,
+        "status" : 200,
+        "message":"Investment checks ran successfully",
+        "nofInvestors":nofInvestors,
+    }
+    return Response(return_data)
+
 @api_view(["GET"])
 def admin_sellers(request):
     try:

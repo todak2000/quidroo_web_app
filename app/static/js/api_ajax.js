@@ -1300,3 +1300,34 @@ $(function(){
         
     });
 });
+
+// check investment api
+$(function(){
+    $('#check_investments').on('click', function (e) {
+        e.preventDefault();
+        let btn = document.getElementById('check_investments');
+        let msg = document.getElementById("bid-message2");
+        let scanned = document.getElementById("scanned2");
+        // let closed = document.getElementById("closed");
+        // let update = document.getElementById("update");
+        btn.disabled = false;
+        btn.innerHTML = "checking..."
+        $.ajax({
+            url:'/pay_investors',
+            type:'GET',
+            success:function(response){
+                console.log(response);
+                msg.innerHTML = response.message;
+                scanned.innerHTML = response.nofInvestors;
+                // closed.innerHTML = response.nofBidsClosed;
+                // update.innerHTML = response.invoicesUpdated;
+                $('#investorModal').modal('show');
+
+            },
+            error:function(e){
+                console.log(e);
+            },
+        });
+        
+    });
+});

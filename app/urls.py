@@ -40,6 +40,7 @@ urlpatterns = [
     path('approve_invoice',views.approve_invoice, name='approve_invoice'),
     path('admin_invoice_bids',views.admin_invoice_bids, name='admin_invoice_bids'),
     path('close_bids',views.close_bids, name='close_bids'),
+    path('pay_investors',views.pay_investors, name='pay_investors'),
     path('admin_sellers',views.admin_sellers, name='admin_sellers'),
     path('admin_payment',views.admin_payment, name='admin_payment'),
     path('admin_investors',views.admin_investors, name='admin_investors'),
