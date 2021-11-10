@@ -110,6 +110,7 @@ class Transaction(models.Model):
     fiat_equivalent = models.FloatField(max_length=30,verbose_name="Fiat Equivalent",blank=True)
     transaction_type = models.CharField(max_length=500,unique=False, verbose_name="Type of Transaction", default="none")
     transaction_note = models.CharField(max_length=30, verbose_name="Transaction note", null=True)
+    paidByQuidroo = models.BooleanField(default=False)
     tx_hash = models.CharField(max_length=1000, verbose_name="Paystack Transaction Reference", default="395f2c4c0948911df0461865e9a5fc06ad8c537cfc894224fc748fa4a1b5211f")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Date Modified")

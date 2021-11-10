@@ -47,7 +47,13 @@
             <li class="seller-list" id="dashboard" onclick="makeActive(this.id)"><a href="{% url 'admin_dashboard' %}" class="underline"> <img src= "{% static 'img/dashboard2.svg' %}" alt="logo" class="mr-3"> Dashboard</a></li>
             <li class="seller-list" id="invoices" onclick="makeActive(this.id)"><a href="{% url 'admin_sellers' %}" class="underline"> <img src= "{% static 'img/invoice.svg' %}" alt="logo" class="mr-3"> Sellers</a></li>
             <li class="seller-list" id="bids" onclick="makeActive(this.id)"><a href="{% url 'admin_investors' %}" class="underline"> <img src= "{% static 'img/bids.svg' %}" alt="logo" class="mr-3"> Investors</a></li>
-           <!--  <li class="seller-list" id="stats" onclick="makeActive(this.id)"><a href="#work" class="underline"> <img src= "{% static 'img/stats.svg' %}" alt="logo" class="mr-3"> Stats</a></li> -->
+            <li class="seller-list" id="stats" onclick="makeActive(this.id)"><a href="{% url 'admin_payment' %}" class="underline"> <img src= "{% static 'img/stats.svg' %}" alt="logo" class="mr-3"> Payment Requests 
+                {% if paymentRequestsCount %}
+                <span class="badge badge-red">{{paymentRequestsCount}}</span>
+                {% else %}
+                {% endif %}
+                </a>
+            </li>
             <!-- <li class="seller-list " style="display: none;" id="settings" onclick="makeActive(this.id)"><a href="{% url 'dashboard' %}" class="underline"> <img src= "{% static 'img/settings.svg' %}" alt="logo" class="mr-3"> Settings</a></li> -->
         </ul>
     </nav>    

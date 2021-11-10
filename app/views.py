@@ -1757,10 +1757,10 @@ def expired_bid_check():
 @api_view(["GET"])
 def admin_dashboard_page(request):
     try:
-        awaitingInvoices = Invoice.objects.filter(invoice_state=0)
-        biddableInvoices = Invoice.objects.filter(invoice_state=2)
-        maturedInvoices = Invoice.objects.filter(invoice_state=3)
-        completedInvoices = Invoice.objects.filter(invoice_state=4)
+        awaitingInvoices = Invoice.objects.filter(invoice_state=0).order_by('-created_at')
+        biddableInvoices = Invoice.objects.filter(invoice_state=2).order_by('-created_at')
+        maturedInvoices = Invoice.objects.filter(invoice_state=3).order_by('-created_at')
+        completedInvoices = Invoice.objects.filter(invoice_state=4).order_by('-created_at')
         return_data = {
             "success": True,
             "status" : 200,
@@ -1782,11 +1782,11 @@ def admin_dashboard_page(request):
 def approve_invoice(request):
     invoice_id = request.POST["invoice_id"]
     try:
-        updatedInvoice = Invoice.objects.get(id=invoice_id )
-        awaitingInvoices = Invoice.objects.filter(invoice_state=0)
-        biddableInvoices = Invoice.objects.filter(invoice_state=2)
-        maturedInvoices = Invoice.objects.filter(invoice_state=3)
-        completedInvoices = Invoice.objects.filter(invoice_state=4)
+        updatedInvoice = Invoice.objects.get(id=invoice_id ).order_by('-created_at')
+        awaitingInvoices = Invoice.objects.filter(invoice_state=0).order_by('-created_at')
+        biddableInvoices = Invoice.objects.filter(invoice_state=2).order_by('-created_at')
+        maturedInvoices = Invoice.objects.filter(invoice_state=3).order_by('-created_at')
+        completedInvoices = Invoice.objects.filter(invoice_state=4).order_by('-created_at')
         if updatedInvoice.invoice_state!=2:
             pass
         else:
@@ -1818,7 +1818,7 @@ def admin_invoice_bids(request):
     invoice_id = request.data.get("invoice_id",None)   
     if invoice_id:
         selectedInvoice = Invoice.objects.get(id=invoice_id)
-        bids = Bid.objects.filter(invoice__id=selectedInvoice.id)
+        bids = Bid.objects.filter(invoice__id=selectedInvoice.id).order_by('-created_at')
         num = len(bids)
         bidList = []
         for i in range(0,num):
@@ -1865,9 +1865,9 @@ def admin_invoice_bids(request):
 @api_view(["GET"])
 def close_bids(request):
 
-    bids = Bid.objects.filter(bidClosed=False)
+    bids = Bid.objects.filter(bidClosed=False).order_by('-created_at')
     today = DT.datetime.now()
-    bidsScanned = Bid.objects.filter(bidClosed=False).count()
+    # bidsScanned = Bid.objects.filter(bidClosed=False).count()
     nofBidsClosed = 0
     invoicesUpdated = 0
     for bid in bids:
@@ -1951,17 +1951,17 @@ def close_bids(request):
         "message":"Bids check ran successfully",
         "nofBidsClosed":nofBidsClosed,
         "invoicesUpdated":invoicesUpdated,
-        "bidScanned": bidsScanned
+        "bidScanned": bids.count()
     }
     return Response(return_data)
                 
 @api_view(["GET"])
 def admin_sellers(request):
     try:
-        approvedSellers = User.objects.filter(role="seller",verified=True)
-        unapprovedSellers = User.objects.filter(role="seller",verified=False)
-        approvedSellersCount = User.objects.filter(role="seller",verified=True).count()
-        unapprovedSellersCount = User.objects.filter(role="seller",verified=False).count()
+        approvedSellers = User.objects.filter(role="seller",verified=True).order_by('-created_at')
+        unapprovedSellers = User.objects.filter(role="seller",verified=False).order_by('-created_at')
+        # approvedSellersCount = User.objects.filter(role="seller",verified=True).count()
+        # unapprovedSellersCount = User.objects.filter(role="seller",verified=False).count()
         sellersCount = User.objects.filter(role="seller").count()
         
         return_data = {
@@ -1969,8 +1969,8 @@ def admin_sellers(request):
             "status" : 200,
             "approvedSellers": approvedSellers,
             "unapprovedSellers": unapprovedSellers, 
-            "approvedSellersCount": approvedSellersCount, 
-            "unapprovedSellersCount": unapprovedSellersCount,
+            "approvedSellersCount": approvedSellers.count(), 
+            "unapprovedSellersCount": unapprovedSellers.count(),
             "sellersCount":sellersCount
         }
         return render(request,"admin/sellers.html", return_data)
@@ -1985,13 +1985,13 @@ def admin_sellers(request):
 @api_view(["GET"])
 def admin_investors(request):
     try:
-        investors = Wallet.objects.filter(user__role="investor")
-        investorsCount = User.objects.filter(role="investor").count()
+        investors = Wallet.objects.filter(user__role="investor").order_by('-created_at')
+        # investorsCount = User.objects.filter(role="investor").count()
         return_data = {
             "success": True,
             "status" : 200,
             "investors": investors,
-            "investorsCount":investorsCount,
+            "investorsCount":investors.count(),
         }
         return render(request,"admin/investors.html", return_data)
     except Exception as e:
@@ -2007,10 +2007,10 @@ def verify_seller(request):
     seller_id = request.POST["seller_id"]
     try:
         updatedUser = User.objects.get(user_id=seller_id )
-        approvedSellers = User.objects.filter(role="seller",verified=True)
-        unapprovedSellers = User.objects.filter(role="seller",verified=False)
-        approvedSellersCount = User.objects.filter(role="seller",verified=True).count()
-        unapprovedSellersCount = User.objects.filter(role="seller",verified=False).count()
+        approvedSellers = User.objects.filter(role="seller",verified=True).order_by('-created_at')
+        unapprovedSellers = User.objects.filter(role="seller",verified=False).order_by('-created_at')
+        # approvedSellersCount = User.objects.filter(role="seller",verified=True).count()
+        # unapprovedSellersCount = User.objects.filter(role="seller",verified=False).count()
         sellersCount = User.objects.filter(role="seller").count()
         if updatedUser.verified==True:
             pass
@@ -2022,8 +2022,8 @@ def verify_seller(request):
             "status" : 200,
             "approvedSellers": approvedSellers,
             "unapprovedSellers": unapprovedSellers, 
-            "approvedSellersCount": approvedSellersCount, 
-            "unapprovedSellersCount": unapprovedSellersCount,
+            "approvedSellersCount": approvedSellers.count(), 
+            "unapprovedSellersCount": unapprovedSellers.count(),
             "sellersCount":sellersCount
         }
         return render(request,"admin/sellers.html", return_data)
@@ -2040,12 +2040,12 @@ def unverify_seller(request):
     seller_id = request.POST["seller_id2"]
     try:
         updatedUser = User.objects.get(user_id=seller_id )
-        approvedSellers = User.objects.filter(role="seller",verified=True)
-        unapprovedSellers = User.objects.filter(role="seller",verified=False)
-        approvedSellersCount = User.objects.filter(role="seller",verified=True).count()
-        unapprovedSellersCount = User.objects.filter(role="seller",verified=False).count()
+        approvedSellers = User.objects.filter(role="seller",verified=True).order_by('-created_at')
+        unapprovedSellers = User.objects.filter(role="seller",verified=False).order_by('-created_at')
+        # approvedSellersCount = User.objects.filter(role="seller",verified=True).count()
+        # unapprovedSellersCount = User.objects.filter(role="seller",verified=False).count()
         sellersCount = User.objects.filter(role="seller").count()
-        print("hi")
+
         if updatedUser.verified==True:
             updatedUser.verified=False
             updatedUser.save()
@@ -2056,23 +2056,12 @@ def unverify_seller(request):
                 "message": "successful",
                 "approvedSellers": approvedSellers,
                 "unapprovedSellers": unapprovedSellers, 
-                "approvedSellersCount": approvedSellersCount, 
-                "unapprovedSellersCount": unapprovedSellersCount,
+                "approvedSellersCount": approvedSellers.count(), 
+                "unapprovedSellersCount": unapprovedSellers.count(),
                 "sellersCount":sellersCount
             }
         else:
             pass
-        #     updatedUser.verified=False
-        #     updatedUser.save()
-        # return_data = {
-        #     "success": True,
-        #     "status" : 200,
-        #     "approvedSellers": approvedSellers,
-        #     "unapprovedSellers": unapprovedSellers, 
-        #     "approvedSellersCount": approvedSellersCount, 
-        #     "unapprovedSellersCount": unapprovedSellersCount,
-        #     "sellersCount":sellersCount
-        # }
         return render(request,"admin/sellers.html", return_data)
     except Exception as e:
         return_data = {
@@ -2081,3 +2070,56 @@ def unverify_seller(request):
             "message": str(e)
         }
     return render(request,"admin/sellers.html", return_data)
+
+@api_view(["GET"])
+def admin_payment(request):
+    try:
+        paymentRequests = Transaction.objects.filter(receiver_id="quidroo", paidByQuidroo=False, transaction_note="Withdrawal from Quidroo Account").order_by('-created_at')
+        # paymentRequestsCount= Transaction.objects.filter(receiver_id="quidroo", paidByQuidroo=False, transaction_note="Withdrawal from Quidroo Account").count()
+        return_data = {
+            "success": True,
+            "status" : 200,
+            "paymentRequests": paymentRequests,
+            "paymentRequestsCount":paymentRequests.count()
+        }
+        return render(request,"admin/payment.html", return_data)
+    except Exception as e:
+        return_data = {
+            "success": False,
+            "status" : 201,
+            "message": str(e)
+        }
+    return render(request,"admin/payment.html", return_data)
+
+@api_view(["POST"])
+def confirm_payment(request):
+    tx_id = request.POST["tx_id"]
+    try:
+        paymentRequests = Transaction.objects.filter(receiver_id="quidroo", paidByQuidroo=False, transaction_note="Withdrawal from Quidroo Account").order_by('-created_at')
+        # paymentRequestsCount= Transaction.objects.filter(receiver_id="quidroo", paidByQuidroo=False, transaction_note="Withdrawal from Quidroo Account").count()
+        trax = Transaction.objects.get(id=tx_id)
+        # payee = User.objects.get(user_id=trax.sender_id)
+
+        if trax.paidByQuidroo==False:
+            trax.paidByQuidroo=True
+            trax.save()
+            
+            return_data = {
+                "success": True,
+                "status" : 200,
+                "message": "successful",
+                # "payee": payee.name or payee.company_name,
+                # "amount": trax.fiat_equivalent, 
+                "paymentRequests": paymentRequests,
+                "paymentRequestsCount":paymentRequests.count()
+            }
+        else:
+            pass
+        return render(request,"admin/payment.html", return_data)
+    except Exception as e:
+        return_data = {
+            "success": False,
+            "status" : 201,
+            "message": str(e)
+        }
+    return render(request,"admin/payment.html", return_data)

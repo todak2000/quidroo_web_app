@@ -1,0 +1,83 @@
+{% extends "investor/baseAdmin.html" %}
+
+{% load static %}
+{% load humanize %}
+{% block body%}
+<section class="dashboard-main"> 
+    <!-- top-bar -->
+    <nav class="main-top">
+        <img src= "{% static 'img/logo-mobile.svg' %}" alt="logo" class="img-fluid mobile">
+        <!-- <img src= "{% static 'img/bell.svg' %}" alt="bell" class="mobile"> -->
+        <a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mobile mt-2"></a>
+        <div class="avatar-div disappear"> 
+            <img src= "{% static 'img/bell.svg' %}" alt="bell" class="img-xs">
+            <div class="avatar-div2 " id="drop-down">
+                <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
+                <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
+            </div>
+        </div>
+    </nav>
+    <ul style="display: none;" id="drop-list">
+        <li><a href="{% url 'profile' %}"><img src= "{% static 'img/drop-profile.svg' %}" alt="upload" class="mr-3"> View Profile</a></li>
+        <li><a href="{% url 'logout' %}"><img src= "{% static 'img/drop-signout.svg' %}" alt="upload" class="mr-3">Sign out</a></li>
+    </ul>
+    <!-- top-bar ends -->
+    <!-- main section -->
+    <div class="main-section">
+        <div class="main-title disappear">
+            <h4>Admin Payment Request
+              
+              {% if paymentRequestsCount %}
+              ({{paymentRequestsCount}})
+              {% else %}
+              {% endif %}
+              </h4>
+            <button class="btn btn-withdraw" id="check_bids"> Check Bids</button>
+            <!-- <a href="{% url 'close_bids' %}" target="_blank" style="color:#5151E0;">Close Bids</a> -->
+        </div>
+        <div class="main-admin-dashboard">
+            
+          <table class="table" id="normal-table">
+            {% if paymentRequests %}
+            
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Date</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Note</th>
+                <th scope="col"></th>
+                <!-- <th scope="col"></th> -->
+              </tr>
+            </thead>
+            <!-- <tbody id="ajax_div"></tbody> -->
+            
+            <tbody id="invoice-table3">
+              {% for i in paymentRequests %}
+              <tr>
+                <td>{{i.sender_id|slice:":10"}}</td>
+                <td>{{i.created_at}}</td>
+                <td> &#8358;{{i.fiat_equivalent|floatformat:2|intcomma}}</td>
+                <td>{{i.transaction_note}}</td>
+                  <td>
+                    <form action="{% url 'confirm_payment' %}" method="post"> {% csrf_token %}
+                      <input name="tx_id" id="tx_id" value="{{i.id}}" hidden/><button type="submit" class="btn btn-withdraw" name="">Make Payment</button>
+                    </form>
+                  </td>
+              </tr>
+              {% endfor %} 
+            </tbody>
+            
+            {% else %}      
+            <div class="no-invoice" style="height:auto;">
+                <img src= "{% static 'img/no-invoice.svg' %}" alt="upload" class="mb-3"/>
+                <p>You have no unverified sellers !</p>
+            </div>
+            {% endif %}
+          </table>
+        </div>
+    </div>
+    <!-- main-section ends -->
+</section>
+{% endblock %}
+
