@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 # from pathlib import Path
 import os
 import sys
-import django_heroku # remove in local machine
 from decouple import config
 import dj_database_url
 import cloudinary
@@ -36,9 +35,10 @@ SECRET_KEY =config("secret_key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = False
-DEBUG = config("debug")
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 DEVELOPMENT_MODE =config("dev_mode")
 
@@ -99,7 +99,7 @@ WSGI_APPLICATION = 'quidroo.wsgi.application'
 #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
-if DEVELOPMENT_MODE is True:
+if os.getenv("DEVELOPMENT_MODE", "False") == "True":
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
