@@ -1968,7 +1968,7 @@ def close_bids(request):
 @api_view(["GET"])
 def pay_investors(request):
     today = DT.datetime.now()
-    bids = Bid.objects.filter(bidClosed=True).order_by('-created_at')
+    bids = Bid.objects.filter(bidClosed=True,invoice__invoice_state =3).order_by('-created_at')
     
     # bidsScanned = Bid.objects.filter(bidClosed=False).count()
     nofInvestors = 0
