@@ -69,6 +69,7 @@
                     Bank Details
                 </button>
             </div>
+            
             <form class="form" action="{% url 'upload_verification_data' %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div id="ver_form-inner-one" >

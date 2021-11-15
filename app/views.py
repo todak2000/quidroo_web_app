@@ -7,7 +7,7 @@ from django.contrib.sites.shortcuts import get_current_site
 import jwt
 import json
 from django.db.models import Sum, Q, Max
-from app.models import (RecentActivity, User, VendorList,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification)
+from app.models import (Document, RecentActivity, User, VendorList,Verification, Invoice, Bid, Wallet, Transaction, OnboardingVerification)
 from CustomCode import (password_functions, string_generator, validator, credit_score)
 from django.core.paginator import Paginator
 
@@ -60,7 +60,6 @@ def profile_page(request):
         user_id = decrypedToken['user_id']
         user_data = User.objects.get(user_id=user_id)
         user_ver = Verification.objects.get(user=user_data)
-
         return_data = {
             "success": True,
             "status" : 200,
@@ -70,11 +69,16 @@ def profile_page(request):
             "name": user_data.name,
             "company_name": user_data.company_name,
             "role": user_data.role,
+            "baseUrl":get_current_site(request).domain,
             "ver_data": user_ver,
-            "avatar": user_data.avatar_url,
+            "bank_statement": 'http://'+get_current_site(request).domain+'/media/'+str(user_ver.bank_statement), 
+            "cac_certificate": 'http://'+get_current_site(request).domain+'/media/'+str(user_ver.cac_certificate), 
+            "idCard": 'http://'+get_current_site(request).domain+'/media/'+str(user_ver.user_Idcard), 
+            "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
             "user_data": user_data
            
         }
+       
         if user_data.role == "seller":
             return render(request,"seller/profile.html", return_data)
             # return render(request,"seller/wallet.html", return_data)
@@ -114,7 +118,7 @@ def upload_page(request):
             "name": user_data.name,
             "company_name": user_data.company_name,
             "role": user_data.role,
-            "avatar": user_data.avatar_url,
+            "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
             "vendors": vendorList
 
         }
@@ -165,7 +169,7 @@ def dashboard_page(request):
                 "token": request.session['token'],
                 "user_id": user_data.user_id,
                 "name": user_data.name,
-                "avatar": user_data.avatar_url,
+                "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
                 "company_name": user_data.company_name,
                 "credit_score": user_data.credit_score,
                 "role": user_data.role,
@@ -206,7 +210,7 @@ def dashboard_page(request):
                 "name": user_data.name,
                 "now": datetime.date.today(),
                 "email":user_data.email,
-                "avatar": user_data.avatar_url,
+                "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
                 "company_name": user_data.company_name,
                 "credit_score": user_data.credit_score,
                 "role": user_data.role,
@@ -260,7 +264,7 @@ def verification_page(request):
             "company_name": user_data.company_name,
             "credit_score": user_data.credit_score,
             "role": user_data.role,
-            "avatar": user_data.avatar_url,
+            "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
             "awaiting_approval": user_ver.awaiting_approval,
            
         }
@@ -310,7 +314,7 @@ def wallet_page(request):
             "local_transaction": local_tx,
             "account_name":user_ver.account_name,
             "account_no": user_ver.account_no,
-            "avatar": user_data.avatar_url,
+            "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
             "bank": user_ver.bank
         }
         if user_data.role == "seller":
@@ -346,7 +350,26 @@ def invoices_page(request):
         noOfInvoices = Invoice.objects.filter(invoice_state=2).count()
         
         if user_data.role == "seller":
-            paginator = Paginator(invoices, 10)
+            
+            num = len(invoices)
+            invoiceList = []
+            for i in range(0,num):
+                due_date = invoices[i].due_date
+                additional_details  = invoices[i].additional_details
+                invoice_amount  = invoices[i].invoice_amount
+                invoice_state = invoices[i].invoice_state
+                vendor_name = invoices[i].vendor_name
+                invoice_url = invoices[i].invoice_url
+                to_json = {
+                    "invoice_state": invoice_state,
+                    "additional_details": additional_details,
+                    "invoice_amount": invoice_amount,
+                    "vendor_name": vendor_name,
+                    "invoice_url":'http://'+get_current_site(request).domain+'/media/'+str(invoice_url),
+                    "due_date": due_date.strftime('%Y-%m-%d')
+                }
+                invoiceList.append(to_json)
+            paginator = Paginator(invoiceList, 10)
             page_number = request.GET.get('page')
             page_obj = paginator.get_page(page_number)
             return_data = {
@@ -357,32 +380,73 @@ def invoices_page(request):
                 "name": user_data.name,
                 "token": request.session['token'],
                 "user_id": user_data.user_id,
-                "avatar": user_data.avatar_url,
+                "host":'http://'+get_current_site(request).domain+'/media/',
+                "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
                 "company_name": user_data.company_name,
                 "role": user_data.role,
-                "invoices": invoices,
+                # "invoices": invoiceList,
                 "invoices": page_obj
                 # 'page_obj': 
             }
             return render(request,"seller/invoices.html", return_data)
         elif user_data.role == "investor":
-            paginator = Paginator(invoices2, 10)
-            page_number = request.GET.get('page')
-            page_obj = paginator.get_page(page_number)
-            return_data = {
-                "success": True,
-                "status" : 200,
-                "activated": user_data.verified,
-                "message": "Successfull",
-                "name": user_data.name,
-                "token": request.session['token'],
-                "user_id": user_data.user_id,
-                "avatar": user_data.avatar_url,
-                "company_name": user_data.company_name,
-                "role": user_data.role,
-                "invoices": page_obj,
-                "noOfInvoices":noOfInvoices
-            }
+            num = len(invoices2)
+            invoiceList = []
+            if num >0:
+                for i in range(0,num):
+                    due_date = invoices2[i].due_date
+                    id = invoices2[i].id
+                    additional_details  = invoices2[i].additional_details
+                    invoice_amount  = invoices2[i].invoice_amount
+                    invoice_state = invoices2[i].invoice_state
+                    receivable_amount = invoices2[i].receivable_amount
+                    vendor_name = invoices2[i].vendor_name
+                    invoice_url = invoices2[i].invoice_url
+                    to_json = {
+                        "id":id,
+                        "invoice_state": invoice_state,
+                        "additional_details": additional_details,
+                        "invoice_amount": invoice_amount,
+                        "receivable_amount":receivable_amount,
+                        "vendor_name": vendor_name,
+                        "invoice_url":'http://'+get_current_site(request).domain+'/media/'+str(invoice_url),
+                        # "due_date": due_date.strftime('%Y-%m-%d')
+                        "due_date": due_date
+                    }
+                    invoiceList.append(to_json)
+                paginator = Paginator(invoiceList, 10)
+                page_number = request.GET.get('page')
+                page_obj = paginator.get_page(page_number)
+                return_data = {
+                    "success": True,
+                    "status" : 200,
+                    "activated": user_data.verified,
+                    "message": "Successfull",
+                    "name": user_data.name,
+                    "token": request.session['token'],
+                    "user_id": user_data.user_id,
+                    "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
+                    "company_name": user_data.company_name,
+                    "role": user_data.role,
+                    "invoices": page_obj,
+                    "noOfInvoices":noOfInvoices
+                }
+            else:
+                return_data = {
+                    "success": True,
+                    "status" : 200,
+                    "activated": user_data.verified,
+                    "message": "Successfull",
+                    "name": user_data.name,
+                    "token": request.session['token'],
+                    "user_id": user_data.user_id,
+                    "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
+                    "company_name": user_data.company_name,
+                    "role": user_data.role,
+                    "invoices": "no INvoices",
+                    "noOfInvoices":noOfInvoices
+                }
+            
             return render(request,"investor/invoices.html", return_data)
         elif user_data.role == "vendor":
             return render(request,"seller/invoices.html")
@@ -409,6 +473,30 @@ def bids_page(request):
         user_data = User.objects.get(user_id=user_id)
         activeBids = Bid.objects.filter(bidder_id=user_data.user_id, invoice__winning_buyer_id="0").count()
         activeBidss = Bid.objects.filter(bidder_id=user_data.user_id, invoice__winning_buyer_id="0")
+        num = len(activeBidss)
+        bidList = []
+        for i in range(0,num):
+            id= activeBidss[i].id
+            due_date = activeBidss[i].invoice.due_date
+            additional_details  = activeBidss[i].invoice.additional_details
+            invoice_amount  = activeBidss[i].invoice.invoice_amount
+            invoice_state = activeBidss[i].invoice.invoice_state
+            vendor_name = activeBidss[i].invoice.vendor_name
+            invoice_url = activeBidss[i].invoice.invoice_url
+            bidder_amount = activeBidss[i].amount
+            buyer_ror = activeBidss[i].buyer_ror
+            to_json = {
+                "invoice_state": invoice_state,
+                "additional_details": additional_details,
+                "invoice_amount": invoice_amount,
+                "vendor_name": vendor_name,
+                "buyer_ror":buyer_ror,
+                "invoice_url":'http://'+get_current_site(request).domain+'/media/'+str(invoice_url),
+                "due_date": due_date,
+                "bidder_amount": bidder_amount,
+                "id":id
+            }
+            bidList.append(to_json)
         purchasedInvoicesCount = Invoice.objects.filter(winning_buyer_id=user_id).count()
         purchasedInvoices = Invoice.objects.filter(winning_buyer_id=user_id, invoice_state=3).order_by('-created_at')[:10]
         completedInvoices = Invoice.objects.filter(winning_buyer_id=user_id, invoice_state=4).count()
@@ -427,12 +515,13 @@ def bids_page(request):
             "user_id": user_data.user_id,
             "name": user_data.name,
             "now": datetime.date.today(),
-            "avatar": user_data.avatar_url,
+            "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
             "company_name": user_data.company_name,
             "credit_score": user_data.credit_score,
             "role": user_data.role,
             "activeBid": activeBids,
-            "activeBidss": activeBidss,
+            # "activeBidss": activeBidss,
+            "activeBidss": bidList,
             "purchasedInvoices": page_obj,
             "purchasedInvoicesCount": purchasedInvoicesCount,
             "completedInvoices":completedInvoices,
@@ -480,7 +569,7 @@ def stats_page(request):
             "token": request.session['token'],
             "user_id": user_data.user_id,
             "name": user_data.name,
-            "avatar": user_data.avatar_url,
+            "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
             "company_name": user_data.company_name,
             "role": user_data.role,
              "vendors":vendors,
@@ -1096,7 +1185,8 @@ def topup(request):
 
 @api_view(["POST"])
 def upload_invoice(request):
-    file = request.data.get("file",None)
+    # file = request.data.get("file",None)
+    file= request.FILES['file']
     invoice_name = request.data.get("invoice_name",None)
     invoice_amount = request.data.get("invoice_amount",None)
     datee = request.data.get("invoice_date",None)
@@ -1108,8 +1198,8 @@ def upload_invoice(request):
     vendor_phone = request.data.get("vendor_phone",None)
     vendor_email = request.data.get("vendor_email",None)
     vendor_contact = request.data.get("vendor_contact",None)
-    invoice_file= cloudinary.uploader.upload(file)
-    if invoice_file:
+    # invoice_file= cloudinary.uploader.upload(file)
+    if file is not "":
         if 'token' in request.session: 
             decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
             user_id = decrypedToken['user_id']
@@ -1118,7 +1208,7 @@ def upload_invoice(request):
                 newVendor = VendorList(name=vendor_name)
                 newVendor.save()
             receivable_amount = float(invoice_amount)*(1-(float(user_data.credit_score)/100))
-            newUpload = Invoice(seller_id=user_id, additional_details= invoice_name,invoice_url=invoice_file["secure_url"], due_date=invoice_date, vendor_name=vendor_name, vendor_contact_name=vendor_contact,vendor_email  = vendor_email , vendor_phone=vendor_phone, invoice_amount=invoice_amount, receivable_amount=receivable_amount, seller_ror=user_data.credit_score)
+            newUpload = Invoice(seller_id=user_id, additional_details= invoice_name,invoice_url=file, due_date=invoice_date, vendor_name=vendor_name, vendor_contact_name=vendor_contact,vendor_email  = vendor_email , vendor_phone=vendor_phone, invoice_amount=invoice_amount, receivable_amount=receivable_amount, seller_ror=user_data.credit_score)
             newUpload.save()
             newActivity = RecentActivity(activity="Uploaded an Invoice - "+str(invoice_name), user_id=user_id)
             newActivity.save()
@@ -1130,13 +1220,16 @@ def upload_invoice(request):
                 "message": str(user_data.name) or str(user_data.company_name) + "! your Invoice has been successfully uploaded and pending approval",
                 "company_name": user_data.company_name,
                 "role": user_data.role,
-                "invoice_url": newUpload.invoice_url
+                "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
+                "invoice_url": 'http://'+get_current_site(request).domain+'/media/'+str(newUpload.invoice_url),
+                
             }
             else:
                 return_data = {
                 "success": False,
                 "message": "Sorry! an error occured",
                 "status" : 205,
+                "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
             }
             
             
@@ -1165,8 +1258,8 @@ def invoice_search(request):
         user_data = User.objects.get(user_id=user_id)
         today = DT.date.today()
         selectedDate = today + DT.timedelta(days=date)
-        print("status: ",status)
-        print("date: ",date)
+        # print("status: ",status)
+        # print("date: ",date)
         if status == "all" and date == 0:
             searchInvoices = Invoice.objects.filter(seller_id=user_id).order_by('-created_at')[:20]
         elif status == "all" and date != 0:
@@ -1189,7 +1282,7 @@ def invoice_search(request):
                 "additional_details": additional_details,
                 "invoice_amount": invoice_amount,
                 "vendor_name": vendor_name,
-                "invoice_url":invoice_url,
+                "invoice_url":'http://'+get_current_site(request).domain+'/media/'+str(invoice_url),
                 "due_date": due_date.strftime('%Y-%m-%d')
             }
             searchInvoicesList.append(to_json)
@@ -1239,7 +1332,8 @@ def invoice_details(request):
             "receivable_amount": invoiceSelected.receivable_amount,
             "vendor_name": invoiceSelected.vendor_name,
             "due_date": invoiceSelected.due_date.strftime('%Y-%m-%d'),
-            "invoiceURL": invoiceSelected.invoice_url,
+            # "due_date": invoiceSelected.due_date,
+            # "invoiceURL":'http://'+get_current_site(request).domain+'/media/'+str(invoiceSelected.invoice_url),
             "approved_time":bidClosingDate
         }
         return Response(return_data)
@@ -1276,7 +1370,7 @@ def bid_details(request):
             "receivable_amount": invoiceSelected.receivable_amount,
             "vendor_name": invoiceSelected.vendor_name,
             "due_date": invoiceSelected.due_date.strftime('%Y-%m-%d'),
-            "invoiceURL": invoiceSelected.invoice_url,
+            # "invoiceURL": invoiceSelected.invoice_url,
             "myBid": bidSelected.buyer_ror,
             "topBid":topBid["buyer_ror__min"],
             "totalBids":totalBids,
@@ -1297,10 +1391,14 @@ def upload_verification_data(request):
     user_id = decrypedToken['user_id']
     user_data = User.objects.get(user_id=user_id)
     if user_data.role == "seller":
-        idCard = request.data.get("file_id",None)
-        pics = request.data.get("pics_id",None) 
-        cac_cert = request.data.get("cac_cert",None)
-        bank_statement = request.data.get("bank_statement",None)
+        # idCard = request.data.get("file_id",None)
+        # pics = request.data.get("pics_id",None) 
+        idCard = request.FILES['file_id']
+        pics = request.FILES['pics_id']
+        cac_cert = request.FILES['cac_cert']
+        bank_statement = request.FILES['bank_statement']
+        # cac_cert = request.data.get("cac_cert",None)
+        # bank_statement = request.data.get("bank_statement",None)
 
         tin_no = request.data.get("tin_no",None)
         nin_no = request.data.get("nin_no",None)
@@ -1309,19 +1407,19 @@ def upload_verification_data(request):
         verAccName = request.data.get("ver-acc-name",None)
         bvn_no = request.data.get("ver-bvn",None)
 
-        id_cloud= cloudinary.uploader.upload(idCard)
-        pics_cloud= cloudinary.uploader.upload(pics)
-        cac_cloud= cloudinary.uploader.upload(cac_cert)
-        bank_statement_cloud= cloudinary.uploader.upload(bank_statement)
+        # id_cloud= cloudinary.uploader.upload(idCard)
+        # pics_cloud= cloudinary.uploader.upload(pics)
+        # cac_cloud= cloudinary.uploader.upload(cac_cert)
+        # bank_statement_cloud= cloudinary.uploader.upload(bank_statement)
 
-        if bank_statement_cloud and cac_cloud and id_cloud and pics_cloud:
+        if decrypedToken:
             # decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
             # user_id = decrypedToken['user_id']
             # user_data = User.objects.get(user_id=user_id)
             newVerData = Verification.objects.get(user=user_data)
-            newVerData.user_Idcard=id_cloud["secure_url"]
-            newVerData.bank_statement=bank_statement_cloud["secure_url"]
-            newVerData.cac_certificate=cac_cloud["secure_url"]
+            newVerData.user_Idcard=idCard
+            newVerData.bank_statement=bank_statement
+            newVerData.cac_certificate=cac_cert
             newVerData.nin=nin_no
             newVerData.bvn=bvn_no
             newVerData.account_name=verAccName
@@ -1330,7 +1428,7 @@ def upload_verification_data(request):
             newVerData.tin=tin_no
             newVerData.awaiting_approval=True 
             newVerData.save()
-            user_data.avatar_url = pics_cloud["secure_url"]
+            user_data.avatar_url = pics
             user_data.save()
             newActivity = RecentActivity(activity="Uploaded an Verification Data", user_id=user_id)
             newActivity.save()
@@ -1370,12 +1468,14 @@ def upload_verification_data(request):
                 "company_name": user_data.company_name,
                 "credit_score": user_data.credit_score,
                 "role": user_data.role,
+                "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
             }
             else:
                 return_data = {
                 "success": False,
                 "message": "Sorry! an error occured",
                 "status" : 205,
+                "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
             }
                 
         else:
@@ -1386,13 +1486,14 @@ def upload_verification_data(request):
             }
         return render(request,"seller/verification.html", return_data)
     else:
-        pics = request.data.get("pics_id",None) 
+        # pics = request.data.get("pics_id",None) 
+        pics = request.FILES['pics_id']
         verBank = request.data.get("ver-bank",None)
         verAccNo = request.data.get("ver-acc-no",None)
         verAccName = request.data.get("ver-acc-name",None)
         bvn_no = request.data.get("ver-bvn",None)
 
-        pics_cloud= cloudinary.uploader.upload(pics)
+        # pics_cloud= cloudinary.uploader.upload(pics)
         newVerData = Verification.objects.get(user=user_data)
         newVerData.bvn=bvn_no
         newVerData.account_name=verAccName
@@ -1400,7 +1501,8 @@ def upload_verification_data(request):
         newVerData.bank=verBank
         newVerData.awaiting_approval=False 
         newVerData.save()
-        user_data.avatar_url = pics_cloud["secure_url"]
+        user_data.avatar_url = pics
+        # user_data.avatar_url = pics_cloud["secure_url"]
         user_data.save()
         newActivity = RecentActivity(activity="Updated your Profile Data", user_id=user_id)
         newActivity.save()
@@ -1419,12 +1521,14 @@ def upload_verification_data(request):
             "company_name": user_data.company_name,
             "credit_score": user_data.credit_score,
             "role": user_data.role,
+            "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
         }
         else:
             return_data = {
             "success": False,
             "message": "Sorry! an error occured",
             "status" : 205,
+            "avatar": 'http://'+get_current_site(request).domain+'/media/'+str(user_data.avatar_url),
         }
             
 
@@ -1758,16 +1862,110 @@ def expired_bid_check():
 def admin_dashboard_page(request):
     try:
         awaitingInvoices = Invoice.objects.filter(invoice_state=0).order_by('-created_at')
+        num1 = len(awaitingInvoices)
+        if num1 >=0:
+            awaitingList = []
+            for i in range(0,num1):
+                id= awaitingInvoices[i].id
+                due_date = awaitingInvoices[i].due_date
+                additional_details  = awaitingInvoices[i].additional_details
+                invoice_amount  = awaitingInvoices[i].invoice_amount
+                invoice_state = awaitingInvoices[i].invoice_state
+                vendor_name = awaitingInvoices[i].vendor_name
+                invoice_url = awaitingInvoices[i].invoice_url
+                receivable_amount = awaitingInvoices[i].receivable_amount
+                to_json = {
+                    "invoice_state": invoice_state,
+                    "additional_details": additional_details,
+                    "invoice_amount": invoice_amount,
+                    "vendor_name": vendor_name,
+                    "receivable_amount":receivable_amount,
+                    "invoice_url":'http://'+get_current_site(request).domain+'/media/'+str(invoice_url),
+                    "due_date": due_date,
+                    "id":id
+                }
+                awaitingList.append(to_json)
         biddableInvoices = Invoice.objects.filter(invoice_state=2).order_by('-created_at')
+        num2 = len(biddableInvoices)
+        if num2 >=0:
+            biddableList = []
+            for i in range(0,num2):
+                id= biddableInvoices[i].id
+                due_date = biddableInvoices[i].due_date
+                additional_details  = biddableInvoices[i].additional_details
+                invoice_amount  = biddableInvoices[i].invoice_amount
+                invoice_state = biddableInvoices[i].invoice_state
+                vendor_name = biddableInvoices[i].vendor_name
+                invoice_url = biddableInvoices[i].invoice_url
+                receivable_amount = biddableInvoices[i].receivable_amount
+                winning_buyer_id = biddableInvoices[i].winning_buyer_id
+                to_json = {
+                    "invoice_state": invoice_state,
+                    "additional_details": additional_details,
+                    "invoice_amount": invoice_amount,
+                    "vendor_name": vendor_name,
+                    "receivable_amount":receivable_amount,
+                    "invoice_url":'http://'+get_current_site(request).domain+'/media/'+str(invoice_url),
+                    "due_date": due_date,
+                    "id":id,
+                    "winning_buyer_id":winning_buyer_id
+                }
+                biddableList.append(to_json)
         maturedInvoices = Invoice.objects.filter(invoice_state=3).order_by('-created_at')
+        num3 = len(maturedInvoices)
+        if num3 >=0:
+            maturedList = []
+            for i in range(0,num3):
+                id= maturedInvoices[i].id
+                due_date = maturedInvoices[i].due_date
+                additional_details  = maturedInvoices[i].additional_details
+                invoice_amount  = maturedInvoices[i].invoice_amount
+                invoice_state = maturedInvoices[i].invoice_state
+                vendor_name = maturedInvoices[i].vendor_name
+                invoice_url = maturedInvoices[i].invoice_url
+                receivable_amount = maturedInvoices[i].receivable_amount
+                to_json = {
+                    "invoice_state": invoice_state,
+                    "additional_details": additional_details,
+                    "invoice_amount": invoice_amount,
+                    "vendor_name": vendor_name,
+                    "receivable_amount":receivable_amount,
+                    "invoice_url":'http://'+get_current_site(request).domain+'/media/'+str(invoice_url),
+                    "due_date": due_date,
+                    "id":id
+                }
+                maturedList.append(to_json)
         completedInvoices = Invoice.objects.filter(invoice_state=4).order_by('-created_at')
+        num4 = len(completedInvoices)
+        if num4 >=0:
+            completedList = []
+            for i in range(0,num4):
+                id= completedInvoices[i].id
+                due_date = completedInvoices[i].due_date
+                additional_details  = completedInvoices[i].additional_details
+                invoice_amount  = completedInvoices[i].invoice_amount
+                invoice_state = completedInvoices[i].invoice_state
+                vendor_name = completedInvoices[i].vendor_name
+                invoice_url = completedInvoices[i].invoice_url
+                receivable_amount = completedInvoices[i].receivable_amount
+                to_json = {
+                    "invoice_state": invoice_state,
+                    "additional_details": additional_details,
+                    "invoice_amount": invoice_amount,
+                    "vendor_name": vendor_name,
+                    "receivable_amount":receivable_amount,
+                    "invoice_url":'http://'+get_current_site(request).domain+'/media/'+str(invoice_url),
+                    "due_date": due_date,
+                    "id":id
+                }
+                completedList.append(to_json)
         return_data = {
             "success": True,
             "status" : 200,
-            "invoices": awaitingInvoices,
-            "biddable": biddableInvoices, 
-            "matured": maturedInvoices, 
-            "completed": completedInvoices,
+            "invoices": awaitingList,
+            "biddable": biddableList, 
+            "matured": maturedList, 
+            "completed": completedList,
 
             "invoicesCount":awaitingInvoices.count(),
             "biddableCount":biddableInvoices.count(),
@@ -1788,32 +1986,124 @@ def admin_dashboard_page(request):
 def approve_invoice(request):
     invoice_id = request.POST["invoice_id"]
     try:
-        updatedInvoice = Invoice.objects.get(id=invoice_id ).order_by('-created_at')
+        updatedInvoice = Invoice.objects.get(id=invoice_id)
         awaitingInvoices = Invoice.objects.filter(invoice_state=0).order_by('-created_at')
+        num1 = len(awaitingInvoices)
+        if num1 >= 0:
+            awaitingList = []
+            for i in range(0,num1):
+                id= awaitingInvoices[i].id
+                due_date = awaitingInvoices[i].due_date
+                additional_details  = awaitingInvoices[i].additional_details
+                invoice_amount  = awaitingInvoices[i].invoice_amount
+                invoice_state = awaitingInvoices[i].invoice_state
+                vendor_name = awaitingInvoices[i].vendor_name
+                invoice_url = awaitingInvoices[i].invoice_url
+                receivable_amount = awaitingInvoices[i].receivable_amount
+                to_json = {
+                    "invoice_state": invoice_state,
+                    "additional_details": additional_details,
+                    "invoice_amount": invoice_amount,
+                    "vendor_name": vendor_name,
+                    "receivable_amount":receivable_amount,
+                    "invoice_url":'http://'+get_current_site(request).domain+'/media/'+str(invoice_url),
+                    "due_date": due_date,
+                    "id":id
+                }
+                awaitingList.append(to_json)
         biddableInvoices = Invoice.objects.filter(invoice_state=2).order_by('-created_at')
+        num2 = len(biddableInvoices)
+        if num2 >=0:
+            biddableList = []
+            for i in range(0,num2):
+                id= biddableInvoices[i].id
+                due_date = biddableInvoices[i].due_date
+                additional_details  = biddableInvoices[i].additional_details
+                invoice_amount  = biddableInvoices[i].invoice_amount
+                invoice_state = biddableInvoices[i].invoice_state
+                vendor_name = biddableInvoices[i].vendor_name
+                invoice_url = biddableInvoices[i].invoice_url
+                receivable_amount = biddableInvoices[i].receivable_amount
+                winning_buyer_id = biddableInvoices[i].winning_buyer_id
+                to_json = {
+                    "invoice_state": invoice_state,
+                    "additional_details": additional_details,
+                    "invoice_amount": invoice_amount,
+                    "vendor_name": vendor_name,
+                    "receivable_amount":receivable_amount,
+                    "invoice_url":'http://'+get_current_site(request).domain+'/media/'+str(invoice_url),
+                    "due_date": due_date,
+                    "id":id,
+                    "winning_buyer_id":winning_buyer_id
+                }
+                biddableList.append(to_json)
         maturedInvoices = Invoice.objects.filter(invoice_state=3).order_by('-created_at')
+        num3 = len(maturedInvoices)
+        if num3 >=0:
+            maturedList = []
+            for i in range(0,num3):
+                id= maturedInvoices[i].id
+                due_date = maturedInvoices[i].due_date
+                additional_details  = maturedInvoices[i].additional_details
+                invoice_amount  = maturedInvoices[i].invoice_amount
+                invoice_state = maturedInvoices[i].invoice_state
+                vendor_name = maturedInvoices[i].vendor_name
+                invoice_url = maturedInvoices[i].invoice_url
+                receivable_amount = maturedInvoices[i].receivable_amount
+                to_json = {
+                    "invoice_state": invoice_state,
+                    "additional_details": additional_details,
+                    "invoice_amount": invoice_amount,
+                    "vendor_name": vendor_name,
+                    "receivable_amount":receivable_amount,
+                    "invoice_url":'http://'+get_current_site(request).domain+'/media/'+str(invoice_url),
+                    "due_date": due_date,
+                    "id":id
+                }
+                maturedList.append(to_json)
         completedInvoices = Invoice.objects.filter(invoice_state=4).order_by('-created_at')
-        if updatedInvoice.invoice_state!=2:
+        num4 = len(completedInvoices)
+        if num4 >=0:
+            completedList = []
+            for i in range(0,num4):
+                id= completedInvoices[i].id
+                due_date = completedInvoices[i].due_date
+                additional_details  = completedInvoices[i].additional_details
+                invoice_amount  = completedInvoices[i].invoice_amount
+                invoice_state = completedInvoices[i].invoice_state
+                vendor_name = completedInvoices[i].vendor_name
+                invoice_url = completedInvoices[i].invoice_url
+                receivable_amount = completedInvoices[i].receivable_amount
+                to_json = {
+                    "invoice_state": invoice_state,
+                    "additional_details": additional_details,
+                    "invoice_amount": invoice_amount,
+                    "vendor_name": vendor_name,
+                    "receivable_amount":receivable_amount,
+                    "invoice_url":'http://'+get_current_site(request).domain+'/media/'+str(invoice_url),
+                    "due_date": due_date,
+                    "id":id
+                }
+                completedList.append(to_json)
+        if updatedInvoice.invoice_state==2:
             pass
         else:
             updatedInvoice.invoice_state=2
             updatedInvoice.save()
-            # awaitingInvoices = Invoice.objects.filter(invoice_state=0)
-            # biddableInvoices = Invoice.objects.filter(invoice_state=2)
-            # maturedInvoices = Invoice.objects.filter(invoice_state=3)
-            # completedInvoices = Invoice.objects.filter(invoice_state=4)
         return_data = {
             "success": True,
             "status" : 200,
-            "invoices": awaitingInvoices,
-            "biddable": biddableInvoices, 
-            "matured": maturedInvoices, 
-            "completed": completedInvoices,
+            "message":"hi successful",
+            "invoices": awaitingList,
+            "biddable": biddableList, 
+            "matured": maturedList, 
+            "completed": completedList,
             "invoicesCount":awaitingInvoices.count(),
             "biddableCount":biddableInvoices.count(),
             "maturedCount":maturedInvoices.count(),
             "completedCount":completedInvoices.count() 
         }
+        print(return_data)
         return render(request,"admin/dashboard.html", return_data)
     except Exception as e:
         return_data = {
@@ -1859,8 +2149,9 @@ def admin_invoice_bids(request):
             "receivable_amount": selectedInvoice.receivable_amount,
             "vendor_name": selectedInvoice.vendor_name,
             "due_date": selectedInvoice.due_date.strftime('%Y-%m-%d'),
-            "invoiceURL": selectedInvoice.invoice_url,
+            # "invoiceURL": selectedInvoice.invoice_url,
             "bids": bidList,
+            # "bids": [],
             "approved_time":bidClosingDate
         }
         return Response(return_data)
@@ -1882,7 +2173,7 @@ def close_bids(request):
     invoicesUpdated = 0
     for bid in bids:
         
-        bidClosingDate = bid.invoice.updated_at + DT.timedelta(days=2)  # change bid closing time to 2 or 3 days when ready for production
+        bidClosingDate = bid.invoice.updated_at + DT.timedelta(days=3)  # change bid closing time to 2 or 3 days when ready for production
         closingDate = bidClosingDate.strftime('%Y-%m-%d')
         newTime = today.strftime('%Y-%m-%d')
         # print("BidClosing: ", closingDate)
@@ -1968,23 +2259,15 @@ def close_bids(request):
 @api_view(["GET"])
 def pay_investors(request):
     today = DT.datetime.now()
-    bids = Bid.objects.filter(bidClosed=True).order_by('-created_at')
-    
-    # bidsScanned = Bid.objects.filter(bidClosed=False).count()
+    bids = Bid.objects.filter(bidClosed=True, invoice__invoice_state =3).order_by('-created_at')
     nofInvestors = 0
-    # invoicesUpdated = 0
     for bid in bids:
-        
-        # bidClosingDate = bid.invoice.updated_at + DT.timedelta(days=2)  # change bid closing time to 2 or 3 days when ready for production
-        closingDate = bid.invoice.created_at.strftime('%Y-%m-%d')
+        dueDate = bid.invoice.due_date.strftime('%Y-%m-%d')
         newTime = today.strftime('%Y-%m-%d')
-        # print("BidClosing: ", closingDate)
-        # print('today: ', newTime)
-        if newTime >= closingDate:
-            # bid.invoice. = True
+        print(dueDate)
+        print(newTime)
+        if newTime >= dueDate:
             payeeWallet = Wallet.objects.get(user__user_id=bid.bidder_id)
-            # capital= bid.invoice.receivable_amount
-            # interest = bid.invoice.receivable_amount * bid.invoice.buyer_ror
             payeeWallet.fiat_equivalent = payeeWallet.fiat_equivalent+ bid.amount
             payeeWallet.save()
             updateInvoice = Invoice.objects.get(id=bid.invoice.id)
@@ -2206,3 +2489,17 @@ def confirm_payment(request):
             "message": str(e)
         }
     return render(request,"admin/payment.html", return_data)
+
+def testupload(request):
+    data = request.FILES['myfile'] # this is my file
+    up = Document(docfile = data)
+    up.save()
+    if up:
+        print("successful")
+    # return_data = {
+    #         "success": False,
+    #         "status" : 201,
+    #         "message": str(e)
+    #     }
+
+    return render(request,"onboarding/index.html")

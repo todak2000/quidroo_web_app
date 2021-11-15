@@ -38,6 +38,10 @@
     <div id="loading">
       <img id="loading-image" src="{% static 'img/favicon.png' %}" alt="Loading..." />
     </div>  
+    <!-- <form method="post" enctype="multipart/form-data" action="{% url 'testupload' %}">{% csrf_token %} 
+      <input type="file" name="myfile" />
+      <input type="submit" name="submit" value="Upload" />
+  </form> -->
     {% block body%}
     
     {% endblock %}

@@ -69,10 +69,10 @@
                 <!-- documentation tab -->
                 <div class="tab-pane fade" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">
                     <label class="lb">User Identity Card </label>
-                    {% if ver_data.user_Idcard %}
+                    {% if idCard %}
                     <div class="doc-flexy">
                         <p>  
-                            <img src="{% static 'img/blue_mark.svg' %}" class="img-fluid mr-3"  /><a target="_blank" href="{{ver_data.user_Idcard}}">View ID Card</a>
+                            <img src="{% static 'img/blue_mark.svg' %}" class="img-fluid mr-3"  /><a target="_blank" href="{{idCard}}">View ID Card</a>
                         </p>
                         <img src="{% static 'img/delete.svg' %}"  class="img-fluid" />
                     </div>
@@ -82,10 +82,10 @@
                     <br>
                     
                     <label class="lb">CAC Certificate </label>
-                    {% if ver_data.cac_certificate %}
+                    {% if cac_certificate %}
                     <div class="doc-flexy">
                         <p>  
-                            <img src="{% static 'img/blue_mark.svg' %}" class="img-fluid mr-3"  /><a target="_blank" href="{{ver_data.cac_certificate}}">View CAC Certificate</a>
+                            <img src="{% static 'img/blue_mark.svg' %}" class="img-fluid mr-3"  /><a target="_blank" href="{{cac_certificate}}">View CAC Certificate</a>
                         </p>
                         <img src="{% static 'img/delete.svg' %}"  class="img-fluid" />
                     </div>
@@ -94,10 +94,10 @@
                     {% endif %}
                     <br>
                     <label class="lb">Bank Statement </label>
-                    {% if ver_data.bank_statement %}
+                    {% if bank_statement %}
                     <div class="doc-flexy">
                         <p>  
-                            <img src="{% static 'img/blue_mark.svg' %}" class="img-fluid mr-3"  /><a target="_blank" href="{{ver_data.bank_statement}}">View Bank Statement</a>
+                            <img src="{% static 'img/blue_mark.svg' %}" class="img-fluid mr-3"  /><a target="_blank" href="{{bank_statement}}">View Bank Statement</a>
                         </p>
                         <img src="{% static 'img/delete.svg' %}"  class="img-fluid" />
                     </div>

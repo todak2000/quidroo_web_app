@@ -47,4 +47,6 @@ urlpatterns = [
     path('verify_seller',views.verify_seller, name='verify_seller'),
     path('unverify_seller',views.unverify_seller, name='unverify_seller'),
     path('confirm_payment',views.confirm_payment, name='confirm_payment'),
+
+    path('testupload',views.testupload, name='testupload'),
 ]

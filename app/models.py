@@ -18,7 +18,7 @@ class User(models.Model):
     role = models.TextField(max_length=50,verbose_name="User role",default="quidroo")
     verified = models.BooleanField(default=False)
     email_verified = models.BooleanField(default=False)
-    avatar_url = models.CharField(max_length=200, verbose_name="Profile Pics", null=True)
+    avatar_url = models.FileField(upload_to='avatars', verbose_name="Profile Pics", null=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date Created")
    
     def __str__(self):
@@ -27,7 +27,7 @@ class User(models.Model):
 class Invoice(models.Model):
     class Meta:
         db_table = "Invoice_table"
-    invoice_url = models.CharField(max_length=500,unique=True, verbose_name="Invoice Url")
+    invoice_url = models.FileField(upload_to='invoices', unique=True, verbose_name="Invoice Doc")
     due_date = models.DateField(verbose_name="Date Invoice is Due")
     vendor_name = models.CharField(max_length=30,verbose_name="Vendor Name",blank=True)
     vendor_contact_name = models.CharField(max_length=30,verbose_name="Vendor Contact Name",blank=True)
@@ -84,13 +84,13 @@ class Verification(models.Model):
     class Meta:
         db_table = "User_Verification_data_table"
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    user_Idcard = models.CharField(max_length=300,verbose_name="ID Card",blank=True)
+    user_Idcard = models.FileField(upload_to='idcards',verbose_name="ID Card",blank=True)
     cac_no = models.CharField(max_length=300,verbose_name="CAC No",  blank=True)
-    cac_certificate = models.CharField(max_length=300, verbose_name="CAC Certificate")
+    cac_certificate = models.FileField(upload_to='cacs', verbose_name="CAC Certificate")
     nin = models.CharField(max_length=105, null=True, verbose_name="NIN")
     tin = models.CharField(max_length=105,  null=True, verbose_name="TIN")
     bvn = models.CharField(max_length=200,verbose_name="BVN",  null=True,)
-    bank_statement = models.CharField(max_length=200,verbose_name="Bank Statement", null=True)
+    bank_statement = models.FileField(upload_to='cacs',verbose_name="Bank Statement", null=True)
     account_name = models.CharField(max_length=200,verbose_name="Account Name", null=True)
     account_no = models.TextField(max_length=50,verbose_name="Account Number")
     bank = models.CharField(max_length=30, verbose_name="Bank", null=True)
@@ -151,3 +151,10 @@ class RecentActivity(models.Model):
 
     def __str__(self):
         return f"{self.user_id} - {self.activity} - {self.date_added}"
+
+class Document(models.Model):
+    docfile = models.FileField(upload_to='documents/%Y/%m/%d')
+    date_added = models.DateTimeField(auto_now_add=True,)
+
+    def __str__(self):
+        return f"{self.docfile} - {self.date_added}"

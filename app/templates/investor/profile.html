@@ -17,6 +17,7 @@
                 {% elif avatar is None  %}
                 <img src= "{% static 'img/avatar.png' %}" alt="avatar" class="img-sm" style="border-radius: 50%;">
                 {% else %}
+                
                 <img src= "{{avatar}}" alt="avatar" class="img-sm">
                 {% endif %}
                 <img src= "{% static 'img/down.svg' %}" alt="avatar" class="ml-2 img-xs">
