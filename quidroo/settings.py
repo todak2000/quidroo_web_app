@@ -107,7 +107,7 @@ if os.getenv("DEVELOPMENT_MODE", "False") == "True":
         }
     }
 elif len(sys.argv) > 0 and sys.argv[1] != 'collectstatic':
-    print(os.environ.get("DATABASE_URL"))
+    # print(os.environ.get("DATABASE_URL"))
     if os.getenv("DATABASE_URL", None) is None:
         raise Exception("DATABASE_URL environment variable not defined")
     DATABASES = {
