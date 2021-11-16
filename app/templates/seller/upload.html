@@ -43,7 +43,7 @@
                             <p style="text-align: center;">{{message}}</p>
                             <a class="view " href="{% url 'upload' %}"> Upload Another Invoice</a>
                             <a class="view-blue " href="{{invoice_url}}" target="_blank"> <img src="{% static 'img/blue-eye.svg' %}" class="mr-2 img-fluid"/> View Invoice</a>
-                            <a class="view-blue " href="{% url 'invoices' %}"> <img src="{% static 'img/blue-back.svg' %}" class="mr-2 img-fluid"/> Back to Invoice</a>
+                            <a class="view-blue " href="{% url 'invoices' %}"> <img src="{% static 'img/blue-back.svg' %}" class="mr-2 img-fluid"/> Back to Invoices Page</a>
                         </div>
                     {% elif message and success == False %}
                         <div class="up-message">
@@ -51,7 +51,7 @@
                             <h3>Invoice Upload Failed</h3>
                             <p style="text-align: center;">{{message}}</p>
                             <a class="view" href="{% url 'upload' %}"> Upload Another Invoice</a>
-                            <a class="view-blue" href="{% url 'invoices' %}"> <img src="{% static 'img/blue-back.svg' %}" class="mr-2 img-fluid"/> Back to Invoice</a>
+                            <a class="view-blue" href="{% url 'invoices' %}"> <img src="{% static 'img/blue-back.svg' %}" class="mr-2 img-fluid"/> Back to Invoices Page</a>
                         </div>
                     {% else %}
                     <div class="flex-between">

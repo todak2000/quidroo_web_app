@@ -20,6 +20,7 @@ from django.http import JsonResponse
 from pysendpulse.pysendpulse import PySendPulse
 from decouple import config
 import cloudinary.uploader
+from imagekitio import ImageKit
 
 REST_API_ID = config("REST_API_ID")
 REST_API_SECRET = config("REST_API_SECRET")
@@ -28,6 +29,13 @@ MEMCACHED_HOST = config("MEMCACHED_HOST")
 SPApiProxy = PySendPulse(REST_API_ID, REST_API_SECRET, TOKEN_STORAGE, memcached_host=MEMCACHED_HOST)
 sender_email = "donotreply@wastecoin.co"
 
+
+
+imagekit = ImageKit(
+    private_key='private_l+mgWcvUo1/DpS4yDY9N2o3jugI=',
+    public_key='public_krtLN9ylnjoIpxJm2LY0a6jm3xc=',
+    url_endpoint='https://ik.imagekit.io/fknrvbf6xta'
+)
 
 
 # Create your views here.
@@ -1108,7 +1116,8 @@ def upload_invoice(request):
     vendor_phone = request.data.get("vendor_phone",None)
     vendor_email = request.data.get("vendor_email",None)
     vendor_contact = request.data.get("vendor_contact",None)
-    invoice_file= cloudinary.uploader.upload(file)
+    invoice_file=imagekit.upload_file(file= file, file_name= "invoice.jpg")
+    # invoice_file= cloudinary.uploader.upload(file)
     if invoice_file:
         if 'token' in request.session: 
             decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
@@ -1118,7 +1127,7 @@ def upload_invoice(request):
                 newVendor = VendorList(name=vendor_name)
                 newVendor.save()
             receivable_amount = float(invoice_amount)*(1-(float(user_data.credit_score)/100))
-            newUpload = Invoice(seller_id=user_id, additional_details= invoice_name,invoice_url=invoice_file["secure_url"], due_date=invoice_date, vendor_name=vendor_name, vendor_contact_name=vendor_contact,vendor_email  = vendor_email , vendor_phone=vendor_phone, invoice_amount=invoice_amount, receivable_amount=receivable_amount, seller_ror=user_data.credit_score)
+            newUpload = Invoice(seller_id=user_id, additional_details= invoice_name,invoice_url=invoice_file["response"]["url"], due_date=invoice_date, vendor_name=vendor_name, vendor_contact_name=vendor_contact,vendor_email  = vendor_email , vendor_phone=vendor_phone, invoice_amount=invoice_amount, receivable_amount=receivable_amount, seller_ror=user_data.credit_score)
             newUpload.save()
             newActivity = RecentActivity(activity="Uploaded an Invoice - "+str(invoice_name), user_id=user_id)
             newActivity.save()
@@ -1309,19 +1318,20 @@ def upload_verification_data(request):
         verAccName = request.data.get("ver-acc-name",None)
         bvn_no = request.data.get("ver-bvn",None)
 
-        id_cloud= cloudinary.uploader.upload(idCard)
-        pics_cloud= cloudinary.uploader.upload(pics)
-        cac_cloud= cloudinary.uploader.upload(cac_cert)
-        bank_statement_cloud= cloudinary.uploader.upload(bank_statement)
-
+        pics_cloud=imagekit.upload_file(file= pics, file_name= "avatar.jpg")
+        id_cloud= imagekit.upload_file(file= idCard, file_name= "idCard.jpg")
+        cac_cloud= imagekit.upload_file(file= cac_cert, file_name= "cac.jpg")
+        bank_statement_cloud= imagekit.upload_file(file= bank_statement, file_name= "bankStatement.jpg")
+        # if pics_cloud:
         if bank_statement_cloud and cac_cloud and id_cloud and pics_cloud:
             # decrypedToken = jwt.decode(request.session['token'],settings.SECRET_KEY, algorithms=['HS256'])
             # user_id = decrypedToken['user_id']
             # user_data = User.objects.get(user_id=user_id)
             newVerData = Verification.objects.get(user=user_data)
-            newVerData.user_Idcard=id_cloud["secure_url"]
-            newVerData.bank_statement=bank_statement_cloud["secure_url"]
-            newVerData.cac_certificate=cac_cloud["secure_url"]
+            newVerData.user_Idcard=id_cloud["response"]["url"]
+            newVerData.bank_statement=bank_statement_cloud["response"]["url"]
+            newVerData.cac_certificate=cac_cloud["response"]["url"]
+            # print(pics_cloud["response"]["url"])
             newVerData.nin=nin_no
             newVerData.bvn=bvn_no
             newVerData.account_name=verAccName
@@ -1330,8 +1340,8 @@ def upload_verification_data(request):
             newVerData.tin=tin_no
             newVerData.awaiting_approval=True 
             newVerData.save()
-            user_data.avatar_url = pics_cloud["secure_url"]
-            user_data.save()
+            user_data.avatar_url = pics_cloud["response"]["url"]
+            # user_data.save()
             newActivity = RecentActivity(activity="Uploaded an Verification Data", user_id=user_id)
             newActivity.save()
             if newVerData and newActivity:
@@ -1416,6 +1426,7 @@ def upload_verification_data(request):
             "token": request.session['token'],
             "user_id": user_data.user_id,
             "name": user_data.name,
+            "avatar": user_data.avatar_url,
             "company_name": user_data.company_name,
             "credit_score": user_data.credit_score,
             "role": user_data.role,
@@ -1788,12 +1799,12 @@ def admin_dashboard_page(request):
 def approve_invoice(request):
     invoice_id = request.POST["invoice_id"]
     try:
-        updatedInvoice = Invoice.objects.get(id=invoice_id ).order_by('-created_at')
+        updatedInvoice = Invoice.objects.get(id=invoice_id )
         awaitingInvoices = Invoice.objects.filter(invoice_state=0).order_by('-created_at')
         biddableInvoices = Invoice.objects.filter(invoice_state=2).order_by('-created_at')
         maturedInvoices = Invoice.objects.filter(invoice_state=3).order_by('-created_at')
         completedInvoices = Invoice.objects.filter(invoice_state=4).order_by('-created_at')
-        if updatedInvoice.invoice_state!=2:
+        if updatedInvoice.invoice_state==2:
             pass
         else:
             updatedInvoice.invoice_state=2
@@ -1882,7 +1893,7 @@ def close_bids(request):
     invoicesUpdated = 0
     for bid in bids:
         
-        bidClosingDate = bid.invoice.updated_at + DT.timedelta(days=2)  # change bid closing time to 2 or 3 days when ready for production
+        bidClosingDate = bid.invoice.updated_at + DT.timedelta(days=-1)  # change bid closing time to 2 or 3 days when ready for production
         closingDate = bidClosingDate.strftime('%Y-%m-%d')
         newTime = today.strftime('%Y-%m-%d')
         # print("BidClosing: ", closingDate)
@@ -1895,7 +1906,7 @@ def close_bids(request):
             if bid and updateInvoice.invoice_state != 3: 
                 updateInvoice.invoice_state = 3
                 winningBidROR = Bid.objects.filter(invoice=updateInvoice).aggregate(Min('created_at'), Min('buyer_ror'))
-                winningBid = Bid.objects.get(buyer_ror=winningBidROR['buyer_ror__min'])
+                winningBid = Bid.objects.get(invoice=updateInvoice, buyer_ror=winningBidROR['buyer_ror__min'])
                 updateInvoice.winning_buyer_id = winningBid.bidder_id
                 updateInvoice.save()
                 winnerData = User.objects.get(user_id=updateInvoice.winning_buyer_id)
@@ -1969,18 +1980,15 @@ def close_bids(request):
 def pay_investors(request):
     today = DT.datetime.now()
     bids = Bid.objects.filter(bidClosed=True,invoice__invoice_state =3).order_by('-created_at')
-    
-    # bidsScanned = Bid.objects.filter(bidClosed=False).count()
     nofInvestors = 0
-    # invoicesUpdated = 0
     for bid in bids:
         
         # bidClosingDate = bid.invoice.updated_at + DT.timedelta(days=2)  # change bid closing time to 2 or 3 days when ready for production
-        closingDate = bid.invoice.created_at.strftime('%Y-%m-%d')
+        dueDate = bid.invoice.due_date.strftime('%Y-%m-%d')
         newTime = today.strftime('%Y-%m-%d')
         # print("BidClosing: ", closingDate)
         # print('today: ', newTime)
-        if newTime >= closingDate:
+        if newTime >= dueDate:
             # bid.invoice. = True
             payeeWallet = Wallet.objects.get(user__user_id=bid.bidder_id)
             # capital= bid.invoice.receivable_amount

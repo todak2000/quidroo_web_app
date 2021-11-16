@@ -16,5 +16,6 @@ stellar-sdk==5.0.0b3
 # django-apscheduler==0.6.0
 APScheduler==3.7.0
 # django-crontab==0.7.1
+django-imagekit==4.1.0
 
 

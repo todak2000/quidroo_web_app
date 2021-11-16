@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'app',
     'cloudinary',
     'rest_framework',
+    'imagekit'
     # 'django_apscheduler',
 ]
 
