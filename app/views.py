@@ -1893,7 +1893,7 @@ def close_bids(request):
     invoicesUpdated = 0
     for bid in bids:
         
-        bidClosingDate = bid.invoice.updated_at + DT.timedelta(days=-1)  # change bid closing time to 2 or 3 days when ready for production
+        bidClosingDate = bid.invoice.updated_at + DT.timedelta(days=1)  # change bid closing time to 2 or 3 days when ready for production
         closingDate = bidClosingDate.strftime('%Y-%m-%d')
         newTime = today.strftime('%Y-%m-%d')
         # print("BidClosing: ", closingDate)
