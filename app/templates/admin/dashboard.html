@@ -84,7 +84,7 @@
                               <img src= "/static/img/invoice-small.svg" alt="upload" class="mr-1"/> 
                               {{i.additional_details}}
                             </td>
-                            <td >{{i.invoice_amount}}</td>
+                            <td >&#8358; {{i.invoice_amount|floatformat:2|intcomma}}</td>
                             <td style="color:#3EAF6E;">&#8358; {{i.receivable_amount|floatformat:2|intcomma}}</td>
                             <td>Due in {{i.due_date|timeuntil}}</td>
                             <td class="mobilell"> {{i.vendor_name}}</td>
@@ -127,7 +127,7 @@
                               <img src= "/static/img/invoice-small.svg" alt="upload" class="mr-1"/> 
                               {{i.additional_details}}
                             </td>
-                            <td >{{i.invoice_amount}}</td>
+                            <td >&#8358; {{i.invoice_amount|floatformat:2|intcomma}}</td>
                             <td style="color:#3EAF6E;">&#8358; {{i.receivable_amount|floatformat:2|intcomma}}</td>
                             <td>Due in {{i.due_date|timeuntil}}</td>
                             <td class="mobilell"> {{i.vendor_name}}</td>
@@ -179,7 +179,7 @@
                               <img src= "/static/img/invoice-small.svg" alt="upload" class="mr-1"/> 
                               {{i.additional_details}}
                             </td>
-                            <td >{{i.invoice_amount}}</td>
+                            <td >&#8358; {{i.invoice_amount|floatformat:2|intcomma}}</td>
                             <td style="color:#3EAF6E;">&#8358; {{i.receivable_amount|floatformat:2|intcomma}}</td>
                             <td>Due in {{i.due_date|timeuntil}}</td>
                             <td class="mobilell"> {{i.vendor_name}}</td>
@@ -224,7 +224,7 @@
                               <img src= "/static/img/invoice-small.svg" alt="upload" class="mr-1"/> 
                               {{i.additional_details}}
                             </td>
-                            <td >{{i.invoice_amount}}</td>
+                            <td >&#8358; {{i.invoice_amount|floatformat:2|intcomma}}</td>
                             <td style="color:#3EAF6E;">&#8358; {{i.receivable_amount|floatformat:2|intcomma}}</td>
                             <td>Due in {{i.due_date|timeuntil}}</td>
                             <td class="mobilell"> {{i.vendor_name}}</td>
