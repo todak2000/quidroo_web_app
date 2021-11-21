@@ -29,6 +29,7 @@
             <button class="btn btn-withdraw" id="check_bids"> Check Bids</button>
             <button class="btn fund-wallet" id="check_investments"> Check Due Investments</button>
             <!-- <a href="{% url 'close_bids' %}" target="_blank" style="color:#5151E0;">Close Bids</a> -->
+            {{message}}
         </div>
         <div class="main-admin-dashboard">
             
@@ -137,7 +138,7 @@
                                 <!-- <td><form action="{% url 'approve_invoice' %}" method="post"> {% csrf_token %}<input name="invoice_id" id="invoice_id" value="{{i.id}}" hidden/><button type="submit" class="btn" name="">Ongoing</button></form></td> -->
                                 <!-- <a href="{{i.invoice_url}}" target="_blank" style="color:#5151E0;"></a> -->
                                 {% else %}
-                                Closed 
+                                <button id="{{i.id}}" class="edit-bid" onclick="adminInvoiceBids(this.id)"  >No Bid</button>
                                 {% endif %}
                             </td>
                             <!-- <td><a href="{{i.id}}" class="btn btn-withdraw">Approve</a></td> -->

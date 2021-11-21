@@ -48,17 +48,17 @@
                     <div class="mobile-card-invoice2 mb-1 pt-3 pb-3" >
                       <div class="mob-flex">
                         <h5 class="i-h5">
-                          {{i.invoice.additional_details}}
+                          {{i.additional_details}}
                         </h5>
                        <h5><span class="roi">1 - 4.5 % </span>ROI</h5>
                       </div>
                       <div class="mob-flex">
-                        <p>Due in {{i.invoice.due_date|timeuntil}}</p>
-                        <p style="padding: 0.5rem; font-size: 1.9rem; color:#081B33; font-family: GeneralSansMedium;">&#8358;{{i.amount|floatformat:2|intcomma}}</p>
+                        <p>Due in {{i.due_date|timeuntil}}</p>
+                        <p style="padding: 0.5rem; font-size: 1.9rem; color:#081B33; font-family: GeneralSansMedium;">&#8358;{{i.bidder_amount|floatformat:2|intcomma}}</p>
                       </div>
                       <div class="mob-flex">
-                          
-                          <p class="mob-p"> My Bid <span class="t-bids3">{{i.buyer_ror}}%</span></p>
+                          <a href="{{i.invoice_url}}" target="_blank" style="color: #5151E0;">View Invoice</a>
+                          <p class="mob-p"> My Bid <span class="t-bids3">{{i.buyer_ror}}% </span></p>
                           <button id="{{i.id}}" class="edit-bid" onclick="editBid(this.id)"  >Edit Bid</button>
                       </div>
                     </div>

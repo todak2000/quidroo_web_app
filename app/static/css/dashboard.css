@@ -60,6 +60,12 @@
     border:0;
     color:#fff;
 }
+.pro-save:hover{
+    text-decoration: none!important;
+    color:#BABECF!important;
+    background: #fff!important;
+    border:1px solid #BABECF;
+}
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
     color: #5151E0;
@@ -314,6 +320,7 @@ a {
     border: 1px solid #E07E24;
     text-decoration: none;
 }
+
 .upload{
     background: #F5F7FC;
     border-radius: 7px;
