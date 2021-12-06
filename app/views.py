@@ -1906,7 +1906,8 @@ def close_bids(request):
             if bid and updateInvoice.invoice_state != 3: 
                 updateInvoice.invoice_state = 3
                 winningBidROR = Bid.objects.filter(invoice=updateInvoice).aggregate(Min('created_at'), Min('buyer_ror'))
-                winningBid = Bid.objects.get(invoice=updateInvoice, buyer_ror=winningBidROR['buyer_ror__min'])
+                # winner = Bid.objects.get(bidder_id).aggregate(Min('created_at'), Min('buyer_ror'))
+                winningBid = Bid.objects.get(invoice=updateInvoice, buyer_ror=winningBidROR['buyer_ror__min'], created_at=winningBidROR['created_at__min'])
                 updateInvoice.winning_buyer_id = winningBid.bidder_id
                 updateInvoice.save()
                 winnerData = User.objects.get(user_id=updateInvoice.winning_buyer_id)
