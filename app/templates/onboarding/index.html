@@ -71,6 +71,21 @@
                 <label>CAC Registration Number</label>
                 <input type="text" class="form-input" placeholder="Eg. RC1245664" id="s_cac" name="s_cac" oninput="s_checkFormOne()"/>
 
+                <label>How long have you run the Business? </label>
+                <select class="form-input" id="s_year" name="s_year" onselect="s_checkFormOne()">
+                    <option disabled selected>Select Year</option>
+                    <option value="<1>">< 1 year</option>
+                    <option value="2">2 years</option>
+                    <option value="3">3 years</option>
+                    <option value="4">4 years</option>
+                    <option value="5">5 years</option>
+                    <option value="6">6 years</option>
+                    <option value="7">7 years</option>
+                    <option value="8">8 years</option>
+                    <option value="9">9 years</option>
+                    <option value="10+">10 + years</option>
+                </select>
+                <!-- <input type="text" class="form-input" placeholder="" id="s_years" name="s_years" oninput="s_checkFormOne()"/> -->
                 
                 <div class="form-btn-div mt-3">
                     <button class="btn-back" id="s_btn-back-index">Back</button>

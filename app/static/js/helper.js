@@ -2,6 +2,7 @@
 function s_checkFormOne() {
     let company = document.getElementById("s_company");
     let address = document.getElementById("s_address");
+    // let year = document.getElementById("s_year");
     let cac = document.getElementById("s_cac");
     let contBtn = document.getElementById("s_btn-continue");
     if (company.value !== "" && address.value !== "" && cac.value !== ""){

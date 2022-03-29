@@ -11,6 +11,7 @@ class User(models.Model):
     email = models.EmailField(max_length=90, unique=True,verbose_name="Email")
     phone = models.CharField(max_length=15, unique=True, null=True, verbose_name="Telephone number")
     password = models.TextField(max_length=200,verbose_name="Password")
+    year = models.TextField(max_length=200,verbose_name="How many years in Business?", default="2")
     company_name = models.TextField(max_length=200,verbose_name="Company Name", null=True)
     company_address = models.TextField(max_length=200,verbose_name="Company Address", null=True)
     business_type = models.TextField(max_length=200,verbose_name="Business Type", null=True)

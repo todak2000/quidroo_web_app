@@ -31,6 +31,7 @@ sender_email = "donotreply@wastecoin.co"
 
 
 
+
 imagekit = ImageKit(
     private_key='private_l+mgWcvUo1/DpS4yDY9N2o3jugI=',
     public_key='public_krtLN9ylnjoIpxJm2LY0a6jm3xc=',
@@ -531,6 +532,7 @@ def seller_signup(request):
         password = request.data.get('s_password',None)
         company_address = request.data.get('s_address',None)
         cac_no = request.data.get('s_cac',None)
+        year = request.data.get('s_year',None) 
 
         if User.objects.filter(email=email).exists():
             return_data = {
@@ -551,7 +553,7 @@ def seller_signup(request):
             encryped_password = password_functions.generate_password_hash(password)
             #Save user_data
             latestScore = credit_score.creditScoreNew(float(0.01))
-            newUserData = User(user_id=userRandomId,business_type=business_type,company_name=company_name,
+            newUserData = User(user_id=userRandomId,business_type=business_type,company_name=company_name, year=year,
                                 email=email, password=encryped_password,company_address=company_address, role=role, credit_score=latestScore)
             newUserData.save()
             
